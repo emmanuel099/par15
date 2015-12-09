@@ -16,3 +16,4 @@ add_definitions(
 add_subdirectory(stencil)
 
 add_subdirectory(stencil_sequential)
+add_subdirectory(stencil_openmp)
