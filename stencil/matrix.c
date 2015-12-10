@@ -26,7 +26,7 @@ stencil_matrix_t *stencil_matrix_new(int dimensions, ...)
     for (int i = 0; i < dimensions; i++) {
         const int size = va_arg(args, int);
         sizes[i] = size;
-        len += size;
+        len *= size;
     }
 
     double *values = malloc(len * sizeof(double));
