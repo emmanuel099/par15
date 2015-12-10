@@ -16,7 +16,7 @@ stencil_matrix_t *stencil_matrix_new(int dimensions, ...)
 {
     assert(dimensions >= 2);
 
-    int *sizes = malloc(dimensions * sizeof(int));
+    int *sizes = (int *)malloc(dimensions * sizeof(int));
     if (!sizes) {
         goto exit;
     }
@@ -29,13 +29,13 @@ stencil_matrix_t *stencil_matrix_new(int dimensions, ...)
         len *= size;
     }
 
-    double *values = malloc(len * sizeof(double));
+    double *values = (double *)malloc(len * sizeof(double));
     if (!values) {
         goto exit_values;
     }
     memset(values, 0, len * sizeof(double));
 
-    stencil_matrix_t *matrix = malloc(sizeof(stencil_matrix_t));
+    stencil_matrix_t *matrix = (stencil_matrix_t *)malloc(sizeof(stencil_matrix_t));
     if (!matrix) {
         goto exit_matrix;
     }
