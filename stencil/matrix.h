@@ -4,7 +4,7 @@
 struct stencil_matrix;
 typedef struct stencil_matrix stencil_matrix_t;
 
-stencil_matrix_t *stencil_matrix_new(int dimensions, ...);
+stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols);
 void stencil_matrix_free(stencil_matrix_t *matrix);
 
 // TODO provide setter/getter to access and set the values of a matrix

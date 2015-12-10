@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv)
 { 
-    stencil_matrix_t *matrix = stencil_matrix_new(2, 3, 4);
+    stencil_matrix_t *matrix = stencil_matrix_new(3, 4);
     stencil_matrix_free(matrix);
 
     omp_set_num_threads(2);
