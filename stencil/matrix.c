@@ -12,6 +12,11 @@ struct stencil_matrix {
     double *values;
 };
 
+static inline size_t to_index(stencil_matrix_t *matrix, size_t row, size_t col)
+{
+    return row * matrix->cols + col;
+}
+
 stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols)
 {
     const size_t len = rows * cols;
@@ -47,4 +52,22 @@ void stencil_matrix_free(stencil_matrix_t *matrix)
 
     free(matrix->values);
     free(matrix);
+}
+
+double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col)
+{
+    assert(matrix);
+    assert(row <= matrix->rows);
+    assert(col <= matrix->cols);
+
+    return matrix->values[to_index(matrix, row, col)];
+}
+
+void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value)
+{
+    assert(matrix);
+    assert(row <= matrix->rows);
+    assert(col <= matrix->cols);
+
+    matrix->values[to_index(matrix, row, col)] = value;
 }
