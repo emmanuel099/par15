@@ -4,7 +4,11 @@
 #include <stddef.h>
 #include <assert.h>
 
-struct stencil_matrix;
+struct stencil_matrix {
+    ssize_t rows;
+    ssize_t cols;
+    double *values;
+};
 typedef struct stencil_matrix stencil_matrix_t;
 
 struct stencil_matrix_mutable_row_iterator {

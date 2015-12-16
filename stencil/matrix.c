@@ -4,12 +4,6 @@
 
 #include "matrix.h"
 
-struct stencil_matrix {
-    ssize_t rows;
-    ssize_t cols;
-    double *values;
-};
-
 static inline ssize_t to_index(stencil_matrix_t *matrix, ssize_t row, ssize_t col)
 {
     return row * matrix->cols + col;
