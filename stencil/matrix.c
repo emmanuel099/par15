@@ -75,6 +75,34 @@ void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, doub
     matrix->values[to_index(matrix, row, col)] = value;
 }
 
+stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t row, ssize_t col, ssize_t rows, ssize_t cols)
+{
+    assert(matrix);
+    assert(0 <= row && row < matrix->rows);
+    assert(0 <= col && col < matrix->cols);
+    assert(0 <= rows && rows < (matrix->rows - row));
+    assert(0 <= cols && cols < (matrix->cols - col));
+
+    stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols);
+    if (!submatrix) {
+        return NULL;
+    }
+
+    stencil_matrix_mutable_row_iterator_t *src_it = stencil_matrix_mutable_row_iterator_new(matrix);
+    stencil_matrix_row_iterator_skip(src_it, row);
+
+    stencil_matrix_mutable_row_iterator_t *dest_it = stencil_matrix_mutable_row_iterator_new(submatrix);
+
+    while (stencil_matrix_row_iterator_next(src_it) && stencil_matrix_row_iterator_next(dest_it)) {
+        memcpy(stencil_matrix_row_get_ptr(dest_it, 0), stencil_matrix_row_get_ptr(src_it, col), cols);
+    }
+
+    stencil_matrix_row_iterator_free(src_it);
+    stencil_matrix_row_iterator_free(dest_it);
+
+    return submatrix;
+}
+
 stencil_matrix_mutable_row_iterator_t *stencil_matrix_mutable_row_iterator_new(stencil_matrix_t *matrix)
 {
     assert(matrix);

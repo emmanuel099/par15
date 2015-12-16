@@ -72,6 +72,7 @@ double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t co
  */
 void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, double value);
 
+stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t row, ssize_t col, ssize_t rows, ssize_t cols);
 
 #define stencil_matrix_row_iterator_next(it) _Generic((it), \
         stencil_matrix_mutable_row_iterator_t *: stencil_matrix_mutable_row_iterator_next, \
@@ -93,6 +94,11 @@ void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, doub
         stencil_matrix_copy_row_iterator_t *: stencil_matrix_copy_row_iterator_get \
         )(row, col)
 
+#define stencil_matrix_row_get_ptr(row, col) _Generic((row), \
+        stencil_matrix_mutable_row_iterator_t *: stencil_matrix_mutable_row_iterator_get_ptr, \
+        stencil_matrix_copy_row_iterator_t *: stencil_matrix_copy_row_iterator_get_ptr \
+        )(row, col)
+
 #define stencil_matrix_row_set(row, col, value) _Generic((row), \
         stencil_matrix_mutable_row_iterator_t *: stencil_matrix_mutable_row_iterator_set \
         )(row, col, value)
@@ -109,6 +115,14 @@ inline double stencil_matrix_mutable_row_iterator_get(stencil_matrix_mutable_row
     assert(0 <= col && col < it->matrix->cols);
 
     return it->values[col];
+}
+
+inline double *stencil_matrix_mutable_row_iterator_get_ptr(stencil_matrix_mutable_row_iterator_t *it, ssize_t col)
+{
+    assert(it);
+    assert(0 <= col && col < it->matrix->cols);
+
+    return it->values + col;
 }
 
 inline void stencil_matrix_mutable_row_iterator_set(stencil_matrix_mutable_row_iterator_t *it, ssize_t col, double value)
@@ -130,6 +144,14 @@ inline double stencil_matrix_copy_row_iterator_get(stencil_matrix_copy_row_itera
     assert(0 <= col && col < it->matrix->cols);
 
     return it->values[col];
+}
+
+inline double *stencil_matrix_copy_row_iterator_get_ptr(stencil_matrix_copy_row_iterator_t *it, ssize_t col)
+{
+    assert(it);
+    assert(0 <= col && col < it->matrix->cols);
+
+    return it->values + col;
 }
 
 #endif // __STENCIL_MATRIX_H
