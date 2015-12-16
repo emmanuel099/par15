@@ -1,5 +1,4 @@
 #include <stdarg.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,18 +7,6 @@
 struct stencil_matrix {
     ssize_t rows;
     ssize_t cols;
-    double *values;
-};
-
-struct stencil_matrix_mutable_row_iterator {
-    ssize_t row;
-    stencil_matrix_t *matrix;
-    double *values;
-};
-
-struct stencil_matrix_copy_row_iterator {
-    ssize_t row;
-    stencil_matrix_t *matrix;
     double *values;
 };
 
@@ -141,22 +128,6 @@ void stencil_matrix_mutable_row_iterator_free(stencil_matrix_mutable_row_iterato
     free(it);
 }
 
-double stencil_matrix_mutable_row_iterator_get(stencil_matrix_mutable_row_iterator_t *it, ssize_t col)
-{
-    assert(it);
-    assert(0 <= col && col < it->matrix->cols);
-
-    return it->values[col];
-}
-
-void stencil_matrix_mutable_row_iterator_set(stencil_matrix_mutable_row_iterator_t *it, ssize_t col, double value)
-{
-    assert(it);
-    assert(0 <= col && col < it->matrix->cols);
-
-    it->values[col] = value;
-}
-
 stencil_matrix_copy_row_iterator_t *stencil_matrix_copy_row_iterator_new(stencil_matrix_t *matrix)
 {
     assert(matrix);
@@ -213,12 +184,4 @@ void stencil_matrix_copy_row_iterator_free(stencil_matrix_copy_row_iterator_t *i
 
     free(it->values);
     free(it);
-}
-
-double stencil_matrix_copy_row_iterator_get(stencil_matrix_copy_row_iterator_t *it, ssize_t col)
-{
-    assert(it);
-    assert(0 <= col && col < it->matrix->cols);
-
-    return it->values[col];
 }

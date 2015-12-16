@@ -2,14 +2,23 @@
 #define __STENCIL_MATRIX_H
 
 #include <stddef.h>
+#include <assert.h>
 
 struct stencil_matrix;
 typedef struct stencil_matrix stencil_matrix_t;
 
-struct stencil_matrix_mutable_row_iterator;
+struct stencil_matrix_mutable_row_iterator {
+    ssize_t row;
+    stencil_matrix_t *matrix;
+    double *values;
+};
 typedef struct stencil_matrix_mutable_row_iterator stencil_matrix_mutable_row_iterator_t;
 
-struct stencil_matrix_copy_row_iterator;
+struct stencil_matrix_copy_row_iterator {
+    ssize_t row;
+    stencil_matrix_t *matrix;
+    double *values;
+};
 typedef struct stencil_matrix_copy_row_iterator stencil_matrix_copy_row_iterator_t;
 
 /**
@@ -89,13 +98,34 @@ stencil_matrix_mutable_row_iterator_t *stencil_matrix_mutable_row_iterator_new(s
 stencil_matrix_mutable_row_iterator_t *stencil_matrix_mutable_row_iterator_next(stencil_matrix_mutable_row_iterator_t *it);
 void stencil_matrix_mutable_row_iterator_skip(stencil_matrix_mutable_row_iterator_t *it, ssize_t rows);
 void stencil_matrix_mutable_row_iterator_free(stencil_matrix_mutable_row_iterator_t *it);
-double stencil_matrix_mutable_row_iterator_get(stencil_matrix_mutable_row_iterator_t *it, ssize_t col);
-void stencil_matrix_mutable_row_iterator_set(stencil_matrix_mutable_row_iterator_t *it, ssize_t col, double value);
+
+inline double stencil_matrix_mutable_row_iterator_get(stencil_matrix_mutable_row_iterator_t *it, ssize_t col)
+{
+    assert(it);
+    assert(0 <= col && col < it->matrix->cols);
+
+    return it->values[col];
+}
+
+inline void stencil_matrix_mutable_row_iterator_set(stencil_matrix_mutable_row_iterator_t *it, ssize_t col, double value)
+{
+    assert(it);
+    assert(0 <= col && col < it->matrix->cols);
+
+    it->values[col] = value;
+}
 
 stencil_matrix_copy_row_iterator_t *stencil_matrix_copy_row_iterator_new(stencil_matrix_t *matrix);
 stencil_matrix_copy_row_iterator_t *stencil_matrix_copy_row_iterator_next(stencil_matrix_copy_row_iterator_t *it);
 void stencil_matrix_copy_row_iterator_skip(stencil_matrix_copy_row_iterator_t *it, ssize_t rows);
 void stencil_matrix_copy_row_iterator_free(stencil_matrix_copy_row_iterator_t *it);
-double stencil_matrix_copy_row_iterator_get(stencil_matrix_copy_row_iterator_t *it, ssize_t col);
+
+inline double stencil_matrix_copy_row_iterator_get(stencil_matrix_copy_row_iterator_t *it, ssize_t col)
+{
+    assert(it);
+    assert(0 <= col && col < it->matrix->cols);
+
+    return it->values[col];
+}
 
 #endif // __STENCIL_MATRIX_H
