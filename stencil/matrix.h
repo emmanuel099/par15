@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <assert.h>
+#include <stdbool.h>
 
 struct stencil_matrix {
     ssize_t rows;
@@ -73,6 +74,16 @@ double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t co
 void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, double value);
 
 stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t row, ssize_t col, ssize_t rows, ssize_t cols);
+
+/**
+ * Tests the two given matrices \a matrix1 and \a matrix2 for equality.
+ *
+ * @param matrix1 A pointer to the first matrix (must be valid)
+ * @param matrix2 A pointer to the second matrix (must be valid)
+ *
+ * @return True if the matrices are equal, false otherwise.
+ */
+bool stencil_matrix_equals(stencil_matrix_t *matrix1, stencil_matrix_t *matrix2);
 
 #define stencil_matrix_row_iterator_next(it) _Generic((it), \
         stencil_matrix_mutable_row_iterator_t *: stencil_matrix_mutable_row_iterator_next, \

@@ -1,6 +1,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 
 #include "matrix.h"
 
@@ -101,6 +103,28 @@ stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t
     stencil_matrix_row_iterator_free(dest_it);
 
     return submatrix;
+}
+
+bool stencil_matrix_equals(stencil_matrix_t *matrix1, stencil_matrix_t *matrix2)
+{
+    assert(matrix1);
+    assert(matrix2);
+
+    if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
+        return false;
+    }
+
+    double *values1 = matrix1->values;
+    double *values2 = matrix2->values;
+
+    const ssize_t len = matrix1->rows * matrix1->cols;
+    for (int i = 0; i < len; i++) {
+        if (fabs(values1[i] - values2[i]) >= DBL_EPSILON) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 stencil_matrix_mutable_row_iterator_t *stencil_matrix_mutable_row_iterator_new(stencil_matrix_t *matrix)
