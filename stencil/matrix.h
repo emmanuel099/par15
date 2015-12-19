@@ -36,7 +36,14 @@ void stencil_matrix_free(stencil_matrix_t *matrix);
  *
  * @return Value at position [\a row, \a col]
  */
-double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col);
+inline double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col)
+{
+    assert(matrix);
+    assert(0 <= row && row < matrix->rows);
+    assert(0 <= col && col < matrix->cols);
+
+    return matrix->values[row * matrix->cols + col];
+}
 
 /**
  * Returns a pointer to the element at position [\a row, \a col] of matrix \a matrix.
@@ -57,7 +64,14 @@ double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col)
  * @param col Column index (must be in range [0, matrix.cols])
  * @param value Value which should be set
  */
-void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value);
+inline void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value)
+{
+    assert(matrix);
+    assert(0 <= row && row < matrix->rows);
+    assert(0 <= col && col < matrix->cols);
+
+    matrix->values[row * matrix->cols + col] = value;
+}
 
 stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols);
 
