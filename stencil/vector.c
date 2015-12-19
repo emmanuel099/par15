@@ -38,7 +38,7 @@ void stencil_vector_free(stencil_vector_t *vector)
     free(vector);
 }
 
-bool stencil_vector_equals(stencil_vector_t *vector1, stencil_vector_t *vector2)
+bool stencil_vector_equals(const stencil_vector_t *const vector1, const stencil_vector_t *const vector2)
 {
     assert(vector1);
     assert(vector2);

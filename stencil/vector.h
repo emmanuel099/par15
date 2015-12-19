@@ -33,7 +33,7 @@ void stencil_vector_free(stencil_vector_t *vector);
  *
  * @return Value at position \a i
  */
-inline double stencil_vector_get(stencil_vector_t *vector, size_t i)
+inline double stencil_vector_get(const stencil_vector_t *const vector, size_t i)
 {
     assert(vector);
     assert(0 <= i && i < vector->size);
@@ -48,7 +48,7 @@ inline double stencil_vector_get(stencil_vector_t *vector, size_t i)
  * @param i Value index (must be in range [0, vector.size[)
  * @param value Value which should be set
  */
-inline void stencil_vector_set(stencil_vector_t *vector, size_t i, double value)
+inline void stencil_vector_set(const stencil_vector_t *vector, size_t i, double value)
 {
     assert(vector);
     assert(0 <= i && i < vector->size);
@@ -72,6 +72,6 @@ inline double* stencil_vector_get_ptr(const stencil_vector_t *const vector, size
  *
  * @return True if the vectors are equal, false otherwise.
  */
-bool stencil_vector_equals(stencil_vector_t *vector1, stencil_vector_t *vector2);
+bool stencil_vector_equals(const stencil_vector_t *const vector1, const stencil_vector_t *const vector2);
 
 #endif // __STENCIL_MATRIX_H
