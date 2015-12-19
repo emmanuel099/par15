@@ -1,5 +1,5 @@
-#ifndef __STENCIL_MATRIX_H
-#define __STENCIL_MATRIX_H
+#ifndef __STENCIL_VECTOR_H
+#define __STENCIL_VECTOR_H
 
 #include <stddef.h>
 #include <assert.h>
@@ -24,6 +24,13 @@ stencil_vector_t *stencil_vector_new(size_t size);
  * Frees the memory of a vector \a vector.
  */
 void stencil_vector_free(stencil_vector_t *vector);
+
+inline size_t stencil_vector_size(const stencil_vector_t *const vector)
+{
+    assert(vector);
+
+    return vector->size;
+}
 
 /**
  * Returns the value at position \a i from vector \a vector.
@@ -74,4 +81,4 @@ inline double* stencil_vector_get_ptr(const stencil_vector_t *const vector, size
  */
 bool stencil_vector_equals(const stencil_vector_t *const vector1, const stencil_vector_t *const vector2);
 
-#endif // __STENCIL_MATRIX_H
+#endif // __STENCIL_VECTOR_H

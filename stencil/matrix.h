@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "vector.h"
+#include "stencil/vector.h"
 
 struct stencil_matrix {
     size_t rows;
