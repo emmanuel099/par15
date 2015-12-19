@@ -46,17 +46,6 @@ inline double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t co
 }
 
 /**
- * Returns a pointer to the element at position [\a row, \a col] of matrix \a matrix.
- *
- * @param matrix A pointer to the matrix (must be valid)
- * @param row Row index (must be in range [0, matrix.rows])
- * @param col Column index (must be in range [0, matrix.cols])
- *
- * @return Pointer to the element at position [\a row, \a col]
- */
-double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col);
-
-/**
  * Sets the value at position [\a row, \a col] of matrix \a matrix.
  *
  * @param matrix A pointer to the matrix (must be valid)

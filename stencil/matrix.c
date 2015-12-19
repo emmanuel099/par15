@@ -5,6 +5,15 @@
 
 #include "matrix.h"
 
+static double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col)
+{
+    assert(matrix);
+    assert(0 <= row && row < matrix->rows);
+    assert(0 <= col && col < matrix->cols);
+
+    return matrix->values + row * matrix->cols + col;
+}
+
 stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols)
 {
     assert(rows >= 0);
@@ -42,15 +51,6 @@ void stencil_matrix_free(stencil_matrix_t *matrix)
 
     free(matrix->values);
     free(matrix);
-}
-
-double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col)
-{
-    assert(matrix);
-    assert(0 <= row && row < matrix->rows);
-    assert(0 <= col && col < matrix->cols);
-
-    return matrix->values + row * matrix->cols + col;
 }
 
 stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols)
