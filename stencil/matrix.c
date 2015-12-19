@@ -5,7 +5,7 @@
 
 #include "matrix.h"
 
-static double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col)
+static double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -53,7 +53,7 @@ void stencil_matrix_free(stencil_matrix_t *matrix)
     free(matrix);
 }
 
-stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols)
+stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -75,7 +75,7 @@ stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t 
     return submatrix;
 }
 
-bool stencil_matrix_equals(stencil_matrix_t *matrix1, stencil_matrix_t *matrix2)
+bool stencil_matrix_equals(const stencil_matrix_t *const matrix1, const stencil_matrix_t *const matrix2)
 {
     assert(matrix1);
     assert(matrix2);

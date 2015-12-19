@@ -36,7 +36,7 @@ void stencil_matrix_free(stencil_matrix_t *matrix);
  *
  * @return Value at position [\a row, \a col]
  */
-inline double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col)
+inline double stencil_matrix_get(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -53,7 +53,7 @@ inline double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t co
  * @param col Column index (must be in range [0, matrix.cols])
  * @param value Value which should be set
  */
-inline void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value)
+inline void stencil_matrix_set(const stencil_matrix_t *matrix, size_t row, size_t col, double value)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -62,7 +62,7 @@ inline void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col,
     matrix->values[row * matrix->cols + col] = value;
 }
 
-stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols);
+stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols);
 
 /**
  * Tests the two given matrices \a matrix1 and \a matrix2 for equality.
@@ -72,6 +72,6 @@ stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t 
  *
  * @return True if the matrices are equal, false otherwise.
  */
-bool stencil_matrix_equals(stencil_matrix_t *matrix1, stencil_matrix_t *matrix2);
+bool stencil_matrix_equals(const stencil_matrix_t *const matrix1, const stencil_matrix_t *const matrix2);
 
 #endif // __STENCIL_MATRIX_H
