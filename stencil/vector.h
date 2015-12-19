@@ -56,6 +56,14 @@ inline void stencil_vector_set(stencil_vector_t *vector, size_t i, double value)
     vector->values[i] = value;
 }
 
+inline double* stencil_vector_get_ptr(const stencil_vector_t *const vector, size_t i)
+{
+    assert(vector);
+    assert(0 <= i && i < vector->size);
+
+    return vector->values + i;
+}
+
 /**
  * Tests the two given vectors \a vector1 and \a vector2 for equality.
  *
