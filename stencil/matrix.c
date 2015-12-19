@@ -5,17 +5,17 @@
 
 #include "matrix.h"
 
-static inline ssize_t to_index(stencil_matrix_t *matrix, ssize_t row, ssize_t col)
+static inline size_t to_index(stencil_matrix_t *matrix, size_t row, size_t col)
 {
     return row * matrix->cols + col;
 }
 
-stencil_matrix_t *stencil_matrix_new(ssize_t rows, ssize_t cols)
+stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols)
 {
     assert(rows >= 0);
     assert(cols >= 0);
 
-    const ssize_t len = rows * cols;
+    const size_t len = rows * cols;
 
     double *values = (double *)malloc(len * sizeof(double));
     if (!values) {
@@ -49,7 +49,7 @@ void stencil_matrix_free(stencil_matrix_t *matrix)
     free(matrix);
 }
 
-double stencil_matrix_get(stencil_matrix_t *matrix, ssize_t row, ssize_t col)
+double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -58,7 +58,7 @@ double stencil_matrix_get(stencil_matrix_t *matrix, ssize_t row, ssize_t col)
     return matrix->values[to_index(matrix, row, col)];
 }
 
-double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t col)
+double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -67,7 +67,7 @@ double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t co
     return matrix->values + to_index(matrix, row, col);
 }
 
-void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, double value)
+void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -76,7 +76,7 @@ void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, doub
     matrix->values[to_index(matrix, row, col)] = value;
 }
 
-stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t row, ssize_t col, ssize_t rows, ssize_t cols)
+stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -89,7 +89,7 @@ stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t
         return NULL;
     }
 
-    for (ssize_t i = row, j = 0; j < rows; i++, j++) {
+    for (size_t i = row, j = 0; j < rows; i++, j++) {
         double *src = stencil_matrix_get_ptr(matrix, i, col);
         double *dest = stencil_matrix_get_ptr(submatrix, j, 0);
         memcpy(dest, src, cols * sizeof(double));
@@ -110,8 +110,8 @@ bool stencil_matrix_equals(stencil_matrix_t *matrix1, stencil_matrix_t *matrix2)
     double *values1 = matrix1->values;
     double *values2 = matrix2->values;
 
-    const ssize_t len = matrix1->rows * matrix1->cols;
-    for (int i = 0; i < len; i++) {
+    const size_t len = matrix1->rows * matrix1->cols;
+    for (size_t i = 0; i < len; i++) {
         if (fabs(values1[i] - values2[i]) >= DBL_EPSILON) {
             return false;
         }

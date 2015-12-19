@@ -6,8 +6,8 @@
 #include <stdbool.h>
 
 struct stencil_matrix {
-    ssize_t rows;
-    ssize_t cols;
+    size_t rows;
+    size_t cols;
     double *values;
 };
 typedef struct stencil_matrix stencil_matrix_t;
@@ -20,7 +20,7 @@ typedef struct stencil_matrix stencil_matrix_t;
  *
  * @return A pointer to a matrix initialized with 0 values, NULL on failure.
  */
-stencil_matrix_t *stencil_matrix_new(ssize_t rows, ssize_t cols);
+stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols);
 
 /**
  * Frees the memory of a matrix \a matrix.
@@ -36,7 +36,7 @@ void stencil_matrix_free(stencil_matrix_t *matrix);
  *
  * @return Value at position [\a row, \a col]
  */
-double stencil_matrix_get(stencil_matrix_t *matrix, ssize_t row, ssize_t col);
+double stencil_matrix_get(stencil_matrix_t *matrix, size_t row, size_t col);
 
 /**
  * Returns a pointer to the element at position [\a row, \a col] of matrix \a matrix.
@@ -47,7 +47,7 @@ double stencil_matrix_get(stencil_matrix_t *matrix, ssize_t row, ssize_t col);
  *
  * @return Pointer to the element at position [\a row, \a col]
  */
-double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t col);
+double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, size_t row, size_t col);
 
 /**
  * Sets the value at position [\a row, \a col] of matrix \a matrix.
@@ -57,9 +57,9 @@ double *stencil_matrix_get_ptr(stencil_matrix_t *matrix, ssize_t row, ssize_t co
  * @param col Column index (must be in range [0, matrix.cols])
  * @param value Value which should be set
  */
-void stencil_matrix_set(stencil_matrix_t *matrix, ssize_t row, ssize_t col, double value);
+void stencil_matrix_set(stencil_matrix_t *matrix, size_t row, size_t col, double value);
 
-stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, ssize_t row, ssize_t col, ssize_t rows, ssize_t cols);
+stencil_matrix_t *stencil_matrix_get_submatrix(stencil_matrix_t *matrix, size_t row, size_t col, size_t rows, size_t cols);
 
 /**
  * Tests the two given matrices \a matrix1 and \a matrix2 for equality.
