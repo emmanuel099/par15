@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#include "vector.h"
+
 struct stencil_matrix {
     size_t rows;
     size_t cols;
@@ -61,6 +63,8 @@ inline void stencil_matrix_set(const stencil_matrix_t *matrix, size_t row, size_
 
     matrix->values[row * matrix->cols + col] = value;
 }
+
+void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const stencil_vector_t *const vector);
 
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols);
 
