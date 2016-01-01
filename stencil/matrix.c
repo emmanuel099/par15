@@ -183,7 +183,7 @@ stencil_matrix_copy_row_iterator_t *stencil_matrix_copy_row_iterator_next(stenci
 
     it->row++;
     if (it->row < matrix->rows) {
-        memcpy(it->values, stencil_matrix_get_ptr(matrix, it->row, 0), matrix->cols);
+        memcpy(it->values, stencil_matrix_get_ptr(matrix, it->row, 0), matrix->cols * sizeof(double));
         return it;
     } else {
         return NULL;
