@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include <stencil/matrix.h>
 
@@ -28,7 +29,6 @@ typedef struct args args_t;
  */
 int process_arguments(int argc, char**argv, args_t *args);
 
-
 /**
  * initializes the matrix values from a provided csv file
  *
@@ -39,6 +39,14 @@ int process_arguments(int argc, char**argv, args_t *args);
  */
 int init_matrix_from_file(stencil_matrix_t *matrix, char* input);
 
+/**
+ * initializes the matrix \a matrix with random values in the range from \a min to \a max
+ *
+ * @param min minimum number
+ * @param max maximum number
+ *
+ */
+void init_matrix_random(stencil_matrix_t *matrix, int min, int max);
 
 /**
  * writes the matrix to a csv file
@@ -67,7 +75,9 @@ int main(int argc, char **argv)
     // create matrix
     stencil_matrix_t *matrix = stencil_matrix_new(args.rows, args.cols);
 
-    if (init_matrix_from_file(matrix, args.input_file) != 0) {
+    if (args.input_file == NULL) {
+        init_matrix_random(matrix, 0, 100000);
+    } else if (init_matrix_from_file(matrix, args.input_file) != 0) {
         stencil_matrix_free(matrix);
         return EXIT_FAILURE;
     }
@@ -128,12 +138,10 @@ int process_arguments(int argc, char**argv, args_t *args)
     char getopt_res;
     int flag_r = 0;
     int flag_c = 0;
-    int flag_i = 0;
 
     while ((getopt_res = getopt(argc, argv, "i:o:r:c:")) != -1) {
         switch (getopt_res) {
             case 'i': // input file
-                flag_i = 1;
                 args->input_file = optarg;
                 break;
             case 'o': // output file
@@ -152,7 +160,7 @@ int process_arguments(int argc, char**argv, args_t *args)
         }
     }
 
-    if (flag_c == 0 || flag_r == 0 || flag_i == 0) {
+    if (flag_c == 0 || flag_r == 0) {
         return -1;
     }
 
@@ -185,6 +193,17 @@ int init_matrix_from_file(stencil_matrix_t *matrix, char* in)
 
     fclose(stream);
     return 0;
+}
+
+void init_matrix_random(stencil_matrix_t *matrix, int min, int max)
+{
+    srand((unsigned int)time(NULL));
+
+    for (int row = 0; row < matrix->rows; ++row) {
+        for (int col = 0; col < matrix->cols; ++col) {
+            stencil_matrix_set(matrix, row, col, min + rand() % max);
+        }
+    }
 }
 
 int matrix_to_file(stencil_matrix_t *matrix, char* out)
