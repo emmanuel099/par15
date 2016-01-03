@@ -94,6 +94,11 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
         }
     }
 
+    /* copy back calculated values of the last non-boundary row*/
+    for (size_t col = 1; col < cols; col++) {
+        stencil_matrix_set(matrix, rows - 1, col, stencil_vector_get(tmp, col));
+    }
+
     struct timeval t2;
     gettimeofday(&t2, NULL);
 
