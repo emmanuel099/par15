@@ -19,3 +19,4 @@ add_subdirectory(stencil)
 
 add_subdirectory(stencil_sequential)
 add_subdirectory(stencil_openmp)
+add_subdirectory(stencil_cilk)
