@@ -4,6 +4,7 @@
 
 #include <stencil/matrix.h>
 #include <stencil/vector.h>
+#include <stencil/util.h>
 
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
@@ -61,6 +62,9 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
         current = tmp;
     }
 
+    // copy back calculated values of the last non-boundary row
+    stencil_matrix_set_row(matrix, rows - 1, above);
+
     struct timeval t2;
     gettimeofday(&t2, NULL);
 
@@ -89,10 +93,8 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
         }
     }
 
-    /* copy back calculated values of the last non-boundary row*/
-    for (size_t col = 1; col < cols; col++) {
-        stencil_matrix_set(matrix, rows - 1, col, stencil_vector_get(tmp, col));
-    }
+    // copy back calculated values of the last non-boundary row
+    stencil_matrix_set_row(matrix, rows - 1, tmp);
 
     struct timeval t2;
     gettimeofday(&t2, NULL);
