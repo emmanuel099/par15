@@ -20,8 +20,7 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
 
 static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 {
-    stencil_matrix_t *mut_tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols);
-    const stencil_matrix_t *const tmp_matrix = mut_tmp_matrix;
+    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols);
 
     const size_t rows = matrix->rows - 1;
     const size_t cols = matrix->cols - 1;
@@ -41,7 +40,7 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 
     printf("five_point_stencil_with_tmp_matrix - elapsed time %fms\n", time_difference_ms(t1, t2));
 
-    stencil_matrix_free(mut_tmp_matrix);
+    stencil_matrix_free(tmp_matrix);
 }
 
 static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
