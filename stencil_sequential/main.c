@@ -5,11 +5,6 @@
 #include <stencil/matrix.h>
 #include <stencil/vector.h>
 
-static double time_difference_ms(struct timeval t1, struct timeval t2)
-{
-    return (t2.tv_sec * 1000.0 + t2.tv_usec / 1000.0) - (t1.tv_sec * 1000.0 + t1.tv_usec / 1000.0);
-}
-
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
     return (stencil_matrix_get(matrix, row - 1, col) +
