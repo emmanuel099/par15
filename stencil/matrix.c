@@ -65,13 +65,30 @@ void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const st
     memcpy(dest, src, stencil_vector_size(vector) * sizeof(double));
 }
 
+stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t row)
+{
+    assert(matrix);
+    assert(0 <= row && row < matrix->rows);
+
+    stencil_vector_t *vector = stencil_vector_new(matrix->cols);
+    if (!vector) {
+        return NULL;
+    }
+
+    double *src = stencil_matrix_get_ptr(matrix, row, 0);
+    double *dest = stencil_vector_get_ptr(vector, 0);
+    memcpy(dest, src, matrix->cols * sizeof(double));
+
+    return vector;
+}
+
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
     assert(0 <= col && col < matrix->cols);
-    assert(0 <= rows && rows < (matrix->rows - row));
-    assert(0 <= cols && cols < (matrix->cols - col));
+    assert(0 < rows && rows <= (matrix->rows - row));
+    assert(0 < cols && cols <= (matrix->cols - col));
 
     stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols);
     if (!submatrix) {

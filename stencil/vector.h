@@ -1,7 +1,6 @@
 #ifndef __STENCIL_VECTOR_H
 #define __STENCIL_VECTOR_H
 
-#include <stddef.h>
 #include <assert.h>
 #include <stdbool.h>
 
