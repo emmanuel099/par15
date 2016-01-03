@@ -45,7 +45,7 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 
 static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
 {
-    stencil_vector_t *above = stencil_vector_new(matrix->cols);
+    stencil_vector_t *above = stencil_matrix_get_row(matrix, 0);
     stencil_vector_t *current = stencil_vector_new(matrix->cols);
 
     const size_t rows = matrix->rows - 1;
@@ -60,10 +60,7 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
             stencil_vector_set(current, col, value);
         }
 
-        if (row > 1) { // don't copy on the first iteration
-            stencil_matrix_set_row(matrix, row - 1, above);
-        }
-
+        stencil_matrix_set_row(matrix, row - 1, above);
         stencil_vector_t *tmp = above;
         above = current;
         current = tmp;
