@@ -10,7 +10,9 @@ add_definitions(
     -pedantic
     -Wextra
     -O3
-    #-DNDEBUG
+    -ffast-math
+    -msse2
+    -DNDEBUG
 )
 
 add_subdirectory(stencil)
