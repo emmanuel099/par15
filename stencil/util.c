@@ -106,3 +106,8 @@ stencil_matrix_t* new_randomized_matrix(int rows, int cols, int min_value, int m
 
     return matrix;
 }
+
+double time_difference_ms(struct timeval t1, struct timeval t2)
+{
+    return (t2.tv_sec * 1000.0 + t2.tv_usec / 1000.0) - (t1.tv_sec * 1000.0 + t1.tv_usec / 1000.0);
+}
