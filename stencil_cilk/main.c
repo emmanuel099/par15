@@ -77,6 +77,9 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
         current = tmp;
     }
 
+    // copy back calculated values of the last non-boundary row
+    stencil_matrix_set_row(matrix, rows - 1, above);
+
     stencil_vector_free(above);
     stencil_vector_free(current);
 }
