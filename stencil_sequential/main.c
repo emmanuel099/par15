@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+#include <stencil/util.h>
 #include <stencil/matrix.h>
 #include <stencil/vector.h>
 

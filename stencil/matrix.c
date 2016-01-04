@@ -5,7 +5,7 @@
 
 #include "matrix.h"
 
-static double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row, size_t col)
+double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);

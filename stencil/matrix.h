@@ -63,6 +63,15 @@ inline void stencil_matrix_set(const stencil_matrix_t *matrix, size_t row, size_
     matrix->values[row * matrix->cols + col] = value;
 }
 
+/**
+ * @param matrix matrix
+ * @param row row of the field
+ * @param col column of the filed
+ *
+ * @return returns a pointer to the matrix field specified with \a row and \a col
+ */
+double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row, size_t col);
+
 void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const stencil_vector_t *const vector);
 
 stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t row);
