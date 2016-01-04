@@ -108,17 +108,18 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
         const size_t rows_per_thread = (matrix->rows - 2) / omp_get_num_threads();
 
         const size_t start_row = thread * rows_per_thread + 1;
-        const size_t end_row = start_row + rows_per_thread;
+        const size_t end_row = start_row + rows_per_thread - 1;
 
         stencil_vector_t *vec = stencil_vector_new(matrix->cols);
+        stencil_vector_t *last_vec = stencil_vector_new(matrix->cols);
 
-        // calculate the first row (vec doesn't contain any useful data yet)
+        // calculate the first and last row
         for (size_t col = 1; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, start_row, col);
-            stencil_vector_set(vec, col, value);
+            stencil_vector_set(vec, col, stencil_five_point_kernel(matrix, start_row, col));
+            stencil_vector_set(last_vec, col, stencil_five_point_kernel(matrix, end_row, col));
         }
 
-        // wait until all threads have filled the first row
+        // wait until all threads have filled the first and last row
         #pragma omp barrier
 
         // calculate the remaining rows
@@ -130,11 +131,13 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
                 stencil_vector_set(vec, col, value);
             }
         }
-
-        // copy back the last row
         stencil_matrix_set_row(matrix, end_row - 1, vec);
 
+        // copy back the last row
+        stencil_matrix_set_row(matrix, end_row, last_vec);
+
         stencil_vector_free(vec);
+        stencil_vector_free(last_vec);
     }
 
     struct timeval t2;
