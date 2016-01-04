@@ -110,6 +110,71 @@ void stencil_parallel(stencil_matrix_t *matrix, stencil_matrix_t **submatrices, 
     printf("elapsed time %fms\n", time_difference_ms(t1, t2));
 }
 
+stencil_vector_t* calc_first_row(stencil_matrix_t *matrix, size_t row)
+{
+    stencil_vector_t *vector = stencil_matrix_get_row(matrix, 0);
+
+    for (size_t col = 1; col < matrix->cols; col++) {
+        const double value = stencil_five_point_kernel(matrix, row, col);
+        stencil_vector_set(vector, col, value);
+    }
+
+    return vector;
+}
+
+void update_values(stencil_matrix_t *matrix, size_t start_row, size_t end_row)
+{
+    stencil_vector_t *tmp = stencil_matrix_get_row(matrix, start_row - 1);
+
+    const size_t rows = end_row - 1;
+    const size_t cols = matrix->cols - 1;
+
+    for (size_t row = start_row; row < rows; row++) {
+        for (size_t col = 1; col < cols; col++) {
+            const double value = stencil_five_point_kernel(matrix, row, col);
+            // copy back the previosly calculated value before we overwrite it
+            stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
+            stencil_vector_set(tmp, col, value);
+        }
+    }
+
+    // copy back the last row
+    stencil_matrix_set_row(matrix, rows - 1, tmp);
+
+    stencil_vector_free(tmp);
+}
+
+void five_point_stencil_with_one_vector_buffer_first_row(stencil_matrix_t *matrix, size_t workers, size_t rows_per_worker)
+{
+    stencil_vector_t **first_row_vectors = malloc(workers * sizeof(stencil_vector_t*));
+
+    struct timeval t1;
+    gettimeofday(&t1, NULL);
+
+    for (size_t i = 0; i < workers; i++) {
+        first_row_vectors[i] = cilk_spawn calc_first_row(matrix, i * rows_per_worker + 1);
+    }
+    cilk_sync;
+
+    /* calculate other values */
+    for (size_t i = 0; i < workers; i++) {
+        size_t start_row = i * rows_per_worker;
+        size_t end_row = start_row + rows_per_worker;
+        cilk_spawn update_values(matrix, start_row + 2, end_row);
+    }
+    cilk_sync;
+
+    /* copy first row vectors values back to matrix*/
+    for (size_t i = 0; i < workers; i++) {
+        stencil_matrix_set_row(matrix, i * rows_per_worker + 1, first_row_vectors[i]);
+    }
+
+    struct timeval t2;
+    gettimeofday(&t2, NULL);
+
+    printf("elapsed time %fms\n", time_difference_ms(t1, t2));
+}
+
 int main(int argc, char **argv)
 {
     const size_t rows = 10000 + 2;   // n + 2 boundary vectors
@@ -129,7 +194,13 @@ int main(int argc, char **argv)
     }
 
     /* start computations */
-    printf("five_point_stencil_with_one_vector: \n");
+    printf("five_point_stencil_with_one_vector_buffer_first_row: \n");
+    for (int i = 0; i < 6; i++) {
+        five_point_stencil_with_one_vector_buffer_first_row(matrix, workers, rows_per_worker);
+    }
+
+    /* start computations */
+    printf("\nfive_point_stencil_with_one_vector: \n");
     for (int i = 0; i < 6; i++) {
         stencil_parallel(matrix, submatrices, five_point_stencil_with_one_vector, workers);
     }
