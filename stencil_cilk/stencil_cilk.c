@@ -70,7 +70,9 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
             stencil_vector_set(current, col, value);
         }
 
-        stencil_matrix_set_row(matrix, row - 1, above);
+
+        // copy back row values (without boundary! therefore do not use stencil_matrix_set_row)
+        memcpy(stencil_matrix_get_ptr(matrix, row - 1, 1), above->values + 1, (matrix->cols - 2) * sizeof(double));
         stencil_vector_t *tmp = above;
         above = current;
         current = tmp;

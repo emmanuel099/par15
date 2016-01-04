@@ -63,8 +63,8 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
         current = tmp;
     }
 
-    // copy back calculated values of the last non-boundary row
-    stencil_matrix_set_row(matrix, rows - 1, above);
+    // copy back the last row (without boundary! therefore do not use stencil_matrix_set_row)
+    memcpy(stencil_matrix_get_ptr(matrix, rows - 1, 1), above->values + 1, (matrix->cols - 2) * sizeof(double));
 
     struct timeval t2;
     gettimeofday(&t2, NULL);
@@ -94,8 +94,8 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
         }
     }
 
-    // copy back calculated values of the last non-boundary row
-    stencil_matrix_set_row(matrix, rows - 1, tmp);
+    // copy back the last row (without boundary! therefore do not use stencil_matrix_set_row)
+    memcpy(stencil_matrix_get_ptr(matrix, rows - 1, 1), tmp->values + 1, (matrix->cols - 2) * sizeof(double));
 
     struct timeval t2;
     gettimeofday(&t2, NULL);
