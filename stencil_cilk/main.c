@@ -90,14 +90,14 @@ void stencil_parallel(stencil_matrix_t *matrix, stencil_matrix_t **submatrices, 
     gettimeofday(&t1, NULL);
 
     /* calculate submatrices */
-    for (size_t i = 0; i < workers; ++i) {
+    for (size_t i = 0; i < workers; i++) {
         cilk_spawn stencil_sequential(submatrices[i]);
     }
     cilk_sync;
 
     /* copy values from submatrices back to main matrix */
     int matrix_row = 1;
-    for (size_t i = 0; i < workers; ++i) {
+    for (size_t i = 0; i < workers; i++) {
         for (size_t row = 1; row <= (submatrices[i]->rows - 2); ++row) {
             memcpy(stencil_matrix_get_ptr(matrix, matrix_row, 0), stencil_matrix_get_ptr(submatrices[i], row, 0), submatrices[i]->cols * sizeof(double));
         }
@@ -112,10 +112,10 @@ void stencil_parallel(stencil_matrix_t *matrix, stencil_matrix_t **submatrices, 
 
 int main(int argc, char **argv)
 {
-    int rows = 10000 + 2;   // n + 2 boundary vectors
-    int cols = 20000 + 2;   // m + 2 boundary vectors
-    int workers = __cilkrts_get_nworkers();
-    int rows_per_worker = (rows - 2) / workers; // rows per worker without 2 overlapping rows
+    const size_t rows = 10000 + 2;   // n + 2 boundary vectors
+    const size_t cols = 20000 + 2;   // m + 2 boundary vectors
+    const size_t workers = __cilkrts_get_nworkers();
+    const size_t rows_per_worker = (rows - 2) / workers; // rows per worker without 2 overlapping rows
 
     // number of threads divides number of rows (without boundary)
     assert ((rows - 2) % workers == 0);
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 
     /* create submatrices */
     stencil_matrix_t **submatrices = malloc(workers * sizeof(stencil_matrix_t*));
-    for (int i = 0; i < workers; ++i) {
+    for (size_t i = 0; i < workers; i++) {
         submatrices[i] = stencil_matrix_get_submatrix(matrix, i * rows_per_worker, 0, rows_per_worker + 2, cols);
     }
 
@@ -139,16 +139,15 @@ int main(int argc, char **argv)
         stencil_parallel(matrix, submatrices, five_point_stencil_with_two_vectors, workers);
     }
 
-    printf("\n five_point_stencil_with_tmp_matrix: \n");
-    for (int i = 0; i < 6; i++) {
+    printf("\nfive_point_stencil_with_tmp_matrix: \n");
+    for (size_t i = 0; i < 6; i++) {
         stencil_parallel(matrix, submatrices, five_point_stencil_with_tmp_matrix, workers);
     }
 
     /* free memory */
-    for (int i = 0; i < workers; ++i) {
+    for (size_t i = 0; i < workers; i++) {
         stencil_matrix_free(submatrices[i]);
     }
-
     free(submatrices);
     stencil_matrix_free(matrix);
 
