@@ -183,8 +183,8 @@ static double run_parallel(stencil_matrix_t *matrix, void (*stencil_sequential)(
     for (size_t i = 0; i < workers; i++) {
         for (size_t row = 1; row <= (submatrices[i]->rows - 2); ++row) {
             memcpy(stencil_matrix_get_ptr(matrix, matrix_row, 0), stencil_matrix_get_ptr(submatrices[i], row, 0), submatrices[i]->cols * sizeof(double));
+            ++matrix_row;
         }
-        ++matrix_row;
     }
 
     struct timeval t2;
