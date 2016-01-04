@@ -26,7 +26,7 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    #pragma omp parallel for schedule(static) firstprivate(rows, cols) shared(matrix, tmp_matrix)
+    #pragma omp parallel for schedule(static) shared(matrix, tmp_matrix)
     for (size_t row = 1; row < rows; row++) {
         for (size_t col = 1; col < cols; col++) {
             const double value = stencil_five_point_kernel(tmp_matrix, row, col);
@@ -49,7 +49,7 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    #pragma omp parallel firstprivate(cols) shared(matrix)
+    #pragma omp parallel shared(matrix)
     {
         const int thread = omp_get_thread_num();
         const size_t rows_per_thread = (matrix->rows - 2) / omp_get_num_threads();
@@ -102,7 +102,7 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    #pragma omp parallel firstprivate(cols) shared(matrix)
+    #pragma omp parallel shared(matrix)
     {
         const int thread = omp_get_thread_num();
         const size_t rows_per_thread = (matrix->rows - 2) / omp_get_num_threads();
