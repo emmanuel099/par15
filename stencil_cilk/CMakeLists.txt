@@ -4,6 +4,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcilkplus")
 
 set(STENCIL_CILK_SRCS
     main.c
+    stencil_cilk.c
 )
 
 add_executable(stencil_cilk
