@@ -9,8 +9,7 @@ add_definitions(
     -Wall
     -pedantic
     -Wextra
-    -O3
-    -ffast-math
+    -Ofast
     -msse2
     -DNDEBUG
 )
