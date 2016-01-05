@@ -85,7 +85,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
 {
     assert(matrix->boundary >= 1);
 
-    stencil_vector_t *tmp = stencil_matrix_get_row(matrix, 0);
+    stencil_vector_t *tmp = stencil_matrix_get_row(matrix, matrix->boundary - 1);
 
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
