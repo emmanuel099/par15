@@ -10,30 +10,30 @@ target_link_libraries(stencil_cilk
     stencil
 )
 
-add_executable(unit_test_one_vec
+add_executable(unit_test_cilk_one_vec
     unit_test_one_vec.c
     stencil_cilk.c
 )
-target_link_libraries(unit_test_one_vec
+target_link_libraries(unit_test_cilk_one_vec
     stencil
 )
 
-add_executable(unit_test_two_vec
+add_executable(unit_test_cilk_two_vec
     unit_test_two_vec.c
     stencil_cilk.c
 )
-target_link_libraries(unit_test_two_vec
+target_link_libraries(unit_test_cilk_two_vec
     stencil
 )
 
-add_executable(unit_test_tmp_matrix
+add_executable(unit_test_cilk_tmp_matrix
     unit_test_tmp_matrix.c
     stencil_cilk.c
 )
-target_link_libraries(unit_test_tmp_matrix
+target_link_libraries(unit_test_cilk_tmp_matrix
     stencil
 )
 
-test("cilk_one_vec" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_one_vec)
-test("cilk_two_vec" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_two_vec)
-test("cilk_tmp_matrix" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_tmp_matrix)
+test("cilk_one_vec" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_cilk_one_vec)
+test("cilk_two_vec" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_cilk_two_vec)
+test("cilk_tmp_matrix" ${CMAKE_BINARY_DIR}/stencil_cilk/unit_test_cilk_tmp_matrix)
