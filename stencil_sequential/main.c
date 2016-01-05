@@ -46,7 +46,7 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
 {
     assert(matrix->boundary >= 1);
 
-    stencil_vector_t *above = stencil_matrix_get_row(matrix, matrix->boundary - 1);
+    stencil_vector_t *above = stencil_vector_new(matrix->cols);
     stencil_vector_t *current = stencil_vector_new(matrix->cols);
 
     const size_t rows = matrix->rows - matrix->boundary;
@@ -55,7 +55,14 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = matrix->boundary; row < rows; row++) {
+    // calculate the first row
+    const size_t first_row = matrix->boundary;
+    for (size_t col = matrix->boundary; col < cols; col++) {
+        stencil_vector_set(above, col, stencil_five_point_kernel(matrix, first_row, col));
+    }
+
+    // calculate the remaining rows
+    for (size_t row = matrix->boundary + 1; row < rows; row++) {
         for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(matrix, row, col);
             stencil_vector_set(current, col, value);
@@ -83,7 +90,7 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
 {
     assert(matrix->boundary >= 1);
 
-    stencil_vector_t *tmp = stencil_matrix_get_row(matrix, 0);
+    stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
 
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
@@ -91,7 +98,14 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = matrix->boundary; row < rows; row++) {
+    // calculate the first row
+    const size_t first_row = matrix->boundary;
+    for (size_t col = matrix->boundary; col < cols; col++) {
+        stencil_vector_set(tmp, col, stencil_five_point_kernel(matrix, first_row, col));
+    }
+
+    // calculate the remaining rows
+    for (size_t row = matrix->boundary + 1; row < rows; row++) {
         for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(matrix, row, col);
             // copy back the previosly calculated value before we overwrite it
