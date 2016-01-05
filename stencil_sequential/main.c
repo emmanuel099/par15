@@ -17,16 +17,18 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
 
 static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 {
+    assert(matrix->boundary >= 1);
+
     stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols);
 
-    const size_t rows = matrix->rows - 1;
-    const size_t cols = matrix->cols - 1;
+    const size_t rows = matrix->rows - matrix->boundary;
+    const size_t cols = matrix->cols - matrix->boundary;
 
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = 1; row < rows; row++) {
-        for (size_t col = 1; col < cols; col++) {
+    for (size_t row = matrix->boundary; row < rows; row++) {
+        for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(tmp_matrix, row, col);
             stencil_matrix_set(matrix, row, col, value);
         }
@@ -42,17 +44,19 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 
 static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
 {
-    stencil_vector_t *above = stencil_matrix_get_row(matrix, 0);
+    assert(matrix->boundary >= 1);
+
+    stencil_vector_t *above = stencil_matrix_get_row(matrix, matrix->boundary - 1);
     stencil_vector_t *current = stencil_vector_new(matrix->cols);
 
-    const size_t rows = matrix->rows - 1;
-    const size_t cols = matrix->cols - 1;
+    const size_t rows = matrix->rows - matrix->boundary;
+    const size_t cols = matrix->cols - matrix->boundary;
 
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = 1; row < rows; row++) {
-        for (size_t col = 1; col < cols; col++) {
+    for (size_t row = matrix->boundary; row < rows; row++) {
+        for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(matrix, row, col);
             stencil_vector_set(current, col, value);
         }
@@ -77,16 +81,18 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
 
 static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
 {
+    assert(matrix->boundary >= 1);
+
     stencil_vector_t *tmp = stencil_matrix_get_row(matrix, 0);
 
-    const size_t rows = matrix->rows - 1;
-    const size_t cols = matrix->cols - 1;
+    const size_t rows = matrix->rows - matrix->boundary;
+    const size_t cols = matrix->cols - matrix->boundary;
 
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = 1; row < rows; row++) {
-        for (size_t col = 1; col < cols; col++) {
+    for (size_t row = matrix->boundary; row < rows; row++) {
+        for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(matrix, row, col);
             // copy back the previosly calculated value before we overwrite it
             stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
