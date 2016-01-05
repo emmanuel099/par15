@@ -39,7 +39,7 @@ stencil_matrix_t* new_randomized_matrix(size_t rows, size_t cols, size_t boundar
  *
  * @return returns true if the matrix was written successfully
  */
-bool matrix_to_file(const stencil_matrix_t* matrix, const char* filepath);
+bool matrix_to_file(const stencil_matrix_t* matrix, FILE *stream);
 
 /**
  * @param t1 first time value

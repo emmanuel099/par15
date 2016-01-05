@@ -69,9 +69,8 @@ exit:
     return NULL;
 }
 
-bool matrix_to_file(const stencil_matrix_t* matrix, const char* filepath)
+bool matrix_to_file(const stencil_matrix_t* matrix, FILE *stream)
 {
-    FILE *stream = fopen(filepath, "w");
     if (stream == NULL) {
         return false;
     }
@@ -79,17 +78,13 @@ bool matrix_to_file(const stencil_matrix_t* matrix, const char* filepath)
     for(size_t row = 0; row < matrix->rows; ++row) {
         for(size_t col = 0; col < matrix->cols; ++col) {
            if (fprintf(stream, "%.3f;", stencil_matrix_get(matrix, row, col)) < 0) {
-               fclose(stream);
                return false;
            }
         }
         if (fprintf(stream, "\n") < 0) {
-            fclose(stream);
             return false;
         }
     }
-
-    fclose(stream);
     return true;
 }
 
