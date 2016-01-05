@@ -91,7 +91,7 @@ void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const st
 
 stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t row);
 
-stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols);
+stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary);
 
 /**
  * Tests the two given matrices \a matrix1 and \a matrix2 for equality.

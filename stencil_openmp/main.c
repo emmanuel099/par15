@@ -20,7 +20,7 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
 {
     assert(matrix->boundary >= 1);
 
-    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols);
+    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols, 0);
 
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;

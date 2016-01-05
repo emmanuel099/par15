@@ -20,7 +20,7 @@ stencil_matrix_t* new_matrix_from_file(const char* filepath)
     }
 
     char* rows_string = strtok(line, ";");
-    char* cols_string = strtok(line, ";");
+    char* cols_string = strtok(NULL, ";");
     char* boundary_string = strtok(NULL, ";");
 
     if (rows_string == NULL || cols_string == NULL || boundary_string == NULL) {

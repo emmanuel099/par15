@@ -84,7 +84,7 @@ stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t 
     return vector;
 }
 
-stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols)
+stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary)
 {
     assert(matrix);
     assert(0 <= row && row < matrix->rows);
@@ -92,7 +92,7 @@ stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const mat
     assert(0 < rows && rows <= (matrix->rows - row));
     assert(0 < cols && cols <= (matrix->cols - col));
 
-    stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols, 0);
+    stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols, boundary);
     if (!submatrix) {
         return NULL;
     }
