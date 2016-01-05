@@ -45,4 +45,4 @@ target_link_libraries(unit_test_sequential_tmp_matrix
 
 test("sequential_one_vec" ${CMAKE_BINARY_DIR}/stencil_sequential/unit_test_sequential_one_vec)
 test("sequential_two_vec" ${CMAKE_BINARY_DIR}/stencil_sequential/unit_test_sequential_two_vec)
-test("sequential_tmp_vec" ${CMAKE_BINARY_DIR}/stencil_sequential/unit_test_sequential_tmp_matrix)
+test("sequential_tmp_matrix" ${CMAKE_BINARY_DIR}/stencil_sequential/unit_test_sequential_tmp_matrix)

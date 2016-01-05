@@ -1,7 +1,7 @@
 # some argument checking:
 # test_cmd is the command to run with all its arguments
 
-set(OUT ${test_dir}/test.out)
+set(OUT ${test_dir}/.test.out)
 set(EXP ${input}.exp)
 
 if( NOT test_cmd )
