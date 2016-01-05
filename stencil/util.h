@@ -23,12 +23,13 @@ stencil_matrix_t* new_matrix_from_file(const char* filepath);
  *
  * @param rows number of rows of the matrix
  * @param cols number of columns of the matrix
+ * @param boundary boundary size of the matrix
  * @param min_value lower end of the value interval
  * @param max_value upper end of the value interval
  *
  * @returns returns the matrix if successful or NULL if an error has ocurred
  */
-stencil_matrix_t* new_randomized_matrix(int rows, int cols, int min_value, int max_value);
+stencil_matrix_t* new_randomized_matrix(size_t rows, size_t cols, size_t boundary, int min_value, int max_value);
 
 /**
  * writes the matrix \a matrix to the csv file \a filepath

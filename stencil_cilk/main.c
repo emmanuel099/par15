@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     const size_t rows = 10000 + 2;   // n + 2 boundary vectors
     const size_t cols = 20000 + 2;   // m + 2 boundary vectors
 
-    stencil_matrix_t *matrix = new_randomized_matrix(rows, cols, 0, 1000);
+    stencil_matrix_t *matrix = new_randomized_matrix(rows, cols, 0, 1000, 1);
 
     /* start computations */
     printf("five_point_stencil_with_one_vector_buffer_first_row: \n");

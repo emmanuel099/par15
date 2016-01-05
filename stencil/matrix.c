@@ -14,10 +14,11 @@ double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row,
     return matrix->values + row * matrix->cols + col;
 }
 
-stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols)
+stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols, size_t boundary)
 {
-    assert(rows >= 0);
-    assert(cols >= 0);
+    assert(boundary >= 0);
+    assert(rows >= 2 * boundary);
+    assert(cols >= 2 * boundary);
 
     const size_t len = rows * cols;
 
@@ -33,6 +34,7 @@ stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols)
     }
     matrix->rows = rows;
     matrix->cols = cols;
+    matrix->boundary = boundary;
     matrix->values = values;
 
     return matrix;
@@ -57,12 +59,12 @@ void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const st
 {
     assert(matrix);
     assert(vector);
-    assert(0 <= row && row < matrix->rows);
+    assert(matrix->boundary <= row && row < (matrix->rows - matrix->boundary));
     assert(matrix->cols == stencil_vector_size(vector));
 
-    double *src = stencil_vector_get_ptr(vector, 0);
-    double *dest = stencil_matrix_get_ptr(matrix, row, 0);
-    memcpy(dest, src, stencil_vector_size(vector) * sizeof(double));
+    double *src = stencil_vector_get_ptr(vector, matrix->boundary);
+    double *dest = stencil_matrix_get_ptr(matrix, row, matrix->boundary);
+    memcpy(dest, src, (matrix->cols - 2 * matrix->boundary) * sizeof(double));
 }
 
 stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t row)
@@ -90,7 +92,7 @@ stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const mat
     assert(0 < rows && rows <= (matrix->rows - row));
     assert(0 < cols && cols <= (matrix->cols - col));
 
-    stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols);
+    stencil_matrix_t *submatrix = stencil_matrix_new(rows, cols, 0);
     if (!submatrix) {
         return NULL;
     }

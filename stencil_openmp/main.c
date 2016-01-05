@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 
     omp_set_num_threads(2);
 
-    stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000);
+    stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000, 1);
     for (int i = 0; i < 6; i++) {
         five_point_stencil_with_tmp_matrix(matrix);
         five_point_stencil_with_one_vector(matrix);
