@@ -14,10 +14,23 @@ int main(int argc, char **argv)
     fprintf(stdout, "Hello sequential\n");
 
     stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000, 1);
+
+    printf("\nfive_point_stencil_with_tmp_matrix: \n");
     for (int i = 0; i < 6; i++) {
-        five_point_stencil_with_tmp_matrix(matrix);
-        five_point_stencil_with_two_vectors(matrix);
-        five_point_stencil_with_one_vector(matrix);
+        double time = five_point_stencil_with_tmp_matrix(matrix);
+        printf("elapsed time %fms\n", time);
+    }
+
+    printf("\nfive_point_stencil_with_one_vector: \n");
+    for (int i = 0; i < 6; i++) {
+        double time = five_point_stencil_with_one_vector(matrix);
+        printf("elapsed time %fms\n", time);
+    }
+
+    printf("\nfive_point_stencil_with_two_vectors: \n");
+    for (int i = 0; i < 6; i++) {
+        double time = five_point_stencil_with_two_vectors(matrix);
+        printf("elapsed time %fms\n", time);
     }
     stencil_matrix_free(matrix);
 
