@@ -154,6 +154,12 @@ double cilk_stencil_buffer_first_row(stencil_matrix_t *matrix)
     struct timeval t2;
     gettimeofday(&t2, NULL);
 
+    /* free memory */
+    for (int i = 0; i < workers; i++) {
+        stencil_vector_free(first_row_vectors[i]);
+    }
+    free(first_row_vectors);
+
     return time_difference_ms(t1, t2);
 }
 
@@ -181,10 +187,11 @@ static double run_parallel(stencil_matrix_t *matrix, void (*stencil_sequential)(
     /* copy values from submatrices back to main matrix */
     int matrix_row = 1;
     for (size_t i = 0; i < workers; i++) {
-        size_t submatrix_boundary = submatrices[i]->boundary;
-        size_t submatrix_rows = submatrices[i]->rows;
-        for (size_t row = submatrix_boundary; row < (submatrix_rows - submatrix_boundary); ++row) {
-            stencil_matrix_set_row(matrix, matrix_row, stencil_matrix_get_row(submatrices[i], row));
+        stencil_matrix_t *submatrix = submatrices[i];
+        for (size_t row = submatrix->boundary; row < (submatrix->rows - submatrix->boundary); ++row) {
+            double *dest = stencil_matrix_get_ptr(matrix, matrix_row, submatrix->boundary);
+            double *src = stencil_matrix_get_ptr(submatrices[i], row, submatrix->boundary);
+            memcpy(dest, src, (submatrix->cols - submatrix->boundary) * sizeof(double));
             ++matrix_row;
         }
     }

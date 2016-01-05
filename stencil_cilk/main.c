@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     const size_t rows = 10000 + 2;   // n + 2 boundary vectors
     const size_t cols = 20000 + 2;   // m + 2 boundary vectors
 
-    stencil_matrix_t *matrix = new_randomized_matrix(rows, cols, 0, 1000, 1);
+    stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, 1);
 
     /* start computations */
     printf("five_point_stencil_with_one_vector_buffer_first_row: \n");
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     printf("\nfive_point_stencil_with_tmp_matrix: \n");
     for (size_t i = 0; i < 6; i++) {
-        double time = cilk_stencil_two_vectors(matrix);
+        double time = cilk_stencil_tmp_matrix(matrix);
         printf("elapsed time %fms\n", time);
     }
 
