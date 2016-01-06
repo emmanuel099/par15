@@ -57,12 +57,13 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
     #pragma omp parallel shared(matrix)
     {
         const int thread = omp_get_thread_num();
-        const size_t rows_per_thread = (matrix->rows - 2 * matrix->boundary) / omp_get_num_threads();
-
-        assert(((matrix->rows - 2 * matrix->boundary) % omp_get_num_threads()) == 0);
+        const int threads = omp_get_num_threads();
+        const bool is_last_thread = (thread == (threads - 1));
+        const size_t rows_per_thread = (matrix->rows - 2 * matrix->boundary) / threads;
 
         const size_t start_row = thread * rows_per_thread + matrix->boundary;
-        const size_t end_row = start_row + rows_per_thread - 1;
+        const size_t end_row = is_last_thread ? (matrix->rows - matrix->boundary - 1)
+                                              : (start_row + rows_per_thread - 1);
 
         stencil_vector_t *vec = stencil_vector_new(matrix->cols);
         stencil_vector_t *last_vec = stencil_vector_new(matrix->cols);
