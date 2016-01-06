@@ -18,10 +18,18 @@ if( NOT OUT )
    message( FATAL_ERROR "Variable OUT not defined" )
 endif( NOT OUT )
 
-execute_process(
-   COMMAND ${test_cmd} ${input}
-   OUTPUT_FILE ${OUT}
+if (NOT mpi)
+    execute_process(
+        COMMAND ${test_cmd} ${input}
+        OUTPUT_FILE ${OUT}
+    )
+else(mpi)
+    execute_process(
+        COMMAND /usr/bin/mpirun -np 4 ${test_cmd} ${input}
+        OUTPUT_FILE ${OUT}
    )
+endif(NOT mpi)
+
 
 execute_process(
    COMMAND ${CMAKE_COMMAND} -E compare_files ${EXP} ${OUT}

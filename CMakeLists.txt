@@ -17,6 +17,21 @@ add_definitions(
 
 enable_testing()
 
+function(mpi_test name command)
+    FILE(GLOB inFiles "${TEST_DIRECTORY}/*.test")
+    FOREACH(file ${inFiles})
+        get_filename_component(file_name ${file} NAME)
+        add_test(NAME ${name}_${file_name}
+            COMMAND ${CMAKE_COMMAND}
+            -Dmpi=1
+            -Dinput=${file}
+            -Dtest_cmd=${command}
+            -Dtest_dir=${TEST_DIRECTORY}
+            -P ${CMAKE_SOURCE_DIR}/CMake/run_test.cmake
+        )
+    ENDFOREACH(file)
+endfunction(mpi_test)
+
 function(test name command)
     FILE(GLOB inFiles "${TEST_DIRECTORY}/*.test")
     FOREACH(file ${inFiles})
