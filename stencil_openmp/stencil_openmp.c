@@ -5,6 +5,7 @@
 
 #include <stencil/matrix.h>
 #include <stencil/vector.h>
+#include <stencil/util.h>
 
 #include "stencil_openmp.h"
 
