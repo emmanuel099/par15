@@ -163,7 +163,7 @@ double cilk_stencil_buffer_first_row(stencil_matrix_t *matrix)
     gettimeofday(&t2, NULL);
 
     /* free memory */
-    for (int i = 0; i < workers; i++) {
+    for (size_t i = 0; i < workers; i++) {
         stencil_vector_free(first_row_vectors[i]);
     }
     free(first_row_vectors);
