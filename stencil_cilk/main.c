@@ -16,13 +16,6 @@ int main(int argc, char **argv)
 
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, 1);
 
-    /* start computations */
-    printf("five_point_stencil_with_one_vector_buffer_first_row: \n");
-    for (int i = 0; i < 6; i++) {
-        double time = cilk_stencil_buffer_first_row(matrix);
-        printf("elapsed time %fms\n", time);
-    }
-
     printf("\nfive_point_stencil_with_one_vector: \n");
     for (int i = 0; i < 6; i++) {
         double time = cilk_stencil_one_vector(matrix);

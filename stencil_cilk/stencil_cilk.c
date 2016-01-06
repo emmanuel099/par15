@@ -17,73 +17,7 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
             stencil_matrix_get(matrix, row + 1, col)) * 0.25;
 }
 
-static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
-{
-    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols, 0);
-
-    const size_t rows = matrix->rows - matrix->boundary;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    for (size_t row = matrix->boundary; row < rows; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(tmp_matrix, row, col);
-            stencil_matrix_set(matrix, row, col, value);
-        }
-    }
-
-    stencil_matrix_free(tmp_matrix);
-}
-
-static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
-{
-    stencil_vector_t *tmp = stencil_matrix_get_row(matrix, 0);
-
-    const size_t rows = matrix->rows - matrix->boundary;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    for (size_t row = matrix->boundary; row < rows; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            // copy back the previosly calculated value before we overwrite it
-            stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
-            stencil_vector_set(tmp, col, value);
-        }
-    }
-
-    // copy back the last row
-    stencil_matrix_set_row(matrix, rows - 1, tmp);
-
-    stencil_vector_free(tmp);
-}
-
-static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
-{
-    stencil_vector_t *above = stencil_matrix_get_row(matrix, 0);
-    stencil_vector_t *current = stencil_vector_new(matrix->cols);
-
-    const size_t rows = matrix->rows - matrix->boundary;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    for (size_t row = matrix->boundary; row < rows; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            stencil_vector_set(current, col, value);
-        }
-
-        stencil_matrix_set_row(matrix, row - 1, above);
-        stencil_vector_t *tmp = above;
-        above = current;
-        current = tmp;
-    }
-
-    // copy back the last row
-    stencil_matrix_set_row(matrix, rows - 1, above);
-
-    stencil_vector_free(above);
-    stencil_vector_free(current);
-}
-
-static stencil_vector_t* five_point_stencil_values_for_row(const stencil_matrix_t *matrix, const size_t row)
+static stencil_vector_t* five_point_stencil_for_row(const stencil_matrix_t *matrix, const size_t row)
 {
     stencil_vector_t *vector = stencil_vector_new(matrix->cols);
     const size_t cols = matrix->cols - matrix->boundary;
@@ -95,20 +29,73 @@ static stencil_vector_t* five_point_stencil_values_for_row(const stencil_matrix_
     return vector;
 }
 
-static void five_point_stencil_with_one_vector_from_to(stencil_matrix_t *matrix, const size_t start_row, const size_t end_row)
+static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
 {
-    const size_t rows = end_row - 1;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    if (start_row >= end_row) {
+    if (rows <= 0) {
         return;
     }
 
-    // calculate first row
-    stencil_vector_t *tmp = five_point_stencil_values_for_row(matrix, start_row);
+    const size_t end_row = start_row + rows - 1;
+    const size_t cols = matrix->cols - matrix->boundary;
+
+    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, start_row - 1, 0, rows + 1, matrix->cols, 0);
+
+    for (size_t row = start_row; row < end_row; row++) {
+        for (size_t col = matrix->boundary; col < cols; col++) {
+            stencil_matrix_set(matrix, row, col, stencil_five_point_kernel(tmp_matrix, row - start_row + 1, col));
+        }
+    }
+
+    stencil_matrix_free(tmp_matrix);
+}
+
+static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
+{
+    if (rows <= 0) {
+        return;
+    }
+
+    const size_t end_row = start_row + rows - 1;
+    const size_t cols = matrix->cols - matrix->boundary;
+
+    // calculate the first row
+    stencil_vector_t *above = five_point_stencil_for_row(matrix, start_row);
+    stencil_vector_t *current = stencil_vector_new(matrix->cols);
 
     // calculate the remaining rows
-    for (size_t row = start_row + 1; row < rows; row++) {
+    for (size_t row = start_row + 1; row < end_row; row++) {
+        for (size_t col = matrix->boundary; col < cols; col++) {
+            const double value = stencil_five_point_kernel(matrix, row, col);
+            stencil_vector_set(current, col, value);
+        }
+
+        stencil_matrix_set_row(matrix, row - 1, above);
+        stencil_vector_t *tmp = above;
+        above = current;
+        current = tmp;
+    }
+
+    // copy back calculated values of the last non-boundary row
+    stencil_matrix_set_row(matrix, end_row - 1, above);
+
+    stencil_vector_free(above);
+    stencil_vector_free(current);
+}
+
+static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
+{
+    if (rows <= 0) {
+        return;
+    }
+
+    const size_t cols = matrix->cols - matrix->boundary;
+    const size_t end_row = start_row + rows - 1;
+
+    // calculate first row
+    stencil_vector_t *tmp = five_point_stencil_for_row(matrix, start_row);
+
+    // calculate the remaining rows
+    for (size_t row = start_row + 1; row < end_row; row++) {
         for (size_t col = matrix->boundary; col < cols; col++) {
             const double value = stencil_five_point_kernel(matrix, row, col);
             // copy back the previosly calculated value before we overwrite it
@@ -117,12 +104,12 @@ static void five_point_stencil_with_one_vector_from_to(stencil_matrix_t *matrix,
         }
     }
     // copy back the last row
-    stencil_matrix_set_row(matrix, rows - 1, tmp);
+    stencil_matrix_set_row(matrix, end_row - 1, tmp);
 
     stencil_vector_free(tmp);
 }
 
-double cilk_stencil_buffer_first_row(stencil_matrix_t *matrix)
+static double run_parallel(stencil_matrix_t *matrix, void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
 {
     const size_t boundary = matrix->boundary * 2;
     const size_t workers = __cilkrts_get_nworkers();
@@ -134,20 +121,18 @@ double cilk_stencil_buffer_first_row(stencil_matrix_t *matrix)
 
     // calculate first row on each worker and buffer values
     for (size_t i = 0; i < workers; i++) {
-        first_row_vectors[i] = cilk_spawn five_point_stencil_values_for_row(matrix, i * rows_per_worker + matrix->boundary);
+        first_row_vectors[i] = cilk_spawn five_point_stencil_for_row(matrix, i * rows_per_worker + matrix->boundary);
     }
     cilk_sync;
 
     // calculate other values
     for (size_t i = 0; i < (workers - 1); i++) {
         const size_t start_row = i * rows_per_worker + matrix->boundary + 1;
-        const size_t end_row = start_row + rows_per_worker;
-        cilk_spawn five_point_stencil_with_one_vector_from_to(matrix, start_row, end_row);
+        cilk_spawn stencil_sequential(matrix, start_row, rows_per_worker);
     }
     // last worker calculates more than rows_per_worker if row % workers != 0
     const size_t start_row = (workers - 1) * rows_per_worker + matrix->boundary + 1;
-    const size_t end_row = start_row + rows_per_worker + (matrix->rows - boundary) % workers;
-    cilk_spawn five_point_stencil_with_one_vector_from_to(matrix, start_row, end_row);
+    cilk_spawn stencil_sequential(matrix, start_row, rows_per_worker + (matrix->rows - boundary) % workers);
     cilk_sync;
 
     // copy first row vectors values back to matrix
@@ -159,55 +144,10 @@ double cilk_stencil_buffer_first_row(stencil_matrix_t *matrix)
     gettimeofday(&t2, NULL);
 
     // free memory
-    for (int i = 0; i < workers; i++) {
+    for (size_t i = 0; i < workers; i++) {
         stencil_vector_free(first_row_vectors[i]);
     }
     free(first_row_vectors);
-
-    return time_difference_ms(t1, t2);
-}
-
-static double run_parallel(stencil_matrix_t *matrix, void (*stencil_sequential)(stencil_matrix_t *matrix))
-{
-    const size_t boundary = matrix->boundary * 2;
-    const size_t workers = __cilkrts_get_nworkers();
-    const size_t rows_per_worker = (matrix->rows - boundary) / workers; // rows per worker without 2 overlapping rows
-
-    /* create submatrices */
-    stencil_matrix_t **submatrices = malloc(workers * sizeof(stencil_matrix_t*));
-    for (size_t i = 0; i < workers; i++) {
-        submatrices[i] = stencil_matrix_get_submatrix(matrix, i * rows_per_worker, 0, rows_per_worker + boundary, matrix->cols, matrix->boundary);
-    }
-
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
-
-    /* calculate submatrices */
-    for (size_t i = 0; i < workers; i++) {
-        cilk_spawn stencil_sequential(submatrices[i]);
-    }
-    cilk_sync;
-
-    /* copy values from submatrices back to main matrix */
-    int matrix_row = 1;
-    for (size_t i = 0; i < workers; i++) {
-        stencil_matrix_t *submatrix = submatrices[i];
-        for (size_t row = submatrix->boundary; row < (submatrix->rows - submatrix->boundary); ++row) {
-            const double *dest = stencil_matrix_get_ptr(matrix, matrix_row, submatrix->boundary);
-            const double *src = stencil_matrix_get_ptr(submatrices[i], row, submatrix->boundary);
-            memcpy(dest, src, (submatrix->cols - submatrix->boundary) * sizeof(double));
-            ++matrix_row;
-        }
-    }
-
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
-
-    /* free memory */
-    for (size_t i = 0; i < workers; i++) {
-        stencil_matrix_free(submatrices[i]);
-    }
-    free(submatrices);
 
     return time_difference_ms(t1, t2);
 }
