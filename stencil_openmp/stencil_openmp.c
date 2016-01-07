@@ -26,8 +26,7 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = omp_get_wtime();
 
     #pragma omp parallel for schedule(static) shared(matrix, tmp_matrix)
     for (size_t row = matrix->boundary; row < rows; row++) {
@@ -37,12 +36,11 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
         }
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = omp_get_wtime();
 
     stencil_matrix_free(tmp_matrix);
 
-    return time_difference_ms(t1, t2);
+    return (t2 - t1) * 1000;
 }
 
 double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
@@ -51,8 +49,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
 
     const size_t cols = matrix->cols - matrix->boundary;
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = omp_get_wtime();
 
     #pragma omp parallel shared(matrix)
     {
@@ -95,8 +92,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
         stencil_vector_free(last_vec);
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = omp_get_wtime();
 
-    return time_difference_ms(t1, t2);
+    return (t2 - t1) * 1000;
 }

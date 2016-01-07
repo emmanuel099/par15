@@ -138,8 +138,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     const size_t start_row = matrix->boundary + (nr_workers - 1) * rows_per_worker - 1;
     send_matrix(matrix, start_row, rows_per_worker + 2 + rows % nr_workers, nr_workers - 1);
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = MPI_Wtime();
 
     // calculate submatrix
     stencil_sequential(matrix, matrix->boundary, rows_per_worker);
@@ -158,10 +157,9 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
         matrix_row++;
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = MPI_Wtime();
 
-    return time_difference_ms(t1, t2);
+    return (t2 - t1) * 1000;
 }
 
 void client(const size_t rank, void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
@@ -203,6 +201,7 @@ double mpi_stencil_two_vectors_host(stencil_matrix_t *matrix, const size_t nr_wo
 {
     return host(matrix, nr_workers, five_point_stencil_with_two_vectors);
 }
+
 void mpi_stencil_two_vectors_client(const size_t rank)
 {
     client(rank, five_point_stencil_with_two_vectors);
