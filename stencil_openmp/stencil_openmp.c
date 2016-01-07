@@ -91,6 +91,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
             // copy back the last row
             stencil_matrix_set_row(matrix, end_row, last_vec);
 
+            // wait for all threads before we start with the next iteration
             #pragma omp barrier
         }
 
