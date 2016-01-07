@@ -120,15 +120,14 @@ void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const s
     MPI_Send(&matrix->boundary, 1, MPI_INT, recv, tag_boundary, MPI_COMM_WORLD);
 
     // send submatrix
-    for (int row = start_row; row < (start_row + rows); row++) {
-        MPI_Send(stencil_matrix_get_ptr(matrix, row, 0), matrix->cols, MPI_DOUBLE, recv, tag_data + row - start_row, MPI_COMM_WORLD);
-    }
+    MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, tag_data, MPI_COMM_WORLD);
 }
 
 double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
 {
     const size_t rows = matrix->rows - 2 * matrix->boundary;
     const size_t rows_per_worker = rows / nr_workers;
+    const size_t rows_for_last_worker = rows_per_worker + 2 + rows % nr_workers;
 
     // distribute submatrices
     for (size_t worker = 1; worker < (nr_workers - 1); worker++) {
@@ -136,7 +135,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     }
     // send to last worker
     const size_t start_row = matrix->boundary + (nr_workers - 1) * rows_per_worker - 1;
-    send_matrix(matrix, start_row, rows_per_worker + 2 + rows % nr_workers, nr_workers - 1);
+    send_matrix(matrix, start_row, rows_for_last_worker, nr_workers - 1);
 
     double t1 = MPI_Wtime();
 
@@ -146,16 +145,11 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     // receive submatrix data from other workers
     size_t matrix_row = matrix->boundary + rows_per_worker;
     for (int i = 1; i < (nr_workers - 1); i++) {
-        for (int row = 0; row < rows_per_worker; row++) {
-            MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols, MPI_DOUBLE, i, tag_data + row, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            matrix_row++;
-        }
+        MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_per_worker, MPI_DOUBLE, i, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        matrix_row += rows_per_worker;
     }
     // receive from last worker
-    for (int row = 0; row < (rows_per_worker + rows % nr_workers); row++) {
-        MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols, MPI_DOUBLE, (nr_workers - 1), tag_data + row, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        matrix_row++;
-    }
+    MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_for_last_worker, MPI_DOUBLE, (nr_workers - 1), tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     double t2 = MPI_Wtime();
 
@@ -171,18 +165,13 @@ void client(const size_t rank, void (*stencil_sequential)(stencil_matrix_t*, con
     MPI_Recv(&boundary, 1, MPI_INT, 0, tag_boundary, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
-    for (int row = 0; row < rows; row++) {
-        MPI_Recv(stencil_matrix_get_ptr(matrix, row, 0), cols, MPI_DOUBLE, 0, tag_data + row, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
-    double *tmp = stencil_matrix_get_ptr(matrix, 0, 0);
+    MPI_Recv(stencil_matrix_get_ptr(matrix, 0, 0), cols * rows, MPI_DOUBLE, 0, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     // start calculation
     stencil_sequential(matrix, 1, matrix->rows - 2);
 
     // send back data
-    for (int row = 1; row < (rows - 1); row++) {
-        MPI_Send(stencil_matrix_get_ptr(matrix, row, 0), matrix->cols, MPI_DOUBLE, 0, tag_data + row - 1, MPI_COMM_WORLD);
-    }
+    MPI_Send(stencil_matrix_get_ptr(matrix, 1, 0), (matrix->rows - 2) * matrix->cols, MPI_DOUBLE, 0, tag_data, MPI_COMM_WORLD);
 
     stencil_matrix_free(matrix);
 }

@@ -19,9 +19,6 @@ int main(int argc, char **argv)
 
     if (rank == 0) {
         matrix = stencil_matrix_new(rows, cols, 1);
-    }
-
-    if (rank == 0) {
         printf("\nfive_point_stencil_with_one_vector: \n");
     }
     for (int i = 0; i < 6; i++) {
@@ -32,8 +29,6 @@ int main(int argc, char **argv)
             mpi_stencil_one_vector_client(rank);
         }
     }
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
     if (rank == 0) {
         printf("\nfive_point_stencil_with_two_vectors: \n");
@@ -47,7 +42,6 @@ int main(int argc, char **argv)
         }
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
 
     if (rank == 0) {
         printf("\nfive_point_stencil_with_tmp_matrix: \n");
