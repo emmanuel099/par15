@@ -19,21 +19,21 @@ int main(int argc, char **argv)
     }
 
     printf("\nfive_point_stencil_with_tmp_matrix: \n");
-    for (int i = 0; i < 6; i++) {
-        double time = five_point_stencil_with_tmp_matrix(matrix);
+    for (int i = 0; i < 3; i++) {
+        double time = five_point_stencil_with_tmp_matrix(matrix, 6);
         printf("elapsed time %fms\n", time);
     }
 
     printf("\nfive_point_stencil_with_one_vector: \n");
-    for (int i = 0; i < 6; i++) {
-        double time = five_point_stencil_with_one_vector(matrix);
+    for (int i = 0; i < 3; i++) {
+        double time = five_point_stencil_with_one_vector(matrix, 6);
         printf("elapsed time %fms\n", time);
     }
 
 
     printf("\nfive_point_stencil_with_two_vectors: \n");
-    for (int i = 0; i < 6; i++) {
-        double time = five_point_stencil_with_two_vectors(matrix);
+    for (int i = 0; i < 3; i++) {
+        double time = five_point_stencil_with_two_vectors(matrix, 6);
         printf("elapsed time %fms\n", time);
     }
 

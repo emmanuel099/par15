@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     if (matrix == NULL) {
         return EXIT_FAILURE;
     }
-    five_point_stencil_with_tmp_matrix(matrix);
+    five_point_stencil_with_tmp_matrix(matrix, 1);
     matrix_to_file(matrix, stdout);
 
     free(matrix);

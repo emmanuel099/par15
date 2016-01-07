@@ -17,7 +17,7 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
             stencil_matrix_get(matrix, row + 1, col)) * 0.25;
 }
 
-double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
+double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t iterations)
 {
     assert(matrix->boundary >= 1);
 
@@ -29,10 +29,12 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    for (size_t row = matrix->boundary; row < rows; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(tmp_matrix, row, col);
-            stencil_matrix_set(matrix, row, col, value);
+    for (size_t iteration = 1; iteration <= iterations; iteration++) {
+        for (size_t row = matrix->boundary; row < rows; row++) {
+            for (size_t col = matrix->boundary; col < cols; col++) {
+                const double value = stencil_five_point_kernel(tmp_matrix, row, col);
+                stencil_matrix_set(matrix, row, col, value);
+            }
         }
     }
 
@@ -44,7 +46,7 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix)
     return time_difference_ms(t1, t2);
 }
 
-double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
+double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_t iterations)
 {
     assert(matrix->boundary >= 1);
 
@@ -57,27 +59,29 @@ double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    // calculate the first row
-    const size_t first_row = matrix->boundary;
-    for (size_t col = matrix->boundary; col < cols; col++) {
-        stencil_vector_set(above, col, stencil_five_point_kernel(matrix, first_row, col));
-    }
-
-    // calculate the remaining rows
-    for (size_t row = matrix->boundary + 1; row < rows; row++) {
+    for (size_t iteration = 1; iteration <= iterations; iteration++) {
+        // calculate the first row
+        const size_t first_row = matrix->boundary;
         for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            stencil_vector_set(current, col, value);
+            stencil_vector_set(above, col, stencil_five_point_kernel(matrix, first_row, col));
         }
 
-        stencil_matrix_set_row(matrix, row - 1, above);
-        stencil_vector_t *tmp = above;
-        above = current;
-        current = tmp;
-    }
+        // calculate the remaining rows
+        for (size_t row = matrix->boundary + 1; row < rows; row++) {
+            for (size_t col = matrix->boundary; col < cols; col++) {
+                const double value = stencil_five_point_kernel(matrix, row, col);
+                stencil_vector_set(current, col, value);
+            }
 
-    // copy back calculated values of the last non-boundary row
-    stencil_matrix_set_row(matrix, rows - 1, above);
+            stencil_matrix_set_row(matrix, row - 1, above);
+            stencil_vector_t *tmp = above;
+            above = current;
+            current = tmp;
+        }
+
+        // copy back calculated values of the last non-boundary row
+        stencil_matrix_set_row(matrix, rows - 1, above);
+    }
 
     struct timeval t2;
     gettimeofday(&t2, NULL);
@@ -88,7 +92,7 @@ double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix)
     return time_difference_ms(t1, t2);
 }
 
-double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
+double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t iterations)
 {
     assert(matrix->boundary >= 1);
 
@@ -100,24 +104,26 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix)
     struct timeval t1;
     gettimeofday(&t1, NULL);
 
-    // calculate the first row
-    const size_t first_row = matrix->boundary;
-    for (size_t col = matrix->boundary; col < cols; col++) {
-        stencil_vector_set(tmp, col, stencil_five_point_kernel(matrix, first_row, col));
-    }
-
-    // calculate the remaining rows
-    for (size_t row = matrix->boundary + 1; row < rows; row++) {
+    for (size_t iteration = 1; iteration <= iterations; iteration++) {
+        // calculate the first row
+        const size_t first_row = matrix->boundary;
         for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            // copy back the previosly calculated value before we overwrite it
-            stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
-            stencil_vector_set(tmp, col, value);
+            stencil_vector_set(tmp, col, stencil_five_point_kernel(matrix, first_row, col));
         }
-    }
 
-    // copy back calculated values of the last non-boundary row
-    stencil_matrix_set_row(matrix, rows - 1, tmp);
+        // calculate the remaining rows
+        for (size_t row = matrix->boundary + 1; row < rows; row++) {
+            for (size_t col = matrix->boundary; col < cols; col++) {
+                const double value = stencil_five_point_kernel(matrix, row, col);
+                // copy back the previosly calculated value before we overwrite it
+                stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
+                stencil_vector_set(tmp, col, value);
+            }
+        }
+
+        // copy back calculated values of the last non-boundary row
+        stencil_matrix_set_row(matrix, rows - 1, tmp);
+    }
 
     struct timeval t2;
     gettimeofday(&t2, NULL);
