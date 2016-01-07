@@ -26,7 +26,7 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    double t1 = omp_get_wtime();
+    const double t1 = omp_get_wtime();
 
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         #pragma omp parallel for schedule(static) shared(matrix, tmp_matrix)
@@ -38,11 +38,11 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
         }
     }
 
-    double t2 = omp_get_wtime();
+    const double t2 = omp_get_wtime();
 
     stencil_matrix_free(tmp_matrix);
 
-    return (t2 - t1) * 1000;
+    return (t2 - t1) * 1000.0;
 }
 
 double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t iterations)
@@ -51,7 +51,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
 
     const size_t cols = matrix->cols - matrix->boundary;
 
-    double t1 = omp_get_wtime();
+    const double t1 = omp_get_wtime();
 
     #pragma omp parallel shared(matrix)
     {
@@ -99,7 +99,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
         stencil_vector_free(last_vec);
     }
 
-    double t2 = omp_get_wtime();
+    const double t2 = omp_get_wtime();
 
-    return (t2 - t1) * 1000;
+    return (t2 - t1) * 1000.0;
 }
