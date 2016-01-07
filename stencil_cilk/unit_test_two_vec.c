@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     if (matrix == NULL) {
         return EXIT_FAILURE;
     }
-    cilk_stencil_two_vectors(matrix);
+    cilk_stencil_two_vectors(matrix, 1);
     matrix_to_file(matrix, stdout);
 
     free(matrix);

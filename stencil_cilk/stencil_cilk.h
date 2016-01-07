@@ -15,7 +15,7 @@
  * @param matrix matrix
  * @return returns the needed time for the calculation in msec
  */
-double cilk_stencil_one_vector(stencil_matrix_t *matrix);
+double cilk_stencil_one_vector(stencil_matrix_t *matrix, const size_t iterations);
 
 /**
  * calculates at first the first row of the area which is assigned to each worker
@@ -27,7 +27,7 @@ double cilk_stencil_one_vector(stencil_matrix_t *matrix);
  * @param matrix matrix
  * @return returns the needed time for the calculation in msec
  */
-double cilk_stencil_two_vectors(stencil_matrix_t *matrix);
+double cilk_stencil_two_vectors(stencil_matrix_t *matrix, const size_t iterations);
 
 /**
  * calculates at first the first row of the area which is assigned to each worker
@@ -39,7 +39,7 @@ double cilk_stencil_two_vectors(stencil_matrix_t *matrix);
  * @param matrix matrix
  * @return returns the needed time for the calculation in msec
  */
-double cilk_stencil_tmp_matrix(stencil_matrix_t *matrix);
+double cilk_stencil_tmp_matrix(stencil_matrix_t *matrix, const size_t iterations);
 
 
 #endif // __STENCIL_CILK_H
