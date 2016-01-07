@@ -17,15 +17,13 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
             stencil_matrix_get(matrix, row + 1, col)) * 0.25;
 }
 
-static void five_point_stencil_for_row(const stencil_matrix_t *matrix, const stencil_matrix_t *vector, const size_t row)
+static void five_point_stencil_for_row(const stencil_matrix_t *matrix, const stencil_vector_t *vector, const size_t row)
 {
     const size_t cols = matrix->cols - matrix->boundary;
 
     for (size_t col = matrix->boundary; col < cols; col++) {
         stencil_vector_set(vector, col, stencil_five_point_kernel(matrix, row, col));
     }
-
-    return vector;
 }
 
 static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)

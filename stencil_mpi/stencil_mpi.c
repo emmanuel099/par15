@@ -144,7 +144,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
 
     // receive submatrix data from other workers
     size_t matrix_row = matrix->boundary + rows_per_worker;
-    for (int i = 1; i < (nr_workers - 1); i++) {
+    for (size_t i = 1; i < (nr_workers - 1); i++) {
         MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_per_worker, MPI_DOUBLE, i, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         matrix_row += rows_per_worker;
     }
@@ -156,7 +156,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     return (t2 - t1) * 1000;
 }
 
-void client(const size_t rank, void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
+void client(void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
 {
     int rows, cols, boundary;
     // receive matrix
@@ -181,9 +181,9 @@ double mpi_stencil_one_vector_host(stencil_matrix_t *matrix, const size_t nr_wor
     return host(matrix, nr_workers, five_point_stencil_with_one_vector);
 }
 
-void mpi_stencil_one_vector_client(const size_t rank)
+void mpi_stencil_one_vector_client()
 {
-    client(rank, five_point_stencil_with_one_vector);
+    client(five_point_stencil_with_one_vector);
 }
 
 double mpi_stencil_two_vectors_host(stencil_matrix_t *matrix, const size_t nr_workers)
@@ -191,9 +191,9 @@ double mpi_stencil_two_vectors_host(stencil_matrix_t *matrix, const size_t nr_wo
     return host(matrix, nr_workers, five_point_stencil_with_two_vectors);
 }
 
-void mpi_stencil_two_vectors_client(const size_t rank)
+void mpi_stencil_two_vectors_client()
 {
-    client(rank, five_point_stencil_with_two_vectors);
+    client(five_point_stencil_with_two_vectors);
 }
 
 double mpi_stencil_tmp_matrix_host(stencil_matrix_t *matrix, const size_t nr_workers)
@@ -201,9 +201,9 @@ double mpi_stencil_tmp_matrix_host(stencil_matrix_t *matrix, const size_t nr_wor
     return host(matrix, nr_workers, five_point_stencil_with_tmp_matrix);
 }
 
-void mpi_stencil_tmp_matrix_client(const size_t rank)
+void mpi_stencil_tmp_matrix_client()
 {
-    client(rank, five_point_stencil_with_tmp_matrix);
+    client(five_point_stencil_with_tmp_matrix);
 }
 
 
