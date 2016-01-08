@@ -7,35 +7,31 @@
 
 int main(int argc, char **argv)
 {
-    MPI_Init(&argc, &argv);
+    stencil_init(&argc, &argv);
 
-    const size_t rows = 10000 + 2;   // n + 2 boundary vectors
-    const size_t cols = 20000 + 2;   // m + 2 boundary vectors
-    stencil_matrix_t *matrix;
-
-    int rank, size;
+    int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if (rank == 0) {
-        matrix = stencil_matrix_new(rows, cols, 1);
-        printf("\nfive_point_stencil_with_one_vector: \n");
-    }
-    for (int i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = five_point_stencil_host(matrix, 6, size);
-            printf("elapsed time %fms\n", time);
-        } else {
-            five_point_stencil_client(rank);
+        fprintf(stdout, "Hello mpi\n");
+
+        stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000, 1);
+        if (matrix == NULL) {
+            return EXIT_FAILURE;
         }
-    }
 
-    /* free memory */
-    if (rank == 0) {
+        printf("\nfive_point_stencil_with_one_vector: \n");
+        for (int i = 0; i < 3; i++) {
+            double time = five_point_stencil_host(matrix, 6);
+            printf("elapsed time %fms\n", time);
+        }
+
         stencil_matrix_free(matrix);
+    } else {
+        five_point_stencil_client(rank);
     }
 
-    MPI_Finalize();
+    stencil_finalize();
 
     return EXIT_SUCCESS;
 }

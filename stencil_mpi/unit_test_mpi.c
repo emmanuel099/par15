@@ -13,11 +13,10 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    MPI_Init(&argc, &argv);
+    stencil_init(&argc, &argv);
 
-    int rank, size;
+    int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if (rank == 0) {
         stencil_matrix_t *matrix = new_matrix_from_file(argv[1]);
@@ -25,7 +24,7 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
-        five_point_stencil_host(matrix, 6, size);
+        five_point_stencil_host(matrix, 6);
 
         matrix_to_file(matrix, stdout);
         stencil_matrix_free(matrix);
@@ -33,6 +32,7 @@ int main(int argc, char **argv)
         five_point_stencil_client(rank);
     }
 
-    MPI_Finalize();
+    stencil_finalize();
+
     return EXIT_SUCCESS;
 }

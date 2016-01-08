@@ -53,7 +53,7 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     stencil_vector_free(tmp);
 }
 
-void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const size_t rows, const size_t recv)
+static void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const size_t rows, const size_t recv)
 {
     MPI_Send(&rows, 1, MPI_UNSIGNED_LONG, recv, tag_rows, MPI_COMM_WORLD);
     MPI_Send(&matrix->cols, 1, MPI_UNSIGNED_LONG, recv, tag_cols, MPI_COMM_WORLD);
@@ -63,8 +63,21 @@ void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const s
     MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, tag_data, MPI_COMM_WORLD);
 }
 
-double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations, size_t nr_workers)
+int stencil_init(int *argc, char ***argv)
 {
+    return MPI_Init(argc, argv);
+}
+
+int stencil_finalize()
+{
+    return MPI_Finalize();
+}
+
+double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations)
+{
+    int nr_workers = 1;
+    MPI_Comm_size(MPI_COMM_WORLD, &nr_workers);
+
     const size_t rows = matrix->rows - 2 * matrix->boundary;
     const size_t rows_per_worker = rows / nr_workers;
     const size_t rows_for_last_worker = rows_per_worker + 2 + rows % nr_workers;

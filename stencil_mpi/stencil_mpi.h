@@ -5,8 +5,10 @@
 #include "stencil/vector.h"
 #include "stencil/util.h"
 
+int stencil_init(int *argc, char ***argv);
+int stencil_finalize();
 
-double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations, const size_t nr_workers);
+double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations);
 void five_point_stencil_client(int rank);
 
 #endif // __STENCIL_CILK_H
