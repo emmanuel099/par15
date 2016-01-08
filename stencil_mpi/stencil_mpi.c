@@ -96,7 +96,7 @@ double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations
     return (t2 - t1) * 1000;
 }
 
-void five_point_stencil_client()
+void five_point_stencil_client(int rank)
 {
     int rows, cols, boundary;
     // receive matrix
