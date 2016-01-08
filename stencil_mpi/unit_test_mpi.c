@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         matrix_to_file(matrix, stdout);
         stencil_matrix_free(matrix);
     } else {
-        five_point_stencil_client(rank);
+        five_point_stencil_client();
     }
 
     stencil_finalize();
