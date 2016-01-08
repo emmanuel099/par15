@@ -24,7 +24,7 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
-        five_point_stencil_host(matrix, 6);
+        five_point_stencil_host(matrix, 1);
 
         matrix_to_file(matrix, stdout);
         stencil_matrix_free(matrix);
