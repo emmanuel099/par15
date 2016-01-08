@@ -75,8 +75,10 @@ int stencil_finalize()
     return MPI_Finalize();
 }
 
-double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations)
+double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations)
 {
+    MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
+
     int nr_workers = 1;
     MPI_Comm_size(MPI_COMM_WORLD, &nr_workers);
 
@@ -95,7 +97,7 @@ double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations
     double t1 = MPI_Wtime();
 
     // calculate submatrix
-    sequential_five_point_stencil(matrix, 1);
+    sequential_five_point_stencil(matrix, iterations);
 
     // receive submatrix data from other workers
     size_t matrix_row = matrix->boundary + rows_per_worker;
@@ -113,6 +115,9 @@ double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations
 
 void five_point_stencil_client(int rank)
 {
+    size_t iterations;
+    MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
+
     // receive matrix (with boundary)
     size_t rows, cols, boundary;
     MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, tag_rows, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -123,7 +128,7 @@ void five_point_stencil_client(int rank)
     MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     // start calculation
-    sequential_five_point_stencil(matrix, 1);
+    sequential_five_point_stencil(matrix, iterations);
 
     // send back data (without boundary)
     MPI_Datatype matrix_without_boundary;
