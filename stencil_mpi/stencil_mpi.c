@@ -12,7 +12,6 @@
 enum mpi_tags_t {
     TAG_ROWS,
     TAG_COLS,
-    TAG_BOUNDARY,
     TAG_DATA
 };
 
@@ -61,7 +60,6 @@ static void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, 
 {
     MPI_Send(&rows, 1, MPI_UNSIGNED_LONG, recv, TAG_ROWS, MPI_COMM_WORLD);
     MPI_Send(&matrix->cols, 1, MPI_UNSIGNED_LONG, recv, TAG_COLS, MPI_COMM_WORLD);
-    MPI_Send(&matrix->boundary, 1, MPI_UNSIGNED_LONG, recv, TAG_BOUNDARY, MPI_COMM_WORLD);
 
     // send submatrix
     MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, TAG_DATA, MPI_COMM_WORLD);
@@ -121,11 +119,11 @@ void five_point_stencil_client(int rank)
     MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
 
     // receive matrix (with boundary)
-    size_t rows, cols, boundary;
+    size_t rows, cols;
     MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, TAG_ROWS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&cols, 1, MPI_UNSIGNED_LONG, MASTER, TAG_COLS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&boundary, 1, MPI_UNSIGNED_LONG, MASTER, TAG_BOUNDARY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+    const size_t boundary = 1;
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
     MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, TAG_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
