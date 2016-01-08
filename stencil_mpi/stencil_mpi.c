@@ -9,10 +9,12 @@
 
 #define MASTER 0
 
-const int tag_rows = 0;
-const int tag_cols = 1;
-const int tag_boundary = 2;
-const int tag_data = 3;
+enum mpi_tags_t {
+    TAG_ROWS,
+    TAG_COLS,
+    TAG_BOUNDARY,
+    TAG_DATA
+};
 
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
@@ -57,12 +59,12 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 
 static void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const size_t rows, const size_t recv)
 {
-    MPI_Send(&rows, 1, MPI_UNSIGNED_LONG, recv, tag_rows, MPI_COMM_WORLD);
-    MPI_Send(&matrix->cols, 1, MPI_UNSIGNED_LONG, recv, tag_cols, MPI_COMM_WORLD);
-    MPI_Send(&matrix->boundary, 1, MPI_UNSIGNED_LONG, recv, tag_boundary, MPI_COMM_WORLD);
+    MPI_Send(&rows, 1, MPI_UNSIGNED_LONG, recv, TAG_ROWS, MPI_COMM_WORLD);
+    MPI_Send(&matrix->cols, 1, MPI_UNSIGNED_LONG, recv, TAG_COLS, MPI_COMM_WORLD);
+    MPI_Send(&matrix->boundary, 1, MPI_UNSIGNED_LONG, recv, TAG_BOUNDARY, MPI_COMM_WORLD);
 
     // send submatrix
-    MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, tag_data, MPI_COMM_WORLD);
+    MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, TAG_DATA, MPI_COMM_WORLD);
 }
 
 int stencil_init(int *argc, char ***argv)
@@ -102,11 +104,11 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations)
     // receive submatrix data from other workers
     size_t matrix_row = matrix->boundary + rows_per_worker;
     for (size_t i = 1; i < (nr_workers - 1); i++) {
-        MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_per_worker, MPI_DOUBLE, i, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_per_worker, MPI_DOUBLE, i, TAG_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         matrix_row += rows_per_worker;
     }
     // receive from last worker
-    MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_for_last_worker, MPI_DOUBLE, (nr_workers - 1), tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_for_last_worker, MPI_DOUBLE, (nr_workers - 1), TAG_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     double t2 = MPI_Wtime();
 
@@ -120,12 +122,12 @@ void five_point_stencil_client(int rank)
 
     // receive matrix (with boundary)
     size_t rows, cols, boundary;
-    MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, tag_rows, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&cols, 1, MPI_UNSIGNED_LONG, MASTER, tag_cols, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&boundary, 1, MPI_UNSIGNED_LONG, MASTER, tag_boundary, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, TAG_ROWS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&cols, 1, MPI_UNSIGNED_LONG, MASTER, TAG_COLS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&boundary, 1, MPI_UNSIGNED_LONG, MASTER, TAG_BOUNDARY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
-    MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, TAG_DATA, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     // start calculation
     sequential_five_point_stencil(matrix, iterations);
@@ -138,7 +140,7 @@ void five_point_stencil_client(int rank)
     MPI_Type_create_subarray(2, matrix_size, data_size, data_position, MPI_ORDER_C, MPI_DOUBLE, &matrix_without_boundary);
     MPI_Type_commit(&matrix_without_boundary);
 
-    MPI_Send(matrix->values, 1, matrix_without_boundary, MASTER, tag_data, MPI_COMM_WORLD);
+    MPI_Send(matrix->values, 1, matrix_without_boundary, MASTER, TAG_DATA, MPI_COMM_WORLD);
 
     MPI_Type_free(&matrix_without_boundary);
 
