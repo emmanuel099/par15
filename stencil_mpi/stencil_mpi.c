@@ -20,95 +20,35 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
             stencil_matrix_get(matrix, row + 1, col)) * 0.25;
 }
 
-static stencil_vector_t* five_point_stencil_for_row(const stencil_matrix_t *matrix, const size_t row)
+static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations)
 {
-    stencil_vector_t *vector = stencil_vector_new(matrix->cols);
+    assert(matrix->boundary >= 1);
+
+    stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
+
+    const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    for (size_t col = matrix->boundary; col < cols; col++) {
-        stencil_vector_set(vector, col, stencil_five_point_kernel(matrix, row, col));
-    }
-
-    return vector;
-}
-
-
-static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
-{
-    if (rows <= 0) {
-        return;
-    }
-
-    const size_t end_row = start_row + rows;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, start_row - 1, 0, rows + 2, matrix->cols, 0);
-
-    for (size_t row = start_row; row < end_row; row++) {
+    for (size_t iteration = 1; iteration <= iterations; iteration++) {
+        // calculate the first row
+        const size_t first_row = matrix->boundary;
         for (size_t col = matrix->boundary; col < cols; col++) {
-            stencil_matrix_set(matrix, row, col, stencil_five_point_kernel(tmp_matrix, row - start_row + 1, col));
-        }
-    }
-
-    stencil_matrix_free(tmp_matrix);
-}
-
-static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
-{
-    if (rows <= 0) {
-        return;
-    }
-
-    const size_t end_row = start_row + rows;
-    const size_t cols = matrix->cols - matrix->boundary;
-
-    // calculate the first row
-    stencil_vector_t *above = five_point_stencil_for_row(matrix, start_row);
-    stencil_vector_t *current = stencil_vector_new(matrix->cols);
-
-    // calculate the remaining rows
-    for (size_t row = start_row + 1; row < end_row; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            stencil_vector_set(current, col, value);
+            stencil_vector_set(tmp, col, stencil_five_point_kernel(matrix, first_row, col));
         }
 
-        stencil_matrix_set_row(matrix, row - 1, above);
-        stencil_vector_t *tmp = above;
-        above = current;
-        current = tmp;
-    }
-
-    // copy back calculated values of the last non-boundary row
-    stencil_matrix_set_row(matrix, end_row - 1, above);
-
-    stencil_vector_free(above);
-    stencil_vector_free(current);
-}
-
-void five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t start_row, const size_t rows)
-{
-    if (rows <= 0) {
-        return;
-    }
-
-    const size_t cols = matrix->cols - matrix->boundary;
-    const size_t end_row = start_row + rows;
-
-    // calculate first row
-    stencil_vector_t *tmp = five_point_stencil_for_row(matrix, start_row);
-
-    // calculate the remaining rows
-    for (size_t row = start_row + 1; row < end_row; row++) {
-        for (size_t col = matrix->boundary; col < cols; col++) {
-            const double value = stencil_five_point_kernel(matrix, row, col);
-            // copy back the previosly calculated value before we overwrite it
-            stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
-            stencil_vector_set(tmp, col, value);
+        // calculate the remaining rows
+        for (size_t row = matrix->boundary + 1; row < rows; row++) {
+            for (size_t col = matrix->boundary; col < cols; col++) {
+                const double value = stencil_five_point_kernel(matrix, row, col);
+                // copy back the previosly calculated value before we overwrite it
+                stencil_matrix_set(matrix, row - 1, col, stencil_vector_get(tmp, col));
+                stencil_vector_set(tmp, col, value);
+            }
         }
+
+        // copy back calculated values of the last non-boundary row
+        stencil_matrix_set_row(matrix, rows - 1, tmp);
     }
-    // copy back the last row
-    stencil_matrix_set_row(matrix, end_row - 1, tmp);
 
     stencil_vector_free(tmp);
 }
@@ -123,7 +63,7 @@ void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const s
     MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, tag_data, MPI_COMM_WORLD);
 }
 
-double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
+double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations, size_t nr_workers)
 {
     const size_t rows = matrix->rows - 2 * matrix->boundary;
     const size_t rows_per_worker = rows / nr_workers;
@@ -140,7 +80,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     double t1 = MPI_Wtime();
 
     // calculate submatrix
-    stencil_sequential(matrix, matrix->boundary, rows_per_worker);
+    sequential_five_point_stencil(matrix, 1);
 
     // receive submatrix data from other workers
     size_t matrix_row = matrix->boundary + rows_per_worker;
@@ -156,7 +96,7 @@ double host(stencil_matrix_t *matrix, size_t nr_workers, void (*stencil_sequenti
     return (t2 - t1) * 1000;
 }
 
-void client(void (*stencil_sequential)(stencil_matrix_t*, const size_t, const size_t))
+void five_point_stencil_client()
 {
     int rows, cols, boundary;
     // receive matrix
@@ -168,42 +108,10 @@ void client(void (*stencil_sequential)(stencil_matrix_t*, const size_t, const si
     MPI_Recv(stencil_matrix_get_ptr(matrix, 0, 0), cols * rows, MPI_DOUBLE, 0, tag_data, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     // start calculation
-    stencil_sequential(matrix, 1, matrix->rows - 2);
+    sequential_five_point_stencil(matrix, 1);
 
     // send back data
     MPI_Send(stencil_matrix_get_ptr(matrix, 1, 0), (matrix->rows - 2) * matrix->cols, MPI_DOUBLE, 0, tag_data, MPI_COMM_WORLD);
 
     stencil_matrix_free(matrix);
 }
-
-double mpi_stencil_one_vector_host(stencil_matrix_t *matrix, const size_t nr_workers)
-{
-    return host(matrix, nr_workers, five_point_stencil_with_one_vector);
-}
-
-void mpi_stencil_one_vector_client()
-{
-    client(five_point_stencil_with_one_vector);
-}
-
-double mpi_stencil_two_vectors_host(stencil_matrix_t *matrix, const size_t nr_workers)
-{
-    return host(matrix, nr_workers, five_point_stencil_with_two_vectors);
-}
-
-void mpi_stencil_two_vectors_client()
-{
-    client(five_point_stencil_with_two_vectors);
-}
-
-double mpi_stencil_tmp_matrix_host(stencil_matrix_t *matrix, const size_t nr_workers)
-{
-    return host(matrix, nr_workers, five_point_stencil_with_tmp_matrix);
-}
-
-void mpi_stencil_tmp_matrix_client()
-{
-    client(five_point_stencil_with_tmp_matrix);
-}
-
-

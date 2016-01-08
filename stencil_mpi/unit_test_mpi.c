@@ -25,12 +25,12 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
-        mpi_stencil_two_vectors_host(matrix, size);
+        five_point_stencil_host(matrix, 6, size);
 
         matrix_to_file(matrix, stdout);
         stencil_matrix_free(matrix);
     } else {
-        mpi_stencil_two_vectors_client(rank);
+        five_point_stencil_client(rank);
     }
 
     MPI_Finalize();

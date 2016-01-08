@@ -6,13 +6,7 @@
 #include "stencil/util.h"
 
 
-double mpi_stencil_one_vector_host(stencil_matrix_t *matrix, const size_t nr_workers);
-void mpi_stencil_one_vector_client();
-
-double mpi_stencil_two_vectors_host(stencil_matrix_t *matrix, const size_t nr_workers);
-void mpi_stencil_two_vectors_client();
-
-double mpi_stencil_tmp_matrix_host(stencil_matrix_t *matrix, const size_t nr_workers);
-void mpi_stencil_tmp_matrix_client();
+double five_point_stencil_host(stencil_matrix_t *matrix, const size_t iterations, const size_t nr_workers);
+void five_point_stencil_client();
 
 #endif // __STENCIL_CILK_H

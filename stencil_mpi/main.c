@@ -23,35 +23,10 @@ int main(int argc, char **argv)
     }
     for (int i = 0; i < 6; i++) {
         if (rank == 0) {
-            double time = mpi_stencil_one_vector_host(matrix, size);
+            double time = five_point_stencil_host(matrix, 6, size);
             printf("elapsed time %fms\n", time);
         } else {
-            mpi_stencil_one_vector_client(rank);
-        }
-    }
-
-    if (rank == 0) {
-        printf("\nfive_point_stencil_with_two_vectors: \n");
-    }
-    for (int i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = mpi_stencil_two_vectors_host(matrix, size);
-            printf("elapsed time %fms\n", time);
-        } else {
-            mpi_stencil_two_vectors_client(rank);
-        }
-    }
-
-
-    if (rank == 0) {
-        printf("\nfive_point_stencil_with_tmp_matrix: \n");
-    }
-    for (size_t i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = mpi_stencil_tmp_matrix_host(matrix, size);
-            printf("elapsed time %fms\n", time);
-        } else {
-            mpi_stencil_tmp_matrix_client(rank);
+            five_point_stencil_client(rank);
         }
     }
 
