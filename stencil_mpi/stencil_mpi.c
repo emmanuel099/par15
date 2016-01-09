@@ -149,19 +149,13 @@ void five_point_stencil_client(MPI_Comm comm_card)
     size_t iterations;
     MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
 
-    // receive matrix (with boundary)
     size_t rows, cols;
     MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, TAG_ROWS, comm_card, MPI_STATUS_IGNORE);
     MPI_Recv(&cols, 1, MPI_UNSIGNED_LONG, MASTER, TAG_COLS, comm_card, MPI_STATUS_IGNORE);
 
     const size_t boundary = 1;
-    stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
-    MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, TAG_DATA, comm_card, MPI_STATUS_IGNORE);
 
-    // start calculation
-    sequential_five_point_stencil(matrix, iterations);
-
-    // send back data (without boundary)
+    // create a new datatype which represents a matrix without boundary
     MPI_Datatype matrix_without_boundary;
     const int matrix_size[] = {rows, cols};
     const int data_size[] = {rows - 2 * boundary, cols - 2 * boundary};
@@ -169,9 +163,16 @@ void five_point_stencil_client(MPI_Comm comm_card)
     MPI_Type_create_subarray(2, matrix_size, data_size, data_position, MPI_ORDER_C, MPI_DOUBLE, &matrix_without_boundary);
     MPI_Type_commit(&matrix_without_boundary);
 
+    // receive matrix (without boundary)
+    stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
+    MPI_Recv(matrix->values, 1, matrix_without_boundary, MASTER, TAG_DATA, comm_card, MPI_STATUS_IGNORE);
+
+    // start calculation
+    sequential_five_point_stencil(matrix, iterations);
+
+    // send back data (without boundary)
     MPI_Send(matrix->values, 1, matrix_without_boundary, MASTER, TAG_DATA, comm_card);
+    stencil_matrix_free(matrix);
 
     MPI_Type_free(&matrix_without_boundary);
-
-    stencil_matrix_free(matrix);
 }
