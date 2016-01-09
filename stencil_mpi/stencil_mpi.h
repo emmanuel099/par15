@@ -1,9 +1,7 @@
 #ifndef __STENCIL_CILK_H
 #define __STENCIL_CILK_H
 
-#include "stencil/matrix.h"
-#include "stencil/vector.h"
-#include "stencil/util.h"
+#include <stencil/matrix.h>
 
 #include <mpi.h>
 

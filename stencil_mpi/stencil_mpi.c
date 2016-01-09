@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <stencil/vector.h>
+
 #include "stencil_mpi.h"
 
 #define MASTER 0

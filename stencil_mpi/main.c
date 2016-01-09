@@ -3,6 +3,8 @@
 
 #include "stencil_mpi.h"
 
+#define MASTER 0
+
 int main(int argc, char **argv)
 {
     MPI_Comm comm_card;
@@ -13,7 +15,7 @@ int main(int argc, char **argv)
     int rank;
     MPI_Comm_rank(comm_card, &rank);
 
-    if (rank == 0) {
+    if (rank == MASTER) {
         fprintf(stdout, "Hello mpi\n");
 
         stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000, 1);
