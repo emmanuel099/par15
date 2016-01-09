@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <mpi.h>
-
 #include "stencil_mpi.h"
 
 int main(int argc, char **argv)
 {
-    stencil_init(&argc, &argv);
+    MPI_Comm comm_card;
+    if (stencil_init(&argc, &argv, &comm_card) != MPI_SUCCESS) {
+        return EXIT_FAILURE;
+    }
 
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(comm_card, &rank);
 
     if (rank == 0) {
         fprintf(stdout, "Hello mpi\n");
@@ -22,13 +23,13 @@ int main(int argc, char **argv)
 
         printf("\nfive_point_stencil_with_one_vector: \n");
         for (int i = 0; i < 3; i++) {
-            double time = five_point_stencil_host(matrix, 6);
+            double time = five_point_stencil_host(matrix, 6, comm_card);
             printf("elapsed time %fms\n", time);
         }
 
         stencil_matrix_free(matrix);
     } else {
-        five_point_stencil_client();
+        five_point_stencil_client(comm_card);
     }
 
     stencil_finalize();
