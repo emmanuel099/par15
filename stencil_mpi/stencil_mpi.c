@@ -175,16 +175,16 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
                                                                  STENCIL_BOUNDARY);
 
     // calculate sub-matrix displacements and block counts
+    int *block_counts = (int *)alloca(nodes * sizeof(int));
     int *block_displacements = (int *)alloca(nodes * sizeof(int));
     for (int i = 0; i < nodes_vertical; i++) {
         for (int j = 0; j < nodes_horizontal; j++) {
             const int node = i * nodes_vertical + j;
+            block_counts[node] = 1; // block count is always 1 because we use our special matrix type
             block_displacements[node] = matrix->boundary + j * cols_per_node - STENCIL_BOUNDARY +
                                         (matrix->boundary + i * rows_per_node - STENCIL_BOUNDARY) * matrix->cols;
         }
     }
-    int *block_counts = (int *)alloca(nodes * sizeof(int));
-    memset(block_counts, 1, nodes * sizeof(int)); // block count is always 1 because we use our special matrix type
 
     const double t1 = MPI_Wtime();
 
