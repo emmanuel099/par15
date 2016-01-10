@@ -109,7 +109,7 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
 
 static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations,
                                     size_t rows_per_node, size_t cols_per_node,
-                                    double *send_recv_buf, int *block_sizes,
+                                    double *send_recv_buf, int *block_counts,
                                     int *block_displacements,
                                     MPI_Datatype send_type, MPI_Datatype recv_type)
 {
@@ -121,7 +121,7 @@ static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations,
     const size_t rows = rows_per_node + 2 * STENCIL_BOUNDARY;
     const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
-    MPI_Scatterv(send_recv_buf, block_sizes, block_displacements, send_type, // sender
+    MPI_Scatterv(send_recv_buf, block_counts, block_displacements, send_type, // sender
                  matrix->values, rows * cols, MPI_DOUBLE, // receiver
                  MASTER, comm_card);
 
@@ -134,7 +134,7 @@ static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations,
                                                                  cols_per_node,
                                                                  STENCIL_BOUNDARY);
     MPI_Gatherv(matrix->values, 1, matrix_without_boundary, // sender
-                send_recv_buf, block_sizes, block_displacements, recv_type, // receiver
+                send_recv_buf, block_counts, block_displacements, recv_type, // receiver
                 MASTER, comm_card);
     MPI_Type_free(&matrix_without_boundary);
 
@@ -174,7 +174,7 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
                                                                  cols_per_node,
                                                                  STENCIL_BOUNDARY);
 
-    // calculate sub-matrix displacements and block sizes
+    // calculate sub-matrix displacements and block counts
     int *block_displacements = (int *)alloca(nodes * sizeof(int));
     for (int i = 0; i < nodes_vertical; i++) {
         for (int j = 0; j < nodes_horizontal; j++) {
@@ -183,13 +183,13 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
                                         (matrix->boundary + i * rows_per_node - STENCIL_BOUNDARY) * matrix->cols;
         }
     }
-    int *block_sizes = (int *)alloca(nodes * sizeof(int));
-    memset(block_sizes, 1, nodes * sizeof(int)); // block size is always 1 because we use our special matrix type
+    int *block_counts = (int *)alloca(nodes * sizeof(int));
+    memset(block_counts, 1, nodes * sizeof(int)); // block count is always 1 because we use our special matrix type
 
     const double t1 = MPI_Wtime();
 
     five_point_stencil_node(comm_card, iterations, rows_per_node, cols_per_node,
-                            matrix->values, block_sizes, block_displacements,
+                            matrix->values, block_counts, block_displacements,
                             matrix_with_boundary, matrix_without_boundary);
 
     const double t2 = MPI_Wtime();
