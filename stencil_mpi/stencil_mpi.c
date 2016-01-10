@@ -10,12 +10,7 @@
 
 #define MASTER 0
 #define DIMENSIONS 2
-
-enum mpi_tags_t {
-    TAG_ROWS,
-    TAG_COLS,
-    TAG_DATA
-};
+#define STENCIL_BOUNDARY 1
 
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
@@ -58,15 +53,6 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     stencil_vector_free(tmp);
 }
 
-static void send_matrix(const stencil_matrix_t* matrix, const size_t start_row, const size_t rows, const size_t recv, MPI_Comm comm_card)
-{
-    MPI_Send(&rows, 1, MPI_UNSIGNED_LONG, recv, TAG_ROWS, comm_card);
-    MPI_Send(&matrix->cols, 1, MPI_UNSIGNED_LONG, recv, TAG_COLS, comm_card);
-
-    // send submatrix
-    MPI_Send(stencil_matrix_get_ptr(matrix, start_row, 0), matrix->cols * rows, MPI_DOUBLE, recv, TAG_DATA, comm_card);
-}
-
 int stencil_init(int *argc, char ***argv, MPI_Comm *comm_card)
 {
     int ret;
@@ -106,72 +92,96 @@ int stencil_finalize()
     return MPI_Finalize();
 }
 
-double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_Comm comm_card)
+static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix, size_t rows, size_t cols, size_t boundary)
+{
+    MPI_Datatype submatrix_type;
+    const int matrix_size[DIMENSIONS] = {matrix->rows, matrix->cols};
+    const int data_size[DIMENSIONS] = {rows, cols};
+    const int data_position[DIMENSIONS] = {boundary, boundary};
+    MPI_Type_create_subarray(DIMENSIONS, matrix_size, data_size, data_position, MPI_ORDER_C, MPI_DOUBLE, &submatrix_type);
+    MPI_Type_commit(&submatrix_type);
+    return submatrix_type;
+}
+
+static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations, size_t rows_per_node, size_t cols_per_node,
+                                    double *send_recv_buf, int *block_sizes, int *block_displacements,
+                                    MPI_Datatype send_type, MPI_Datatype recv_type)
 {
     MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
+    MPI_Bcast(&rows_per_node, 1, MPI_UNSIGNED_LONG, MASTER, comm_card); // without boundary
+    MPI_Bcast(&cols_per_node, 1, MPI_UNSIGNED_LONG, MASTER, comm_card); // without boundary
 
-    int nr_workers = 1;
-    MPI_Comm_size(comm_card, &nr_workers);
+    // receive matrix (with boundary)
+    const size_t rows = rows_per_node + 2 * STENCIL_BOUNDARY;
+    const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
+    stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
+    MPI_Scatterv(send_recv_buf, block_sizes, block_displacements, recv_type, matrix->values, rows * cols, MPI_DOUBLE, MASTER, comm_card);
 
-    const size_t rows = matrix->rows - 2 * matrix->boundary;
-    const size_t rows_per_worker = rows / nr_workers;
-    const size_t rows_for_last_worker = rows_per_worker + 2 + rows % nr_workers;
-
-    // distribute submatrices
-    for (size_t worker = 1; worker < (nr_workers - 1); worker++) {
-        send_matrix(matrix, matrix->boundary + worker * rows_per_worker - 1, rows_per_worker + 2, worker, comm_card);
-    }
-    // send to last worker
-    const size_t start_row = matrix->boundary + (nr_workers - 1) * rows_per_worker - 1;
-    send_matrix(matrix, start_row, rows_for_last_worker, nr_workers - 1, comm_card);
-
-    double t1 = MPI_Wtime();
-
-    // calculate submatrix
+    // start calculation
     sequential_five_point_stencil(matrix, iterations);
 
-    // receive submatrix data from other workers
-    size_t matrix_row = matrix->boundary + rows_per_worker;
-    for (size_t i = 1; i < (nr_workers - 1); i++) {
-        MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_per_worker, MPI_DOUBLE, i, TAG_DATA, comm_card, MPI_STATUS_IGNORE);
-        matrix_row += rows_per_worker;
-    }
-    // receive from last worker
-    MPI_Recv(stencil_matrix_get_ptr(matrix, matrix_row, 0), matrix->cols * rows_for_last_worker, MPI_DOUBLE, (nr_workers - 1), TAG_DATA, comm_card, MPI_STATUS_IGNORE);
+    // send back data (without boundary)
+    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix, rows_per_node, cols_per_node, STENCIL_BOUNDARY);
+    MPI_Gatherv(matrix->values, 1, matrix_without_boundary, send_recv_buf, block_sizes, block_displacements, send_type, MASTER, comm_card);
+    MPI_Type_free(&matrix_without_boundary);
 
-    double t2 = MPI_Wtime();
+    stencil_matrix_free(matrix);
+}
+
+double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_Comm comm_card)
+{
+    assert(matrix->boundary == STENCIL_BOUNDARY);
+
+    int nodes;
+    MPI_Comm_size(comm_card, &nodes);
+
+    int dims[DIMENSIONS];
+    int periods[DIMENSIONS];
+    int coords[DIMENSIONS];
+    MPI_Cart_get(comm_card, DIMENSIONS, dims, periods, coords);
+
+    const int nodes_horizontal = dims[0];
+    const int nodes_vertical = dims[1];
+
+    assert(((matrix->rows - 2 * matrix->boundary) % nodes_vertical) == 0);
+    assert(((matrix->cols - 2 * matrix->boundary) % nodes_horizontal) == 0);
+
+    const size_t rows_per_node = (matrix->rows - 2 * matrix->boundary) / nodes_vertical;
+    const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
+
+    // datatype which represents a sub-matrix with boundary information
+    MPI_Datatype matrix_with_boundary = create_submatrix_type(matrix, rows_per_node + 2 * STENCIL_BOUNDARY,
+                                                              cols_per_node + 2 * STENCIL_BOUNDARY, 0);
+
+    // datatype which represents a sub-matrix without boundary information
+    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix, rows_per_node, cols_per_node, STENCIL_BOUNDARY);
+
+    // calculate sub-matrix displacements and block sizes
+    int *block_displacements = (int *)alloca(nodes * sizeof(int));
+    for (int i = 0; i < nodes_vertical; i++) {
+        for (int j = 0; j < nodes_horizontal; j++) {
+            const int node = i * nodes_vertical + nodes_horizontal;
+            block_displacements[node] = matrix->boundary + j * cols_per_node - STENCIL_BOUNDARY +
+                                        (matrix->boundary + i * rows_per_node - STENCIL_BOUNDARY) * matrix->cols;
+        }
+    }
+    int *block_sizes = (int *)alloca(nodes * sizeof(int));
+    memset(block_sizes, 1, nodes * sizeof(int)); // block size is always 1 because we use our special matrix type
+
+    const double t1 = MPI_Wtime();
+
+    five_point_stencil_node(comm_card, iterations, rows_per_node, cols_per_node, matrix->values, block_sizes, block_displacements,
+                            matrix_with_boundary, matrix_without_boundary);
+
+    const double t2 = MPI_Wtime();
+
+    MPI_Type_free(&matrix_without_boundary);
+    MPI_Type_free(&matrix_with_boundary);
 
     return (t2 - t1) * 1000;
 }
 
 void five_point_stencil_client(MPI_Comm comm_card)
 {
-    size_t iterations;
-    MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
-
-    // receive matrix (with boundary)
-    size_t rows, cols;
-    MPI_Recv(&rows, 1, MPI_UNSIGNED_LONG, MASTER, TAG_ROWS, comm_card, MPI_STATUS_IGNORE);
-    MPI_Recv(&cols, 1, MPI_UNSIGNED_LONG, MASTER, TAG_COLS, comm_card, MPI_STATUS_IGNORE);
-
-    const size_t boundary = 1;
-    stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, boundary);
-    MPI_Recv(matrix->values, cols * rows, MPI_DOUBLE, MASTER, TAG_DATA, comm_card, MPI_STATUS_IGNORE);
-
-    // start calculation
-    sequential_five_point_stencil(matrix, iterations);
-
-    // send back data (without boundary)
-    MPI_Datatype matrix_without_boundary;
-    const int matrix_size[] = {rows, cols};
-    const int data_size[] = {rows - 2 * boundary, cols - 2 * boundary};
-    const int data_position[] = {boundary, boundary};
-    MPI_Type_create_subarray(2, matrix_size, data_size, data_position, MPI_ORDER_C, MPI_DOUBLE, &matrix_without_boundary);
-    MPI_Type_commit(&matrix_without_boundary);
-
-    MPI_Send(matrix->values, 1, matrix_without_boundary, MASTER, TAG_DATA, comm_card);
-
-    MPI_Type_free(&matrix_without_boundary);
-
-    stencil_matrix_free(matrix);
+    five_point_stencil_node(comm_card, 0, 0, 0, NULL, NULL, NULL, MPI_DOUBLE, MPI_DOUBLE);
 }
