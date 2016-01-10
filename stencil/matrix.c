@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <math.h>
 #include <float.h>
 
@@ -126,4 +127,20 @@ bool stencil_matrix_equals(const stencil_matrix_t *const matrix1, const stencil_
     }
 
     return true;
+}
+
+void stencil_matrix_print(const stencil_matrix_t *const matrix)
+{
+    assert(matrix);
+
+    for (size_t i = 0; i < matrix->rows; i++) {
+        printf("   %i: [", (i + 1));
+        if (matrix->cols > 0) {
+            printf("%0.2f", stencil_matrix_get(matrix, i, 0));
+        }
+        for (size_t j = 1; j < matrix->cols; j++) {
+            printf(", %0.2f", stencil_matrix_get(matrix, i, j));
+        }
+        printf("]\n");
+    }
 }

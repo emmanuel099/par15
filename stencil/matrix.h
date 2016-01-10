@@ -103,4 +103,11 @@ stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const mat
  */
 bool stencil_matrix_equals(const stencil_matrix_t *const matrix1, const stencil_matrix_t *const matrix2);
 
+/**
+ * Prints the values of the matrix \a matrix to stdout (e.g. for debugging).
+ *
+ * @param matrix A pointer to the matrix (must be valid)
+ */
+void stencil_matrix_print(const stencil_matrix_t *const matrix);
+
 #endif // __STENCIL_MATRIX_H
