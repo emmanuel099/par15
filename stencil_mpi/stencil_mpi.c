@@ -46,8 +46,6 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 {
     assert(matrix->boundary >= 1);
 
-    stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
-
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
@@ -63,13 +61,15 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     MPI_Cart_shift(comm_card, DIM_VERTICAL, DIM_SHIFT_DOWN,
                    &neighbours_source[NEIGHBOUR_BELOW], &neighbours_dest[NEIGHBOUR_BELOW]);
 
-    MPI_Datatype matrix_row;
-    MPI_Type_vector(1, matrix->cols, 0, MPI_DOUBLE, &matrix_row);
-    MPI_Type_commit(&matrix_row);
+    MPI_Datatype matrix_row_t;
+    MPI_Type_vector(1, matrix->cols, 0, MPI_DOUBLE, &matrix_row_t);
+    MPI_Type_commit(&matrix_row_t);
 
-    MPI_Datatype matrix_col;
-    MPI_Type_vector(matrix->rows, 1, matrix->cols - 1, MPI_DOUBLE, &matrix_col);
-    MPI_Type_commit(&matrix_col);
+    MPI_Datatype matrix_col_t;
+    MPI_Type_vector(matrix->rows, 1, matrix->cols - 1, MPI_DOUBLE, &matrix_col_t);
+    MPI_Type_commit(&matrix_col_t);
+
+    stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
 
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         // exchange boundary data (not needed on the first iteration because we
@@ -77,27 +77,27 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
         if (iteration > 1) {
             MPI_Status status;
             if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row,
+                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
                              neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row,
+                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
                              neighbours_source[NEIGHBOUR_ABOVE], MPI_ANY_TAG, comm_card, &status);
             }
             if (neighbours_dest[NEIGHBOUR_BELOW] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row,
+                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
                              neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row,
+                             stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
                              neighbours_source[NEIGHBOUR_BELOW], MPI_ANY_TAG, comm_card, &status);
             }
             if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col,
+                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
                              neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col,
+                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
                              neighbours_source[NEIGHBOUR_LEFT], MPI_ANY_TAG, comm_card, &status);
             }
             if (neighbours_dest[NEIGHBOUR_RIGHT] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col,
+                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
                              neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col,
+                             stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
                              neighbours_source[NEIGHBOUR_RIGHT], MPI_ANY_TAG, comm_card, &status);
             }
         }
@@ -122,10 +122,10 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
         stencil_matrix_set_row(matrix, rows - 1, tmp);
     }
 
-    MPI_Type_free(&matrix_col);
-    MPI_Type_free(&matrix_row);
-
     stencil_vector_free(tmp);
+
+    MPI_Type_free(&matrix_col_t);
+    MPI_Type_free(&matrix_row_t);
 }
 
 int stencil_init(int *argc, char ***argv, MPI_Comm *comm_card)
@@ -210,18 +210,6 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
     const size_t rows_per_node = (matrix->rows - 2 * matrix->boundary) / nodes_vertical;
     const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
 
-    // datatype which represents a sub-matrix with boundary information
-    MPI_Datatype matrix_with_boundary = create_submatrix_type(matrix,
-                                                              rows_per_node + 2 * STENCIL_BOUNDARY,
-                                                              cols_per_node + 2 * STENCIL_BOUNDARY,
-                                                              0);
-
-    // datatype which represents a sub-matrix without boundary information
-    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix,
-                                                                 rows_per_node,
-                                                                 cols_per_node,
-                                                                 STENCIL_BOUNDARY);
-
     // calculate sub-matrix displacements and block counts
     int *block_counts = (int *)alloca(nodes * sizeof(int));
     int *block_displacements = (int *)alloca(nodes * sizeof(int));
@@ -239,30 +227,41 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
     const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
     stencil_matrix_t *node_matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
 
-    MPI_Datatype node_matrix_with_boundary = create_submatrix_type(node_matrix,
-                                                                   rows,
-                                                                   cols,
-                                                                   0);
-    MPI_Scatterv(matrix->values, block_counts, block_displacements, matrix_with_boundary, // sender
-                 node_matrix->values, 1, node_matrix_with_boundary, // receiver
+    MPI_Datatype matrix_with_boundary_t = create_submatrix_type(matrix,
+                                                                rows_per_node + 2 * STENCIL_BOUNDARY,
+                                                                cols_per_node + 2 * STENCIL_BOUNDARY,
+                                                                0);
+    MPI_Datatype node_matrix_with_boundary_t = create_submatrix_type(node_matrix,
+                                                                     rows,
+                                                                     cols,
+                                                                     0);
+
+    MPI_Scatterv(matrix->values, block_counts, block_displacements, matrix_with_boundary_t, // sender
+                 node_matrix->values, 1, node_matrix_with_boundary_t, // receiver
                  MASTER, comm_card);
-    MPI_Type_free(&node_matrix_with_boundary);
+
+    MPI_Type_free(&node_matrix_with_boundary_t);
+    MPI_Type_free(&matrix_with_boundary_t);
 
     // start calculation
     sequential_five_point_stencil(node_matrix, iterations, comm_card);
 
     // send back data (without boundary)
-    MPI_Datatype node_matrix_without_boundary = create_submatrix_type(node_matrix,
-                                                                      rows_per_node,
-                                                                      cols_per_node,
-                                                                      STENCIL_BOUNDARY);
-    MPI_Gatherv(node_matrix->values, 1, node_matrix_without_boundary, // sender
-                matrix->values, block_counts, block_displacements, matrix_without_boundary, // receiver
-                MASTER, comm_card);
-    MPI_Type_free(&node_matrix_without_boundary);
+    MPI_Datatype matrix_without_boundary_t = create_submatrix_type(matrix,
+                                                                   rows_per_node,
+                                                                   cols_per_node,
+                                                                   STENCIL_BOUNDARY);
+    MPI_Datatype node_matrix_without_boundary_t = create_submatrix_type(node_matrix,
+                                                                        rows_per_node,
+                                                                        cols_per_node,
+                                                                        STENCIL_BOUNDARY);
 
-    MPI_Type_free(&matrix_without_boundary);
-    MPI_Type_free(&matrix_with_boundary);
+    MPI_Gatherv(node_matrix->values, 1, node_matrix_without_boundary_t, // sender
+                matrix->values, block_counts, block_displacements, matrix_without_boundary_t, // receiver
+                MASTER, comm_card);
+
+    MPI_Type_free(&node_matrix_without_boundary_t);
+    MPI_Type_free(&matrix_without_boundary_t);
 
     stencil_matrix_free(node_matrix);
 }
@@ -272,11 +271,8 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
     assert(matrix->boundary == STENCIL_BOUNDARY);
 
     const double t1 = MPI_Wtime();
-
     five_point_stencil_node(matrix, iterations, comm_card);
-
     const double t2 = MPI_Wtime();
-
     return (t2 - t1) * 1000;
 }
 
