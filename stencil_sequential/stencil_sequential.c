@@ -26,8 +26,7 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = get_time();
 
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         for (size_t row = matrix->boundary; row < rows; row++) {
@@ -38,12 +37,11 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
         }
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = get_time();
 
     stencil_matrix_free(tmp_matrix);
 
-    return time_difference_ms(t1, t2);
+    return t2 - t1;
 }
 
 double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_t iterations)
@@ -56,8 +54,7 @@ double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = get_time();
 
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         // calculate the first row
@@ -83,13 +80,12 @@ double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_
         stencil_matrix_set_row(matrix, rows - 1, above);
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = get_time();
 
     stencil_vector_free(above);
     stencil_vector_free(current);
 
-    return time_difference_ms(t1, t2);
+    return t2 - t1;
 }
 
 double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t iterations)
@@ -101,8 +97,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = get_time();
 
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         // calculate the first row
@@ -125,10 +120,9 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
         stencil_matrix_set_row(matrix, rows - 1, tmp);
     }
 
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = get_time();
 
     stencil_vector_free(tmp);
 
-    return time_difference_ms(t1, t2);
+    return t2 - t1;
 }

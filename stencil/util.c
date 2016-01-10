@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "util.h"
 
@@ -108,7 +109,34 @@ stencil_matrix_t* new_randomized_matrix(size_t rows, size_t cols, size_t boundar
     return matrix;
 }
 
-double time_difference_ms(struct timeval t1, struct timeval t2)
+double get_time()
 {
-    return (t2.tv_sec * 1000.0 + t2.tv_usec / 1000.0) - (t1.tv_sec * 1000.0 + t1.tv_usec / 1000.0);
+#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+    struct timespec ts;
+#if defined(CLOCK_MONOTONIC_PRECISE)
+    /* BSD. --------------------------------------------- */
+    const clockid_t id = CLOCK_MONOTONIC_PRECISE;
+#elif defined(CLOCK_MONOTONIC_RAW)
+    /* Linux. ------------------------------------------- */
+    const clockid_t id = CLOCK_MONOTONIC_RAW;
+#elif defined(CLOCK_HIGHRES)
+    /* Solaris. ----------------------------------------- */
+    const clockid_t id = CLOCK_HIGHRES;
+#elif defined(CLOCK_MONOTONIC)
+    /* AIX, BSD, Linux, POSIX, Solaris. ----------------- */
+    const clockid_t id = CLOCK_MONOTONIC;
+#elif defined(CLOCK_REALTIME)
+    /* AIX, BSD, HP-UX, Linux, POSIX. ------------------- */
+    const clockid_t id = CLOCK_REALTIME;
+#else
+    const clockid_t id = (clockid_t)-1; /* Unknown. */
+#endif
+    if ( id != (clockid_t)-1 && clock_gettime( id, &ts ) != -1 )
+        return (double)ts.tv_sec * 1000.0 + (double)ts.tv_nsec / 1000000.0;
+#else
+    /* AIX, BSD, Cygwin, HP-UX, Linux, OSX, POSIX, Solaris. ----- */
+    struct timeval tm;
+    gettimeofday( &tm, NULL );
+    return (double)tm.tv_sec * 1000.0 + (double)tm.tv_usec / 1000.0;
+#endif
 }

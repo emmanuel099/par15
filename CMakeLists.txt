@@ -10,7 +10,8 @@ add_definitions(
     -Wall
     -pedantic
     -Wextra
-    -Ofast
+    -O3
+    -std=c99
     -msse2
     -DNDEBUG
 )
