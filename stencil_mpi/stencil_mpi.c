@@ -153,7 +153,7 @@ int stencil_init(int *argc, char ***argv, MPI_Comm *comm_card)
 
     // create a non-periodic cartesian grid (allow reordering)
     int periods[DIMENSIONS];
-    memset(periods, false, sizeof(int) * DIMENSIONS);
+    memset(periods, 0, sizeof(int) * DIMENSIONS);
     ret = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, periods, true, comm_card);
     if (ret != MPI_SUCCESS) {
         return ret;
