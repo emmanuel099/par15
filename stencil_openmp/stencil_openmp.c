@@ -21,7 +21,7 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
 {
     assert(matrix->boundary >= 1);
 
-    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols, 0);
+    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, 0, 0, matrix->rows, matrix->cols, matrix->boundary);
 
     const size_t rows = matrix->rows - matrix->boundary;
     const size_t cols = matrix->cols - matrix->boundary;
@@ -36,9 +36,19 @@ double five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const size_t
                 stencil_matrix_set(matrix, row, col, value);
             }
         }
+
+        stencil_matrix_t *tmp = tmp_matrix;
+        tmp_matrix = matrix;
+        matrix = tmp;
     }
 
     const double t2 = omp_get_wtime();
+
+    if (iterations % 2 != 0) {
+        stencil_matrix_t *tmp = tmp_matrix;
+        tmp_matrix = matrix;
+        matrix = tmp;
+    }
 
     stencil_matrix_free(tmp_matrix);
 
