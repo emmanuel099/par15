@@ -43,11 +43,7 @@ stencil_matrix_t* new_randomized_matrix(size_t rows, size_t cols, size_t boundar
 bool matrix_to_file(const stencil_matrix_t* matrix, FILE *stream);
 
 /**
- * @param t1 first time value
- * @param t2 second time value
- *
- * @return returns the time between \a t1 and \a t2 in msecs
+ * @return returns the current time in msec
  */
-double time_difference_ms(struct timeval t1, struct timeval t2);
-
+double get_time();
 #endif // __STENCIL_UTIL_H

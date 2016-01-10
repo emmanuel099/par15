@@ -121,8 +121,7 @@ static double run_parallel(stencil_matrix_t *matrix, const size_t iterations, vo
         first_row_vectors[i] = stencil_vector_new(matrix->cols);
     }
 
-    struct timeval t1;
-    gettimeofday(&t1, NULL);
+    double t1 = get_time();
 
     for (size_t it = 0; it < iterations; it++) {
         // calculate first row on each worker and buffer values
@@ -147,8 +146,7 @@ static double run_parallel(stencil_matrix_t *matrix, const size_t iterations, vo
         }
     }
     
-    struct timeval t2;
-    gettimeofday(&t2, NULL);
+    double t2 = get_time();
 
     // free memory
     for (size_t i = 0; i < workers; i++) {
@@ -156,7 +154,7 @@ static double run_parallel(stencil_matrix_t *matrix, const size_t iterations, vo
     }
     free(first_row_vectors);
 
-    return time_difference_ms(t1, t2);
+    return t2 - t1;
 }
 
 double cilk_stencil_one_vector(stencil_matrix_t *matrix, const size_t iterations)
