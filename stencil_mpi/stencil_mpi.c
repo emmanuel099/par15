@@ -92,14 +92,18 @@ int stencil_finalize()
     return MPI_Finalize();
 }
 
-static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix, size_t rows, size_t cols, size_t boundary)
+static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
+                                          size_t rows, size_t cols, size_t boundary)
 {
+    const int matrix_size[] = {matrix->rows, matrix->cols};
+    const int data_size[] = {rows, cols};
+    const int data_position[] = {boundary, boundary};
+
     MPI_Datatype submatrix_type;
-    const int matrix_size[DIMENSIONS] = {matrix->rows, matrix->cols};
-    const int data_size[DIMENSIONS] = {rows, cols};
-    const int data_position[DIMENSIONS] = {boundary, boundary};
-    MPI_Type_create_subarray(DIMENSIONS, matrix_size, data_size, data_position, MPI_ORDER_C, MPI_DOUBLE, &submatrix_type);
+    MPI_Type_create_subarray(DIMENSIONS, matrix_size, data_size, data_position,
+                             MPI_ORDER_C, MPI_DOUBLE, &submatrix_type);
     MPI_Type_commit(&submatrix_type);
+
     return submatrix_type;
 }
 
@@ -159,11 +163,16 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
     const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
 
     // datatype which represents a sub-matrix with boundary information
-    MPI_Datatype matrix_with_boundary = create_submatrix_type(matrix, rows_per_node + 2 * STENCIL_BOUNDARY,
-                                                              cols_per_node + 2 * STENCIL_BOUNDARY, 0);
+    MPI_Datatype matrix_with_boundary = create_submatrix_type(matrix,
+                                                              rows_per_node + 2 * STENCIL_BOUNDARY,
+                                                              cols_per_node + 2 * STENCIL_BOUNDARY,
+                                                              0);
 
     // datatype which represents a sub-matrix without boundary information
-    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix, rows_per_node, cols_per_node, STENCIL_BOUNDARY);
+    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix,
+                                                                 rows_per_node,
+                                                                 cols_per_node,
+                                                                 STENCIL_BOUNDARY);
 
     // calculate sub-matrix displacements and block sizes
     int *block_displacements = (int *)alloca(nodes * sizeof(int));
@@ -179,7 +188,8 @@ double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_
 
     const double t1 = MPI_Wtime();
 
-    five_point_stencil_node(comm_card, iterations, rows_per_node, cols_per_node, matrix->values, block_sizes, block_displacements,
+    five_point_stencil_node(comm_card, iterations, rows_per_node, cols_per_node,
+                            matrix->values, block_sizes, block_displacements,
                             matrix_with_boundary, matrix_without_boundary);
 
     const double t2 = MPI_Wtime();
