@@ -160,9 +160,15 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
     const size_t rows = rows_per_node + 2 * STENCIL_BOUNDARY;
     const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
     stencil_matrix_t *node_matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
+
+    MPI_Datatype node_matrix_with_boundary = create_submatrix_type(node_matrix,
+                                                                   rows,
+                                                                   cols,
+                                                                   0);
     MPI_Scatterv(matrix->values, block_counts, block_displacements, matrix_with_boundary, // sender
-                 node_matrix->values, rows * cols, MPI_DOUBLE, // receiver
+                 node_matrix->values, 1, node_matrix_with_boundary, // receiver
                  MASTER, comm_card);
+    MPI_Type_free(&node_matrix_with_boundary);
 
     // start calculation
     sequential_five_point_stencil(node_matrix, iterations);
