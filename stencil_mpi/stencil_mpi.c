@@ -151,8 +151,8 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
         for (int j = 0; j < nodes_horizontal; j++) {
             const int node = i * nodes_vertical + j;
             block_counts[node] = 1; // block count is always 1 because we use our special matrix type
-            block_displacements[node] = matrix->boundary + j * cols_per_node - STENCIL_BOUNDARY +
-            (matrix->boundary + i * rows_per_node - STENCIL_BOUNDARY) * matrix->cols;
+            block_displacements[node] = stencil_matrix_get_ptr(matrix, i * rows_per_node, j * cols_per_node) -
+                                        stencil_matrix_get_ptr(matrix, 0, 0); // we need the relative address
         }
     }
 
