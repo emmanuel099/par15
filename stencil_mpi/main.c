@@ -1,66 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <mpi.h>
-
 #include "stencil_mpi.h"
+
+#define MASTER 0
 
 int main(int argc, char **argv)
 {
-    MPI_Init(&argc, &argv);
+    MPI_Comm comm_card;
+    if (stencil_init(&argc, &argv, &comm_card) != MPI_SUCCESS) {
+        return EXIT_FAILURE;
+    }
 
-    const size_t rows = 10000 + 2;   // n + 2 boundary vectors
-    const size_t cols = 20000 + 2;   // m + 2 boundary vectors
-    stencil_matrix_t *matrix;
+    int rank;
+    MPI_Comm_rank(comm_card, &rank);
 
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (rank == MASTER) {
+        fprintf(stdout, "Hello mpi\n");
 
-    if (rank == 0) {
-        matrix = stencil_matrix_new(rows, cols, 1);
+        stencil_matrix_t *matrix = stencil_matrix_new(10000, 20000, 1);
+        if (matrix == NULL) {
+            return EXIT_FAILURE;
+        }
+
         printf("\nfive_point_stencil_with_one_vector: \n");
-    }
-    for (int i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = mpi_stencil_one_vector_host(matrix, size);
+        for (int i = 0; i < 3; i++) {
+            double time = five_point_stencil_host(matrix, 6, comm_card);
             printf("elapsed time %fms\n", time);
-        } else {
-            mpi_stencil_one_vector_client(rank);
         }
-    }
 
-    if (rank == 0) {
-        printf("\nfive_point_stencil_with_two_vectors: \n");
-    }
-    for (int i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = mpi_stencil_two_vectors_host(matrix, size);
-            printf("elapsed time %fms\n", time);
-        } else {
-            mpi_stencil_two_vectors_client(rank);
-        }
-    }
-
-
-    if (rank == 0) {
-        printf("\nfive_point_stencil_with_tmp_matrix: \n");
-    }
-    for (size_t i = 0; i < 6; i++) {
-        if (rank == 0) {
-            double time = mpi_stencil_tmp_matrix_host(matrix, size);
-            printf("elapsed time %fms\n", time);
-        } else {
-            mpi_stencil_tmp_matrix_client(rank);
-        }
-    }
-
-    /* free memory */
-    if (rank == 0) {
         stencil_matrix_free(matrix);
+    } else {
+        five_point_stencil_client(comm_card);
     }
 
-    MPI_Finalize();
+    stencil_finalize();
 
     return EXIT_SUCCESS;
 }
