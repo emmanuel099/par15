@@ -103,8 +103,10 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix, size_t rows,
     return submatrix_type;
 }
 
-static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations, size_t rows_per_node, size_t cols_per_node,
-                                    double *send_recv_buf, int *block_sizes, int *block_displacements,
+static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations,
+                                    size_t rows_per_node, size_t cols_per_node,
+                                    double *send_recv_buf, int *block_sizes,
+                                    int *block_displacements,
                                     MPI_Datatype send_type, MPI_Datatype recv_type)
 {
     MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
@@ -115,14 +117,21 @@ static void five_point_stencil_node(MPI_Comm comm_card, size_t iterations, size_
     const size_t rows = rows_per_node + 2 * STENCIL_BOUNDARY;
     const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
-    MPI_Scatterv(send_recv_buf, block_sizes, block_displacements, recv_type, matrix->values, rows * cols, MPI_DOUBLE, MASTER, comm_card);
+    MPI_Scatterv(send_recv_buf, block_sizes, block_displacements, send_type, // sender
+                 matrix->values, rows * cols, MPI_DOUBLE, // receiver
+                 MASTER, comm_card);
 
     // start calculation
     sequential_five_point_stencil(matrix, iterations);
 
     // send back data (without boundary)
-    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix, rows_per_node, cols_per_node, STENCIL_BOUNDARY);
-    MPI_Gatherv(matrix->values, 1, matrix_without_boundary, send_recv_buf, block_sizes, block_displacements, send_type, MASTER, comm_card);
+    MPI_Datatype matrix_without_boundary = create_submatrix_type(matrix,
+                                                                 rows_per_node,
+                                                                 cols_per_node,
+                                                                 STENCIL_BOUNDARY);
+    MPI_Gatherv(matrix->values, 1, matrix_without_boundary, // sender
+                send_recv_buf, block_sizes, block_displacements, recv_type, // receiver
+                MASTER, comm_card);
     MPI_Type_free(&matrix_without_boundary);
 
     stencil_matrix_free(matrix);
