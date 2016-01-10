@@ -105,7 +105,11 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
                              MPI_ORDER_C, MPI_DOUBLE, &submatrix_type);
     MPI_Type_commit(&submatrix_type);
 
-    return submatrix_type;
+    MPI_Datatype resized_submatrix_type;
+    MPI_Type_create_resized(submatrix_type, 0, sizeof(double), &resized_submatrix_type);
+    MPI_Type_commit(&resized_submatrix_type);
+
+    return resized_submatrix_type;
 }
 
 static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations, MPI_Comm comm_card)
