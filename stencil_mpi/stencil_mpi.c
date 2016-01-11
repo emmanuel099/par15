@@ -38,6 +38,7 @@ enum mpi_tags_t {
 
 #define SENDRECV_BOUNDARY_EXCHANGE
 //#define NONBLOCKING_BOUNDARY_EXCHANGE
+//#define ONESIDED_BOUNDARY_EXCHANGE
 
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
@@ -116,6 +117,41 @@ static void exchange_boundary_data_nonblocking(stencil_matrix_t *matrix,
     MPI_Waitall(req_count, reqs, states);
 }
 
+static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
+                                            int neighbours_source[], int neighbours_dest[],
+                                            MPI_Datatype matrix_row_t, MPI_Datatype matrix_col_t,
+                                            MPI_Win boundary_windows[], MPI_Comm comm_card)
+{
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_ABOVE]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_BELOW]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_LEFT]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_RIGHT]);
+
+    if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t, neighbours_dest[NEIGHBOUR_ABOVE],
+                0, 1, matrix_row_t, boundary_windows[NEIGHBOUR_ABOVE]);
+    }
+    if (neighbours_dest[NEIGHBOUR_BELOW] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t, neighbours_dest[NEIGHBOUR_BELOW],
+                0, 1, matrix_row_t, boundary_windows[NEIGHBOUR_BELOW]);
+    }
+
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_ABOVE]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_BELOW]);
+
+    if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t, neighbours_dest[NEIGHBOUR_LEFT],
+                0, 1, matrix_col_t, boundary_windows[NEIGHBOUR_LEFT]);
+    }
+    if (neighbours_dest[NEIGHBOUR_RIGHT] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t, neighbours_dest[NEIGHBOUR_RIGHT],
+                0, 1, matrix_col_t, boundary_windows[NEIGHBOUR_RIGHT]);
+    }
+
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_LEFT]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_RIGHT]);
+}
+
 static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
 {
     assert(matrix->boundary >= 1);
@@ -134,6 +170,18 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
                    &neighbours_source[NEIGHBOUR_BELOW], &neighbours_dest[NEIGHBOUR_ABOVE]);
     MPI_Cart_shift(comm_card, DIM_VERTICAL, DIM_SHIFT_DOWN,
                    &neighbours_source[NEIGHBOUR_ABOVE], &neighbours_dest[NEIGHBOUR_BELOW]);
+
+#if defined(ONESIDED_BOUNDARY_EXCHANGE)
+    MPI_Win boundary_windows[4];
+    MPI_Win_create(stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), matrix->cols * sizeof(double),
+                   sizeof(double), MPI_INFO_NULL, comm_card, &boundary_windows[NEIGHBOUR_ABOVE]);
+    MPI_Win_create(stencil_matrix_get_ptr(matrix, 0, 0), matrix->cols * sizeof(double),
+                   sizeof(double), MPI_INFO_NULL, comm_card, &boundary_windows[NEIGHBOUR_BELOW]);
+    MPI_Win_create(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), matrix->cols * matrix->rows * sizeof(double),
+                   sizeof(double), MPI_INFO_NULL, comm_card, &boundary_windows[NEIGHBOUR_LEFT]);
+    MPI_Win_create(stencil_matrix_get_ptr(matrix, 0, 0), matrix->cols * matrix->rows * sizeof(double),
+                   sizeof(double), MPI_INFO_NULL, comm_card, &boundary_windows[NEIGHBOUR_RIGHT]);
+#endif
 
     MPI_Datatype matrix_row_t;
     MPI_Type_vector(1, matrix->cols, matrix->cols, MPI_DOUBLE, &matrix_row_t);
@@ -155,6 +203,9 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
             #elif defined(NONBLOCKING_BOUNDARY_EXCHANGE)
                 exchange_boundary_data_nonblocking(matrix, neighbours_source, neighbours_dest,
                                                    matrix_row_t, matrix_col_t, comm_card);
+            #elif defined(ONESIDED_BOUNDARY_EXCHANGE)
+                exchange_boundary_data_onesided(matrix, neighbours_source, neighbours_dest,
+                                                matrix_row_t, matrix_col_t, boundary_windows, comm_card);
             #endif
         }
 
@@ -179,6 +230,12 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     }
 
     stencil_vector_free(tmp);
+
+#if defined(ONESIDED_BOUNDARY_EXCHANGE)
+    for (int i = 0; i < 4; i++) {
+        MPI_Win_free(&boundary_windows[i]);
+    }
+#endif
 
     MPI_Type_free(&matrix_col_t);
     MPI_Type_free(&matrix_row_t);
