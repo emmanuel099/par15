@@ -43,6 +43,34 @@ inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, si
             stencil_matrix_get(matrix, row + 1, col)) * 0.25;
 }
 
+static void exchange_boundary_data_sendrecv(stencil_matrix_t *matrix,
+                                            int neighbours_source[], int neighbours_dest[],
+                                            MPI_Datatype matrix_row_t, MPI_Datatype matrix_col_t,
+                                            MPI_Comm comm_card)
+{
+    MPI_Status status;
+
+    MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
+                 neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
+                 stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
+                 neighbours_source[NEIGHBOUR_BELOW], TOP_HALO_TAG, comm_card, &status);
+
+    MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
+                 neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
+                 stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
+                 neighbours_source[NEIGHBOUR_ABOVE], BOTTOM_HALO_TAG, comm_card, &status);
+
+    MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
+                 neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
+                 stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
+                 neighbours_source[NEIGHBOUR_RIGHT], LEFT_HALO_TAG, comm_card, &status);
+
+    MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
+                 neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
+                 stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
+                 neighbours_source[NEIGHBOUR_LEFT], RIGHT_HALO_TAG, comm_card, &status);
+}
+
 static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
 {
     assert(matrix->boundary >= 1);
@@ -76,26 +104,8 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
         // exchange boundary data (not needed on the first iteration because we
         // have already received the correct boundary data from master)
         if (iteration > 1) {
-            MPI_Status status;
-            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
-                         neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
-                         stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
-                         neighbours_source[NEIGHBOUR_BELOW], TOP_HALO_TAG, comm_card, &status);
-
-            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
-                         neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
-                         stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
-                         neighbours_source[NEIGHBOUR_ABOVE], BOTTOM_HALO_TAG, comm_card, &status);
-
-            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
-                         neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
-                         stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
-                         neighbours_source[NEIGHBOUR_RIGHT], LEFT_HALO_TAG, comm_card, &status);
-
-            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
-                         neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
-                         stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
-                         neighbours_source[NEIGHBOUR_LEFT], RIGHT_HALO_TAG, comm_card, &status);
+            exchange_boundary_data_sendrecv(matrix, neighbours_source, neighbours_dest,
+                                            matrix_row_t, matrix_col_t, comm_card);
         }
 
         // calculate the first row
