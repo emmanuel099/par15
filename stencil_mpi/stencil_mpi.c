@@ -52,13 +52,13 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     int neighbours_source[4];
     int neighbours_dest[4];
     MPI_Cart_shift(comm_card, DIM_HORIZONTAL, DIM_SHIFT_LEFT,
-                   &neighbours_source[NEIGHBOUR_LEFT], &neighbours_dest[NEIGHBOUR_LEFT]);
+                   &neighbours_source[NEIGHBOUR_RIGHT], &neighbours_dest[NEIGHBOUR_LEFT]);
     MPI_Cart_shift(comm_card, DIM_HORIZONTAL, DIM_SHIFT_RIGHT,
-                   &neighbours_source[NEIGHBOUR_RIGHT], &neighbours_dest[NEIGHBOUR_RIGHT]);
+                   &neighbours_source[NEIGHBOUR_LEFT], &neighbours_dest[NEIGHBOUR_RIGHT]);
     MPI_Cart_shift(comm_card, DIM_VERTICAL, DIM_SHIFT_UP,
-                   &neighbours_source[NEIGHBOUR_ABOVE], &neighbours_dest[NEIGHBOUR_ABOVE]);
+                   &neighbours_source[NEIGHBOUR_BELOW], &neighbours_dest[NEIGHBOUR_ABOVE]);
     MPI_Cart_shift(comm_card, DIM_VERTICAL, DIM_SHIFT_DOWN,
-                   &neighbours_source[NEIGHBOUR_BELOW], &neighbours_dest[NEIGHBOUR_BELOW]);
+                   &neighbours_source[NEIGHBOUR_ABOVE], &neighbours_dest[NEIGHBOUR_BELOW]);
 
     MPI_Datatype matrix_row_t;
     MPI_Type_vector(1, matrix->cols, matrix->cols, MPI_DOUBLE, &matrix_row_t);
@@ -78,22 +78,22 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
             MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
                          neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
                          stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
-                         neighbours_source[NEIGHBOUR_ABOVE], TOP_HALO_TAG, comm_card, &status);
+                         neighbours_source[NEIGHBOUR_BELOW], TOP_HALO_TAG, comm_card, &status);
 
             MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
                          neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
                          stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
-                         neighbours_source[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG, comm_card, &status);
+                         neighbours_source[NEIGHBOUR_ABOVE], BOTTOM_HALO_TAG, comm_card, &status);
 
             MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
                          neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
                          stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
-                         neighbours_source[NEIGHBOUR_LEFT], LEFT_HALO_TAG, comm_card, &status);
+                         neighbours_source[NEIGHBOUR_RIGHT], LEFT_HALO_TAG, comm_card, &status);
 
             MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
                          neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
                          stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
-                         neighbours_source[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG, comm_card, &status);
+                         neighbours_source[NEIGHBOUR_LEFT], RIGHT_HALO_TAG, comm_card, &status);
         }
 
         // calculate the first row
