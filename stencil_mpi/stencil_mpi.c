@@ -21,7 +21,6 @@
 #define DIM_SHIFT_LEFT (-1)
 #define DIM_SHIFT_RIGHT 1
 
-#define NO_NEIGHBOUR (MPI_PROC_NULL)
 #define NEIGHBOUR_ABOVE 0
 #define NEIGHBOUR_BELOW 1
 #define NEIGHBOUR_LEFT 2
@@ -62,11 +61,11 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
                    &neighbours_source[NEIGHBOUR_BELOW], &neighbours_dest[NEIGHBOUR_BELOW]);
 
     MPI_Datatype matrix_row_t;
-    MPI_Type_vector(1, matrix->cols, 0, MPI_DOUBLE, &matrix_row_t);
+    MPI_Type_vector(1, matrix->cols, matrix->cols, MPI_DOUBLE, &matrix_row_t);
     MPI_Type_commit(&matrix_row_t);
 
     MPI_Datatype matrix_col_t;
-    MPI_Type_vector(matrix->rows, 1, matrix->cols - 1, MPI_DOUBLE, &matrix_col_t);
+    MPI_Type_vector(matrix->rows, 1, matrix->cols, MPI_DOUBLE, &matrix_col_t);
     MPI_Type_commit(&matrix_col_t);
 
     stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
@@ -76,30 +75,25 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
         // have already received the correct boundary data from master)
         if (iteration > 1) {
             MPI_Status status;
-            if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
-                             neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
-                             neighbours_source[NEIGHBOUR_ABOVE], MPI_ANY_TAG, comm_card, &status);
-            }
-            if (neighbours_dest[NEIGHBOUR_BELOW] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
-                             neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
-                             neighbours_source[NEIGHBOUR_BELOW], MPI_ANY_TAG, comm_card, &status);
-            }
-            if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
-                             neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
-                             neighbours_source[NEIGHBOUR_LEFT], MPI_ANY_TAG, comm_card, &status);
-            }
-            if (neighbours_dest[NEIGHBOUR_RIGHT] != NO_NEIGHBOUR) {
-                MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
-                             neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
-                             stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
-                             neighbours_source[NEIGHBOUR_RIGHT], MPI_ANY_TAG, comm_card, &status);
-            }
+            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
+                         neighbours_dest[NEIGHBOUR_ABOVE], TOP_HALO_TAG,
+                         stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
+                         neighbours_source[NEIGHBOUR_ABOVE], TOP_HALO_TAG, comm_card, &status);
+
+            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t,
+                         neighbours_dest[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG,
+                         stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_row_t,
+                         neighbours_source[NEIGHBOUR_BELOW], BOTTOM_HALO_TAG, comm_card, &status);
+
+            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
+                         neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG,
+                         stencil_matrix_get_ptr(matrix, 0, matrix->cols - 1), 1, matrix_col_t,
+                         neighbours_source[NEIGHBOUR_LEFT], LEFT_HALO_TAG, comm_card, &status);
+
+            MPI_Sendrecv(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t,
+                         neighbours_dest[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG,
+                         stencil_matrix_get_ptr(matrix, 0, 0), 1, matrix_col_t,
+                         neighbours_source[NEIGHBOUR_RIGHT], RIGHT_HALO_TAG, comm_card, &status);
         }
 
         // calculate the first row
@@ -210,14 +204,14 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
     const size_t rows_per_node = (matrix->rows - 2 * matrix->boundary) / nodes_vertical;
     const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
 
-    // calculate sub-matrix displacements and block counts
+    // calculate sub-matrix displacements and block counts (grid looks like [[0,2],[1,3]])
     int *block_counts = (int *)alloca(nodes * sizeof(int));
     int *block_displacements = (int *)alloca(nodes * sizeof(int));
-    for (int i = 0; i < nodes_vertical; i++) {
-        for (int j = 0; j < nodes_horizontal; j++) {
+    for (int i = 0; i < nodes_horizontal; i++) {
+        for (int j = 0; j < nodes_vertical; j++) {
             const int node = i * nodes_vertical + j;
             block_counts[node] = 1; // block count is always 1 because we use our special matrix type
-            block_displacements[node] = stencil_matrix_get_ptr(matrix, i * rows_per_node, j * cols_per_node) -
+            block_displacements[node] = stencil_matrix_get_ptr(matrix, j * rows_per_node, i * cols_per_node) -
                                         stencil_matrix_get_ptr(matrix, 0, 0); // we need the relative address
         }
     }
