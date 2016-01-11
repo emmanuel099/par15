@@ -162,7 +162,7 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
     return resized_submatrix_type;
 }
 
-static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
+static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
 {
     MPI_Comm comm_card = create_cartesian_topology(MPI_COMM_WORLD);
 
@@ -222,7 +222,9 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
     MPI_Type_free(&matrix_with_boundary_t);
 
     // start calculation
+    const double t1 = MPI_Wtime();
     sequential_five_point_stencil(node_matrix, iterations, comm_card);
+    const double t2 = MPI_Wtime();
 
     // send back data (without boundary)
     MPI_Datatype matrix_without_boundary_t = create_submatrix_type(matrix,
@@ -243,17 +245,21 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
 
     stencil_matrix_free(node_matrix);
 
+    // collect the maximum wall time
+    double wall_time = (t2 - t1) * 1000;
+    double max_wall_time;
+    MPI_Reduce(&wall_time, &max_wall_time, 1, MPI_DOUBLE, MPI_MAX, MASTER, comm_card);
+
     MPI_Comm_free(&comm_card);
+
+    return max_wall_time;
 }
 
 double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations)
 {
     assert(matrix->boundary == STENCIL_BOUNDARY);
 
-    const double t1 = MPI_Wtime();
-    five_point_stencil_node(matrix, iterations);
-    const double t2 = MPI_Wtime();
-    return (t2 - t1) * 1000;
+    return five_point_stencil_node(matrix, iterations);
 }
 
 void five_point_stencil_client()
