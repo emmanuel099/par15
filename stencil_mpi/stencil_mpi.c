@@ -5,6 +5,8 @@
 #include <math.h>
 #include <alloca.h>
 
+#include <mpi.h>
+
 #include <stencil/vector.h>
 
 #include "stencil_mpi.h"
@@ -122,43 +124,23 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     MPI_Type_free(&matrix_row_t);
 }
 
-int stencil_init(int *argc, char ***argv, MPI_Comm *comm_card)
+static MPI_Comm create_cartesian_topology(MPI_Comm old_comm)
 {
-    int ret;
-
-    ret = MPI_Init(argc, argv);
-    if (ret != MPI_SUCCESS) {
-        return ret;
-    }
-
     int nodes;
-    ret = MPI_Comm_size(MPI_COMM_WORLD, &nodes);
-    if (ret != MPI_SUCCESS) {
-        return ret;
-    }
+    MPI_Comm_size(old_comm, &nodes);
 
     // determine a good grid size
     int dims[DIMENSIONS];
     memset(dims, 0, sizeof(int) * DIMENSIONS); // MPI_Dims_create only modifies 0 values
-    ret = MPI_Dims_create(nodes, DIMENSIONS, dims);
-    if (ret != MPI_SUCCESS) {
-        return ret;
-    }
+    MPI_Dims_create(nodes, DIMENSIONS, dims);
 
     // create a non-periodic cartesian grid (allow reordering)
+    MPI_Comm comm_card;
     int periods[DIMENSIONS];
     memset(periods, 0, sizeof(int) * DIMENSIONS);
-    ret = MPI_Cart_create(MPI_COMM_WORLD, DIMENSIONS, dims, periods, true, comm_card);
-    if (ret != MPI_SUCCESS) {
-        return ret;
-    }
+    MPI_Cart_create(old_comm, DIMENSIONS, dims, periods, true, &comm_card);
 
-    return MPI_SUCCESS;
-}
-
-int stencil_finalize()
-{
-    return MPI_Finalize();
+    return comm_card;
 }
 
 static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
@@ -180,8 +162,10 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
     return resized_submatrix_type;
 }
 
-static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations, MPI_Comm comm_card)
+static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
 {
+    MPI_Comm comm_card = create_cartesian_topology(MPI_COMM_WORLD);
+
     MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
     MPI_Bcast(&matrix->rows, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
     MPI_Bcast(&matrix->cols, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
@@ -258,21 +242,23 @@ static void five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations,
     MPI_Type_free(&matrix_without_boundary_t);
 
     stencil_matrix_free(node_matrix);
+
+    MPI_Comm_free(&comm_card);
 }
 
-double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations, MPI_Comm comm_card)
+double five_point_stencil_host(stencil_matrix_t *matrix, size_t iterations)
 {
     assert(matrix->boundary == STENCIL_BOUNDARY);
 
     const double t1 = MPI_Wtime();
-    five_point_stencil_node(matrix, iterations, comm_card);
+    five_point_stencil_node(matrix, iterations);
     const double t2 = MPI_Wtime();
     return (t2 - t1) * 1000;
 }
 
-void five_point_stencil_client(MPI_Comm comm_card)
+void five_point_stencil_client()
 {
     stencil_matrix_t *matrix = stencil_matrix_new(0, 0, 0); // create a empty matrix (we don't need any memory for values)
-    five_point_stencil_node(matrix, 0, comm_card);
+    five_point_stencil_node(matrix, 0);
     stencil_matrix_free(matrix);
 }

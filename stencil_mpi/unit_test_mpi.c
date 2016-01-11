@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <mpi.h>
+
 #include <stencil/util.h>
 
 #include "stencil_mpi.h"
@@ -14,11 +16,12 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    MPI_Comm comm_card;
-    stencil_init(&argc, &argv, &comm_card);
+    if (MPI_Init(&argc, &argv) != MPI_SUCCESS) {
+        return EXIT_FAILURE;
+    }
 
     int rank;
-    MPI_Comm_rank(comm_card, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == MASTER) {
         stencil_matrix_t *matrix = new_matrix_from_file(argv[1]);
@@ -26,15 +29,15 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
-        five_point_stencil_host(matrix, 5, comm_card);
+        five_point_stencil_host(matrix, 5);
 
         matrix_to_file(matrix, stdout);
         stencil_matrix_free(matrix);
     } else {
-        five_point_stencil_client(comm_card);
+        five_point_stencil_client();
     }
 
-    stencil_finalize();
+    MPI_Finalize();
 
     return EXIT_SUCCESS;
 }
