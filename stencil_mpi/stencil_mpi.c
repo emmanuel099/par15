@@ -242,11 +242,13 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     MPI_Type_free(&matrix_row_t);
 }
 
-static void optimize_dims_for_ratio(int dims[], const float ratio)
+static void optimize_dims_for_matrix(int dims[], stencil_matrix_t *matrix)
 {
     int tmp_dims[DIMENSIONS];
 
+    const float ratio = (float)matrix->cols / (float)matrix->rows;
     const float initial_ratio = (float)dims[DIM_HORIZONTAL] / (float)dims[DIM_VERTICAL];
+
     if (initial_ratio > ratio) {
         // horizontally stretched - transpose
         tmp_dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
@@ -288,10 +290,7 @@ static MPI_Comm create_cartesian_topology(MPI_Comm old_comm, stencil_matrix_t *m
     int dims[DIMENSIONS];
     memset(dims, 0, sizeof(int) * DIMENSIONS); // MPI_Dims_create only modifies 0 values
     MPI_Dims_create(nodes, DIMENSIONS, dims);
-
-    // optimize the grid for the given matrix
-    const float matrix_ratio = (float)matrix->cols / (float)matrix->rows;
-    optimize_dims_for_ratio(dims, matrix_ratio);
+    optimize_dims_for_matrix(dims, matrix);
 
     // create a non-periodic cartesian grid (allow reordering)
     MPI_Comm comm_card;
