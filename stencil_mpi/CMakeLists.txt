@@ -1,10 +1,19 @@
 project(stencil_mpi)
 
-find_package(MPI REQUIRED)
+execute_process(COMMAND "hostname" OUTPUT_VARIABLE hostname)
+string(STRIP ${hostname} hostname)
+if (hostname STREQUAL "jupiter.par.tuwien.ac.at")
+    include_directories(/opt/mpich/include)
+    link_directories(/opt/mpich/lib)
+    set(DCMAKE_CC_COMPILER "/opt/mpich/bin/mpicc")
+    set(MPI_LIBRARIES "mpich;mpl;pthread")
+else()
+    find_package(MPI REQUIRED)
 
-if(MPI_C_FOUND)
-    set(CMAKE_C_COMPILE_FLAGS "${CMAKE_C_COMPILE_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-    set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+    if(MPI_C_FOUND)
+        set(CMAKE_C_COMPILE_FLAGS "${CMAKE_C_COMPILE_FLAGS} ${MPI_C_COMPILE_FLAGS}")
+        set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+    endif()
 endif()
 
 add_executable(stencil_mpi
