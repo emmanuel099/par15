@@ -244,40 +244,38 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 
 static void optimize_dims_for_matrix(int dims[], stencil_matrix_t *matrix)
 {
-    int tmp_dims[DIMENSIONS];
+    if (((matrix->cols > matrix->rows) && (dims[DIM_HORIZONTAL] < dims[DIM_VERTICAL])) ||
+        ((matrix->cols < matrix->rows) && (dims[DIM_HORIZONTAL] > dims[DIM_VERTICAL]))) { // transpose
+        const int h = dims[DIM_HORIZONTAL];
+        dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
+        dims[DIM_VERTICAL] = h;
+    }
 
-    const float ratio = (float)matrix->cols / (float)matrix->rows;
+    const double matrix_ratio = (double)matrix->cols / (double)matrix->rows;
     const float initial_ratio = (float)dims[DIM_HORIZONTAL] / (float)dims[DIM_VERTICAL];
 
-    if (initial_ratio > ratio) {
-        // horizontally stretched - transpose
-        tmp_dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
-        tmp_dims[DIM_VERTICAL] = dims[DIM_HORIZONTAL];
-    } else {
-        // vertically stretched
-        tmp_dims[DIM_HORIZONTAL] = dims[DIM_HORIZONTAL];
-        tmp_dims[DIM_VERTICAL] = dims[DIM_VERTICAL];
-    }
-
-    while ((tmp_dims[DIM_HORIZONTAL] % 2) == 0) {
-        const int h = tmp_dims[DIM_HORIZONTAL] / 2;
-        const int v = tmp_dims[DIM_VERTICAL] * 2;
-        if (((float)h / (float)v) <= ratio) {
-            tmp_dims[DIM_HORIZONTAL] = h;
-            tmp_dims[DIM_VERTICAL] = v;
-        } else {
-            break;
+    if (initial_ratio > matrix_ratio) {
+        while ((dims[DIM_HORIZONTAL] % 2) == 0) {
+            const int h = dims[DIM_HORIZONTAL] / 2;
+            const int v = dims[DIM_VERTICAL] * 2;
+            if (((double)h / (double)v) >= matrix_ratio) {
+                dims[DIM_HORIZONTAL] = h;
+                dims[DIM_VERTICAL] = v;
+            } else {
+                break;
+            }
         }
-    }
-
-    if (initial_ratio > ratio) {
-        // horizontally stretched - transpose
-        tmp_dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
-        tmp_dims[DIM_VERTICAL] = dims[DIM_HORIZONTAL];
     } else {
-        // vertically stretched
-        tmp_dims[DIM_HORIZONTAL] = dims[DIM_HORIZONTAL];
-        tmp_dims[DIM_VERTICAL] = dims[DIM_VERTICAL];
+        while ((dims[DIM_VERTICAL] % 2) == 0) {
+            const int h = dims[DIM_HORIZONTAL] * 2;
+            const int v = dims[DIM_VERTICAL] / 2;
+            if (((double)h / (double)v) <= matrix_ratio) {
+                dims[DIM_HORIZONTAL] = h;
+                dims[DIM_VERTICAL] = v;
+            } else {
+                break;
+            }
+        }
     }
 }
 
