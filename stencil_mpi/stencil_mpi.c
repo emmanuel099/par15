@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <alloca.h>
+#include <assert.h>
 
 #include <mpi.h>
 
@@ -241,7 +242,44 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     MPI_Type_free(&matrix_row_t);
 }
 
-static MPI_Comm create_cartesian_topology(MPI_Comm old_comm)
+static void optimize_dims_for_ratio(int dims[], const float ratio)
+{
+    int tmp_dims[DIMENSIONS];
+
+    const float initial_ratio = (float)dims[DIM_HORIZONTAL] / (float)dims[DIM_VERTICAL];
+    if (initial_ratio > ratio) {
+        // horizontally stretched - transpose
+        tmp_dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
+        tmp_dims[DIM_VERTICAL] = dims[DIM_HORIZONTAL];
+    } else {
+        // vertically stretched
+        tmp_dims[DIM_HORIZONTAL] = dims[DIM_HORIZONTAL];
+        tmp_dims[DIM_VERTICAL] = dims[DIM_VERTICAL];
+    }
+
+    while ((tmp_dims[DIM_HORIZONTAL] % 2) == 0) {
+        const int h = tmp_dims[DIM_HORIZONTAL] / 2;
+        const int v = tmp_dims[DIM_VERTICAL] * 2;
+        if (((float)h / (float)v) <= ratio) {
+            tmp_dims[DIM_HORIZONTAL] = h;
+            tmp_dims[DIM_VERTICAL] = v;
+        } else {
+            break;
+        }
+    }
+
+    if (initial_ratio > ratio) {
+        // horizontally stretched - transpose
+        tmp_dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
+        tmp_dims[DIM_VERTICAL] = dims[DIM_HORIZONTAL];
+    } else {
+        // vertically stretched
+        tmp_dims[DIM_HORIZONTAL] = dims[DIM_HORIZONTAL];
+        tmp_dims[DIM_VERTICAL] = dims[DIM_VERTICAL];
+    }
+}
+
+static MPI_Comm create_cartesian_topology(MPI_Comm old_comm, stencil_matrix_t *matrix)
 {
     int nodes;
     MPI_Comm_size(old_comm, &nodes);
@@ -250,6 +288,10 @@ static MPI_Comm create_cartesian_topology(MPI_Comm old_comm)
     int dims[DIMENSIONS];
     memset(dims, 0, sizeof(int) * DIMENSIONS); // MPI_Dims_create only modifies 0 values
     MPI_Dims_create(nodes, DIMENSIONS, dims);
+
+    // optimize the grid for the given matrix
+    const float matrix_ratio = (float)matrix->cols / (float)matrix->rows;
+    optimize_dims_for_ratio(dims, matrix_ratio);
 
     // create a non-periodic cartesian grid (allow reordering)
     MPI_Comm comm_card;
@@ -281,12 +323,12 @@ static MPI_Datatype create_submatrix_type(stencil_matrix_t *matrix,
 
 static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iterations)
 {
-    MPI_Comm comm_card = create_cartesian_topology(MPI_COMM_WORLD);
+    MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
+    MPI_Bcast(&matrix->rows, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
+    MPI_Bcast(&matrix->cols, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
+    MPI_Bcast(&matrix->boundary, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD);
 
-    MPI_Bcast(&iterations, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
-    MPI_Bcast(&matrix->rows, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
-    MPI_Bcast(&matrix->cols, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
-    MPI_Bcast(&matrix->boundary, 1, MPI_UNSIGNED_LONG, MASTER, comm_card);
+    MPI_Comm comm_card = create_cartesian_topology(MPI_COMM_WORLD, matrix);
 
     int nodes;
     MPI_Comm_size(comm_card, &nodes);
