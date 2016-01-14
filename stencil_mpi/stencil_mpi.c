@@ -145,6 +145,8 @@ static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
     MPI_Win_fence(0, boundary_windows[NEIGHBOUR_BELOW]);
     MPI_Win_fence(0, boundary_windows[NEIGHBOUR_LEFT]);
     MPI_Win_fence(0, boundary_windows[NEIGHBOUR_RIGHT]);
+
+    MPI_Barrier(comm_card);
 }
 
 static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
