@@ -83,8 +83,8 @@ static void exchange_boundary_data_nonblocking(stencil_matrix_t *matrix,
                                                MPI_Comm comm_card)
 {
     int req_count = 0;
-    MPI_Request reqs[4];
-    MPI_Status states[4];
+    MPI_Request reqs[8];
+    MPI_Status states[8];
 
     if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
         MPI_Isend(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t,
@@ -98,10 +98,6 @@ static void exchange_boundary_data_nonblocking(stencil_matrix_t *matrix,
         MPI_Irecv(stencil_matrix_get_ptr(matrix, matrix->rows - 1, 0), 1, matrix_row_t,
                   neighbours_source[NEIGHBOUR_BELOW], TOP_HALO_TAG, comm_card, &reqs[req_count++]);
     }
-
-    MPI_Waitall(req_count, reqs, states);
-    req_count = 0;
-
     if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
         MPI_Isend(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t,
                   neighbours_dest[NEIGHBOUR_LEFT], LEFT_HALO_TAG, comm_card, &reqs[req_count++]);
@@ -136,10 +132,6 @@ static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
         MPI_Put(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t, neighbours_dest[NEIGHBOUR_BELOW],
                 0, 1, matrix_row_t, boundary_windows[NEIGHBOUR_BELOW]);
     }
-
-    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_ABOVE]);
-    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_BELOW]);
-
     if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
         MPI_Put(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t, neighbours_dest[NEIGHBOUR_LEFT],
                 0, 1, matrix_col_t, boundary_windows[NEIGHBOUR_LEFT]);
@@ -149,6 +141,8 @@ static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
                 0, 1, matrix_col_t, boundary_windows[NEIGHBOUR_RIGHT]);
     }
 
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_ABOVE]);
+    MPI_Win_fence(0, boundary_windows[NEIGHBOUR_BELOW]);
     MPI_Win_fence(0, boundary_windows[NEIGHBOUR_LEFT]);
     MPI_Win_fence(0, boundary_windows[NEIGHBOUR_RIGHT]);
 }
