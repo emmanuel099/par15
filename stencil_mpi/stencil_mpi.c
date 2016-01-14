@@ -353,17 +353,19 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
     }
 
     // receive matrix (with boundary)
-    const size_t rows = rows_per_node + 2 * STENCIL_BOUNDARY;
-    const size_t cols = cols_per_node + 2 * STENCIL_BOUNDARY;
-    stencil_matrix_t *node_matrix = stencil_matrix_new(rows, cols, STENCIL_BOUNDARY);
+    const size_t rows_per_node_with_boundary = rows_per_node + 2 * STENCIL_BOUNDARY;
+    const size_t cols_per_node_with_boundary = cols_per_node + 2 * STENCIL_BOUNDARY;
+    stencil_matrix_t *node_matrix = stencil_matrix_new(rows_per_node_with_boundary,
+                                                       cols_per_node_with_boundary,
+                                                       STENCIL_BOUNDARY);
 
     MPI_Datatype matrix_with_boundary_t = create_submatrix_type(matrix,
-                                                                rows_per_node + 2 * STENCIL_BOUNDARY,
-                                                                cols_per_node + 2 * STENCIL_BOUNDARY,
+                                                                rows_per_node_with_boundary,
+                                                                cols_per_node_with_boundary,
                                                                 0);
     MPI_Datatype node_matrix_with_boundary_t = create_submatrix_type(node_matrix,
-                                                                     rows,
-                                                                     cols,
+                                                                     rows_per_node_with_boundary,
+                                                                     cols_per_node_with_boundary,
                                                                      0);
 
     MPI_Scatterv(matrix->values, block_counts, block_displacements, matrix_with_boundary_t, // sender
