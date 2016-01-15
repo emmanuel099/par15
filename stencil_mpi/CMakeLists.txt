@@ -25,6 +25,37 @@ target_link_libraries(stencil_mpi
     ${MPI_LIBRARIES}
 )
 
+# ---------- benchmarks ---------- #
+
+add_executable(mpi_benchmark_sendrecv
+    benchmark_sendrecv.c
+    stencil_mpi.c
+)
+target_link_libraries(mpi_benchmark_sendrecv
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+add_executable(mpi_benchmark_onesided
+    benchmark_onesided.c
+    stencil_mpi.c
+)
+target_link_libraries(mpi_benchmark_onesided
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+add_executable(mpi_benchmark_nonblocking
+    benchmark_nonblocking.c
+    stencil_mpi.c
+)
+target_link_libraries(mpi_benchmark_nonblocking
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+# ---------- unit test ---------- #
+
 add_executable(unit_test_mpi
     unit_test_mpi.c
     stencil_mpi.c

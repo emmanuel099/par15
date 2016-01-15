@@ -13,6 +13,16 @@ target_link_libraries(stencil_sequential
     stencil
 )
 
+# ---------- benchmark ---------- #
+
+add_executable(sequential_benchmark
+    stencil_sequential.c
+    benchmark.c
+)
+
+target_link_libraries(sequential_benchmark
+    stencil
+)
 
 # ---------- unit tests ---------- #
 

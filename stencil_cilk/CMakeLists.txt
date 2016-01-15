@@ -10,6 +10,18 @@ target_link_libraries(stencil_cilk
     stencil
 )
 
+# ---------- benchmark ---------- #
+
+add_executable(cilk_benchmark
+    benchmark.c
+    stencil_cilk.c
+)
+target_link_libraries(cilk_benchmark
+    stencil
+)
+
+# ---------- tests ---------- #
+
 add_executable(unit_test_cilk_one_vec
     unit_test_one_vec.c
     stencil_cilk.c

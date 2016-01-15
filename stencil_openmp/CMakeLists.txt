@@ -20,6 +20,15 @@ target_link_libraries(stencil_openmp
     stencil
 )
 
+# ---------- benchmark ---------- #
+
+add_executable(openmp_benchmark
+    benchmark.c
+    stencil_openmp.c
+)
+target_link_libraries(openmp_benchmark
+    stencil
+)
 
 # ---------- unit tests ---------- #
 

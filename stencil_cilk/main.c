@@ -14,11 +14,12 @@ int main(int argc, char **argv)
     const size_t rows = 10000 + 2;   // n + 2 boundary vectors
     const size_t cols = 20000 + 2;   // m + 2 boundary vectors
 
+    __cilkrts_set_param("nworkers", "2");
     stencil_matrix_t *matrix = stencil_matrix_new(rows, cols, 1);
 
     printf("\nfive_point_stencil_with_one_vector: \n");
     for (int i = 0; i < 3; i++) {
-        double time = cilk_stencil_one_vector(matrix, 6);
+        double time = cilk_stencil_one_vector(matrix, 5);
         printf("elapsed time %fms\n", time);
     }
 
