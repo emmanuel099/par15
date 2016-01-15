@@ -35,6 +35,6 @@ int main(int argc, char **argv)
     double elapsed_time = sum / 30.0;
     fprintf(stdout, "%f", elapsed_time);
 
-    free(matrix);
+    stencil_matrix_free(matrix);
     return EXIT_SUCCESS;
 }

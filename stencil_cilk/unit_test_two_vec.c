@@ -24,6 +24,6 @@ int main(int argc, char **argv)
     cilk_stencil_two_vectors(matrix, 5);
     matrix_to_file(matrix, stdout);
 
-    free(matrix);
+    stencil_matrix_free(matrix);
     return EXIT_SUCCESS;
 }

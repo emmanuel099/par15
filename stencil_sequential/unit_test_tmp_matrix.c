@@ -21,6 +21,6 @@ int main(int argc, char **argv)
     five_point_stencil_with_tmp_matrix(matrix, 5);
     matrix_to_file(matrix, stdout);
 
-    free(matrix);
+    stencil_matrix_free(matrix);
     return EXIT_SUCCESS;
 }
