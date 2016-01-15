@@ -8,7 +8,6 @@
 #include "stencil_mpi.h"
 
 #define MASTER 0
-#define ONESIDED_BOUNDARY_EXCHANGE
 
 int main(int argc, char **argv)
 {

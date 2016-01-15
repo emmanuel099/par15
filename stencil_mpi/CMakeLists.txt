@@ -25,10 +25,12 @@ target_link_libraries(stencil_mpi
     ${MPI_LIBRARIES}
 )
 
+set_target_properties(stencil_mpi PROPERTIES COMPILE_FLAGS "-DSENDRECV_BOUNDARY_EXCHANGE")
+
 # ---------- benchmarks ---------- #
 
 add_executable(mpi_benchmark_sendrecv
-    benchmark_sendrecv.c
+    benchmark.c
     stencil_mpi.c
 )
 target_link_libraries(mpi_benchmark_sendrecv
@@ -37,7 +39,7 @@ target_link_libraries(mpi_benchmark_sendrecv
 )
 
 add_executable(mpi_benchmark_onesided
-    benchmark_onesided.c
+    benchmark.c
     stencil_mpi.c
 )
 target_link_libraries(mpi_benchmark_onesided
@@ -46,7 +48,7 @@ target_link_libraries(mpi_benchmark_onesided
 )
 
 add_executable(mpi_benchmark_nonblocking
-    benchmark_nonblocking.c
+    benchmark.c
     stencil_mpi.c
 )
 target_link_libraries(mpi_benchmark_nonblocking
@@ -54,15 +56,44 @@ target_link_libraries(mpi_benchmark_nonblocking
     ${MPI_LIBRARIES}
 )
 
+set_target_properties(mpi_benchmark_sendrecv PROPERTIES COMPILE_FLAGS "-DSENDRECV_BOUNDARY_EXCHANGE")
+set_target_properties(mpi_benchmark_onesided PROPERTIES COMPILE_FLAGS "-DONESIDED_BOUNDARY_EXCHANGE")
+set_target_properties(mpi_benchmark_nonblocking PROPERTIES COMPILE_FLAGS "-DNONBLOCKING_BOUNDARY_EXCHANGE")
+
+
 # ---------- unit test ---------- #
 
-add_executable(unit_test_mpi
+add_executable(unit_test_mpi_sendrecv
     unit_test_mpi.c
     stencil_mpi.c
 )
-target_link_libraries(unit_test_mpi
+target_link_libraries(unit_test_mpi_sendrecv
     stencil
     ${MPI_LIBRARIES}
 )
 
-mpi_test("mpi_stencil" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi")
+add_executable(unit_test_mpi_onesided
+    unit_test_mpi.c
+    stencil_mpi.c
+)
+target_link_libraries(unit_test_mpi_onesided
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+add_executable(unit_test_mpi_nonblocking
+    unit_test_mpi.c
+    stencil_mpi.c
+)
+target_link_libraries(unit_test_mpi_nonblocking
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+set_target_properties(unit_test_mpi_sendrecv PROPERTIES COMPILE_FLAGS "-DSENDRECV_BOUNDARY_EXCHANGE")
+set_target_properties(unit_test_mpi_onesided PROPERTIES COMPILE_FLAGS "-DONESIDED_BOUNDARY_EXCHANGE")
+set_target_properties(unit_test_mpi_nonblocking PROPERTIES COMPILE_FLAGS "-DNONBLOCKING_BOUNDARY_EXCHANGE")
+
+mpi_test("mpi_stencil_sendrecv" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_sendrecv")
+mpi_test("mpi_stencil_onesided" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_onesided")
+mpi_test("mpi_stencil_nonblocking" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_nonblocking")

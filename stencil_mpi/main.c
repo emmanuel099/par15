@@ -6,7 +6,6 @@
 #include "stencil_mpi.h"
 
 #define MASTER 0
-#define SENDRECV_BOUNDARY_EXCHANGE
 
 int main(int argc, char **argv)
 {
