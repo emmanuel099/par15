@@ -149,7 +149,7 @@ static void exchange_boundary_data_onesided_pscw(stencil_matrix_t *matrix,
                                                  MPI_Win boundary_window, MPI_Group group,
                                                  MPI_Comm comm_card)
 {
-    MPI_Win_post(group, 0, boundary_window); //MPI_MODE_NOSTORE
+    MPI_Win_post(group, MPI_MODE_NOSTORE , boundary_window);
     MPI_Win_start(group, 0, boundary_window);
 
     if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
