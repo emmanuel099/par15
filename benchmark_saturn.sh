@@ -7,7 +7,11 @@ threads=$4
 
 ts=$(date +%s)
 out="benchmark.${ts}.csv"
-sequential="build/stencil_sequential/sequential_benchmark"
+
+cmds_sequential=(
+"build/stencil_sequential/sequential_benchmark_tmp_matrix"
+"build/stencil_sequential/sequential_benchmark_one_vector"
+)
 
 cmds=(
 "build/stencil_cilk/cilk_benchmark"
@@ -24,8 +28,10 @@ echo "its;${its}" >> ${out}
 echo "P;${threads}" >> ${out}
 
 # sequential
-time=$(${sequential} ${rows} ${cols} ${its})
-echo "sequential;${time}" >> ${out}
+for cmd in ${cmds_sequential[@]}; do
+    output=$(${sequential} ${rows} ${cols} ${its})
+    echo "${cmd};1;${output}" >> ${out}
+done
 
 # cilk / openmp
 for cmd in ${cmds[@]}; do

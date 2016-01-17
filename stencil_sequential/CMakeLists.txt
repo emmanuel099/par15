@@ -17,14 +17,26 @@ target_link_libraries(stencil_sequential
 
 # ---------- benchmark ---------- #
 
-add_executable(sequential_benchmark
+add_executable(sequential_benchmark_tmp_matrix
     stencil_sequential.c
     benchmark.c
 )
 
-target_link_libraries(sequential_benchmark
+target_link_libraries(sequential_benchmark_tmp_matrix
     stencil
 )
+
+add_executable(sequential_benchmark_one_vector
+    stencil_sequential.c
+    benchmark.c
+)
+
+target_link_libraries(sequential_benchmark_one_vector
+    stencil
+)
+
+set_target_properties(sequential_benchmark_tmp_matrix PROPERTIES COMPILE_FLAGS "-DSTENCIL_TMP_MATRIX")
+set_target_properties(sequential_benchmark_one_vector PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR")
 
 # ---------- unit tests ---------- #
 
