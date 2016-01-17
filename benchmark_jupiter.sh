@@ -29,7 +29,7 @@ echo "sequential;${time}" >> ${out}
 for cmd in ${cmds[@]}; do
     for par in $(echo $threads | tr ";" "\n"); do
         output=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
-        echo "${cmd};${par};${output};" >> ${out}
+        echo "${cmd};${par};${output}" >> ${out}
     done
 done
 exit 0

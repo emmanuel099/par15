@@ -27,7 +27,7 @@ echo "sequential;${time}" >> ${out}
 for cmd in ${cmds[@]}; do
     for par in $(echo $threads | tr ";" "\n"); do
         output=$(${cmd} ${rows} ${cols} ${its} ${par})
-        echo "${cmd};${par};${output};" >> ${out}
+        echo "${cmd};${par};${output}" >> ${out}
     done
 done
 exit 0
