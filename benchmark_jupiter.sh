@@ -13,7 +13,8 @@ sequential="build/stencil_sequential/sequential_benchmark"
 cmds=(
 "build/stencil_mpi/mpi_benchmark_sendrecv"
 "build/stencil_mpi/mpi_benchmark_nonblocking"
-"build/stencil_mpi/mpi_benchmark_onesided"
+"build/stencil_mpi/mpi_benchmark_onesided_fence"
+"build/stencil_mpi/mpi_benchmark_onesided_pscw"
 )
 
 echo "rows;${rows}" > ${out}

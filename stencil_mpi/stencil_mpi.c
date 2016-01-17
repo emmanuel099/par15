@@ -5,6 +5,7 @@
 #include <math.h>
 #include <alloca.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include <mpi.h>
 
@@ -39,7 +40,8 @@ enum mpi_tags_t {
 
 //#define SENDRECV_BOUNDARY_EXCHANGE
 //#define NONBLOCKING_BOUNDARY_EXCHANGE
-//#define ONESIDED_BOUNDARY_EXCHANGE
+//#define ONESIDED_FENCE_BOUNDARY_EXCHANGE
+//#define ONESIDED_PSCW_BOUNDARY_EXCHANGE
 
 inline double stencil_five_point_kernel(const stencil_matrix_t *const matrix, size_t row, size_t col)
 {
@@ -114,10 +116,10 @@ static void exchange_boundary_data_nonblocking(stencil_matrix_t *matrix,
     MPI_Waitall(req_count, reqs, states);
 }
 
-static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
-                                            int neighbours_source[], int neighbours_dest[],
-                                            MPI_Datatype matrix_row_t, MPI_Datatype matrix_col_t,
-                                            MPI_Win boundary_window, MPI_Comm comm_card)
+static void exchange_boundary_data_onesided_fence(stencil_matrix_t *matrix,
+                                                  int neighbours_source[], int neighbours_dest[],
+                                                  MPI_Datatype matrix_row_t, MPI_Datatype matrix_col_t,
+                                                  MPI_Win boundary_window, MPI_Comm comm_card)
 {
     MPI_Win_fence(MPI_MODE_NOSTORE, boundary_window);
 
@@ -141,6 +143,57 @@ static void exchange_boundary_data_onesided(stencil_matrix_t *matrix,
     MPI_Win_fence(MPI_MODE_NOSUCCEED, boundary_window);
 }
 
+static void exchange_boundary_data_onesided_pscw(stencil_matrix_t *matrix,
+                                                 int neighbours_source[], int neighbours_dest[],
+                                                 MPI_Datatype matrix_row_t, MPI_Datatype matrix_col_t,
+                                                 MPI_Win boundary_window, MPI_Group group,
+                                                 MPI_Comm comm_card)
+{
+    MPI_Win_post(group, 0, boundary_window); //MPI_MODE_NOSTORE
+    MPI_Win_start(group, 0, boundary_window);
+
+    if (neighbours_dest[NEIGHBOUR_ABOVE] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 1, 0), 1, matrix_row_t, neighbours_dest[NEIGHBOUR_ABOVE],
+                (matrix->rows - 1) * matrix->cols, 1, matrix_row_t, boundary_window);
+    }
+    if (neighbours_dest[NEIGHBOUR_BELOW] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, matrix->rows - 2, 0), 1, matrix_row_t, neighbours_dest[NEIGHBOUR_BELOW],
+                0, 1, matrix_row_t, boundary_window);
+    }
+    if (neighbours_dest[NEIGHBOUR_LEFT] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 0, 1), 1, matrix_col_t, neighbours_dest[NEIGHBOUR_LEFT],
+                matrix->cols - 1, 1, matrix_col_t, boundary_window);
+    }
+    if (neighbours_dest[NEIGHBOUR_RIGHT] != NO_NEIGHBOUR) {
+        MPI_Put(stencil_matrix_get_ptr(matrix, 0, matrix->cols - 2), 1, matrix_col_t, neighbours_dest[NEIGHBOUR_RIGHT],
+                0, 1, matrix_col_t, boundary_window);
+    }
+
+    MPI_Win_complete(boundary_window);
+    MPI_Win_wait(boundary_window);
+}
+
+static MPI_Group create_mpi_group(MPI_Group world_group, int size, ...)
+{
+    va_list args;
+    va_start(args, size);
+
+    int count = 0;
+    int *members = (int *)alloca(size * sizeof(int));
+    for (int i = 0; i < size; i++) {
+        members[count] = va_arg(args, int);
+        if (members[count] != NO_NEIGHBOUR) {
+            ++count;
+        }
+    }
+
+    va_end(args);
+
+    MPI_Group group;
+    MPI_Group_incl(world_group, count, members, &group);
+    return group;
+}
+
 static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
 {
     assert(matrix->boundary >= 1);
@@ -160,10 +213,19 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
     MPI_Cart_shift(comm_card, DIM_VERTICAL, DIM_SHIFT_DOWN,
                    &neighbours_source[NEIGHBOUR_ABOVE], &neighbours_dest[NEIGHBOUR_BELOW]);
 
-#if defined(ONESIDED_BOUNDARY_EXCHANGE)
+#if (defined(ONESIDED_FENCE_BOUNDARY_EXCHANGE) || defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE))
     MPI_Win boundary_window;
     MPI_Win_create(stencil_matrix_get_ptr(matrix, 0, 0), matrix->cols * matrix->rows * sizeof(double),
                    sizeof(double), MPI_INFO_NULL, comm_card, &boundary_window);
+#if defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE)
+    MPI_Group world_group;
+    MPI_Comm_group(comm_card, &world_group);
+
+    MPI_Group group = create_mpi_group(world_group, 4, neighbours_dest[NEIGHBOUR_ABOVE],
+                                                       neighbours_dest[NEIGHBOUR_BELOW],
+                                                       neighbours_dest[NEIGHBOUR_LEFT],
+                                                       neighbours_dest[NEIGHBOUR_RIGHT]);
+#endif
 #endif
 
     MPI_Datatype matrix_row_t;
@@ -186,9 +248,14 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
             #elif defined(NONBLOCKING_BOUNDARY_EXCHANGE)
                 exchange_boundary_data_nonblocking(matrix, neighbours_source, neighbours_dest,
                                                    matrix_row_t, matrix_col_t, comm_card);
-            #elif defined(ONESIDED_BOUNDARY_EXCHANGE)
-                exchange_boundary_data_onesided(matrix, neighbours_source, neighbours_dest,
-                                                matrix_row_t, matrix_col_t, boundary_window, comm_card);
+            #elif defined(ONESIDED_FENCE_BOUNDARY_EXCHANGE)
+                exchange_boundary_data_onesided_fence(matrix, neighbours_source, neighbours_dest,
+                                                      matrix_row_t, matrix_col_t, boundary_window,
+                                                      comm_card);
+            #elif defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE)
+                exchange_boundary_data_onesided_pscw(matrix, neighbours_source, neighbours_dest,
+                                                     matrix_row_t, matrix_col_t, boundary_window,
+                                                     group, comm_card);
             #endif
         }
 
@@ -214,8 +281,13 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 
     stencil_vector_free(tmp);
 
-#if defined(ONESIDED_BOUNDARY_EXCHANGE)
+#if (defined(ONESIDED_FENCE_BOUNDARY_EXCHANGE) || defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE))
     MPI_Win_free(&boundary_window);
+
+#if defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE)
+    MPI_Group_free(&world_group);
+    MPI_Group_free(&group);
+#endif
 #endif
 
     MPI_Type_free(&matrix_col_t);

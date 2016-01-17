@@ -40,11 +40,20 @@ target_link_libraries(mpi_benchmark_sendrecv
     ${MPI_LIBRARIES}
 )
 
-add_executable(mpi_benchmark_onesided
+add_executable(mpi_benchmark_onesided_fence
     benchmark.c
     stencil_mpi.c
 )
-target_link_libraries(mpi_benchmark_onesided
+target_link_libraries(mpi_benchmark_onesided_fence
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+add_executable(mpi_benchmark_onesided_pscw
+    benchmark.c
+    stencil_mpi.c
+)
+target_link_libraries(mpi_benchmark_onesided_pscw
     stencil
     ${MPI_LIBRARIES}
 )
@@ -59,7 +68,8 @@ target_link_libraries(mpi_benchmark_nonblocking
 )
 
 set_target_properties(mpi_benchmark_sendrecv PROPERTIES COMPILE_FLAGS "-DSENDRECV_BOUNDARY_EXCHANGE")
-set_target_properties(mpi_benchmark_onesided PROPERTIES COMPILE_FLAGS "-DONESIDED_BOUNDARY_EXCHANGE")
+set_target_properties(mpi_benchmark_onesided_fence PROPERTIES COMPILE_FLAGS "-DONESIDED_FENCE_BOUNDARY_EXCHANGE")
+set_target_properties(mpi_benchmark_onesided_pscw PROPERTIES COMPILE_FLAGS "-DONESIDED_PSCW_BOUNDARY_EXCHANGE")
 set_target_properties(mpi_benchmark_nonblocking PROPERTIES COMPILE_FLAGS "-DNONBLOCKING_BOUNDARY_EXCHANGE")
 
 
@@ -74,11 +84,20 @@ target_link_libraries(unit_test_mpi_sendrecv
     ${MPI_LIBRARIES}
 )
 
-add_executable(unit_test_mpi_onesided
+add_executable(unit_test_mpi_onesided_fence
     unit_test_mpi.c
     stencil_mpi.c
 )
-target_link_libraries(unit_test_mpi_onesided
+target_link_libraries(unit_test_mpi_onesided_fence
+    stencil
+    ${MPI_LIBRARIES}
+)
+
+add_executable(unit_test_mpi_onesided_pscw
+    unit_test_mpi.c
+    stencil_mpi.c
+)
+target_link_libraries(unit_test_mpi_onesided_pscw
     stencil
     ${MPI_LIBRARIES}
 )
@@ -93,9 +112,11 @@ target_link_libraries(unit_test_mpi_nonblocking
 )
 
 set_target_properties(unit_test_mpi_sendrecv PROPERTIES COMPILE_FLAGS "-DSENDRECV_BOUNDARY_EXCHANGE")
-set_target_properties(unit_test_mpi_onesided PROPERTIES COMPILE_FLAGS "-DONESIDED_BOUNDARY_EXCHANGE")
+set_target_properties(unit_test_mpi_onesided_fence PROPERTIES COMPILE_FLAGS "-DONESIDED_FENCE_BOUNDARY_EXCHANGE")
+set_target_properties(unit_test_mpi_onesided_pscw PROPERTIES COMPILE_FLAGS "-DONESIDED_PSCW_BOUNDARY_EXCHANGE")
 set_target_properties(unit_test_mpi_nonblocking PROPERTIES COMPILE_FLAGS "-DNONBLOCKING_BOUNDARY_EXCHANGE")
 
 mpi_test("mpi_stencil_sendrecv" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_sendrecv")
-mpi_test("mpi_stencil_onesided" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_onesided")
+mpi_test("mpi_stencil_onesided_fence" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_onesided_fence")
+mpi_test("mpi_stencil_onesided_pscw" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_onesided_pscw")
 mpi_test("mpi_stencil_nonblocking" "${CMAKE_BINARY_DIR}/stencil_mpi/unit_test_mpi_nonblocking")
