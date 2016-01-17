@@ -16,6 +16,8 @@ else()
     endif()
 endif()
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
+
 add_executable(stencil_mpi
     main.c
     stencil_mpi.c

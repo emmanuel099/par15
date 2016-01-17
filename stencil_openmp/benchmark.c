@@ -1,8 +1,14 @@
 #include <stdlib.h>
+#include <float.h>
+#include <math.h>
+
+#include <omp.h>
 
 #include <stencil/util.h>
 
 #include "stencil_openmp/stencil_openmp.h"
+
+#define BENCHMARK_ITERATIONS 30
 
 int main(int argc, char **argv)
 {
@@ -22,13 +28,18 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    double min = DBL_MAX;
+    double max = DBL_MIN;
     double sum = 0.0;
-    for (int i = 0; i < 30; i++) {
-        sum += five_point_stencil_with_one_vector(matrix, iterations);
+    for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+        const double elapsed_time = five_point_stencil_with_one_vector(matrix, iterations);
+        min = fmin(min, elapsed_time);
+        max = fmax(max, elapsed_time);
+        sum += elapsed_time;
     }
 
-    double elapsed_time = sum / 30.0;
-    fprintf(stdout, "%f", elapsed_time);
+    const double avg = sum / BENCHMARK_ITERATIONS;
+    fprintf(stdout, "%f;%f;%f", min, avg, max);
 
     stencil_matrix_free(matrix);
     return EXIT_SUCCESS;

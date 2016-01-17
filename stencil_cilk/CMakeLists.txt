@@ -1,6 +1,6 @@
 project(stencil_cilk)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcilkplus")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcilkplus -lm")
 
 add_executable(stencil_cilk
     main.c

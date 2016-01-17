@@ -6,7 +6,8 @@ its=$3
 threads=$4
 
 hostfile="hosts"
-out="benchmark.csv"
+ts=$(date +%s)
+out="benchmark.${ts}.csv"
 sequential="build/stencil_sequential/sequential_benchmark"
 
 cmds=(
@@ -15,7 +16,10 @@ cmds=(
 "build/stencil_mpi/mpi_benchmark_onesided"
 )
 
-echo "P;${threads}" > ${out}
+echo "rows;${rows}" > ${out}
+echo "cols;${cols}" >> ${out}
+echo "its;${its}" >> ${out}
+echo "P;${threads}" >> ${out}
 
 # sequential
 time=$(${sequential} ${rows} ${cols} ${its})
@@ -23,11 +27,9 @@ echo "sequential;${time}" >> ${out}
 
 # mpi
 for cmd in ${cmds[@]}; do
-    output="${cmd};";
     for par in $(echo $threads | tr ";" "\n"); do
-        time=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
-        output="${output}${time};"  
+        output=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
+        echo "${cmd};${par};${output};" >> ${out}
     done
-    echo ${output} >> ${out}
 done
 exit 0

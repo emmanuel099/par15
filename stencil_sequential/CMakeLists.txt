@@ -1,5 +1,7 @@
 project(stencil_sequential)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
+
 set(STENCIL_SEQUENTIAL_SRCS
     stencil_sequential.c
     main.c

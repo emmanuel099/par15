@@ -5,7 +5,8 @@ cols=$2
 its=$3
 threads=$4
 
-out="benchmark.csv"
+ts=$(date +%s)
+out="benchmark.${ts}.csv"
 sequential="build/stencil_sequential/sequential_benchmark"
 
 cmds=(
@@ -13,7 +14,10 @@ cmds=(
 "build/stencil_openmp/openmp_benchmark"
 )
 
-echo "P;${threads}" > ${out}
+echo "rows;${rows}" > ${out}
+echo "cols;${cols}" >> ${out}
+echo "its;${its}" >> ${out}
+echo "P;${threads}" >> ${out}
 
 # sequential
 time=$(${sequential} ${rows} ${cols} ${its})
@@ -21,11 +25,9 @@ echo "sequential;${time}" >> ${out}
 
 # cilk / openmp
 for cmd in ${cmds[@]}; do
-    output="${cmd};";
     for par in $(echo $threads | tr ";" "\n"); do
-        time=$(${cmd} ${rows} ${cols} ${its} ${par})
-        output="${output}${time};"  
+        output=$(${cmd} ${rows} ${cols} ${its} ${par})
+        echo "${cmd};${par};${output};" >> ${out}
     done
-    echo ${output} >> ${out}
 done
 exit 0

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <float.h>
 
 #include <mpi.h>
 
@@ -8,6 +10,7 @@
 #include "stencil_mpi.h"
 
 #define MASTER 0
+#define BENCHMARK_ITERATIONS 30
 
 int main(int argc, char **argv)
 {
@@ -32,13 +35,19 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
+        double min = DBL_MAX;
+        double max = DBL_MIN;
         double sum = 0.0;
-        for (int i = 0; i < 30; i++) {
-            sum += five_point_stencil_host(matrix, iterations);
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            const double elapsed_time = five_point_stencil_host(matrix, iterations);
+            min = fmin(min, elapsed_time);
+            max = fmax(max, elapsed_time);
+            sum += elapsed_time;
         }
 
-        double elapsed_time = sum / 30.0;
-        fprintf(stdout, "%f", elapsed_time);
+        const double avg = sum / BENCHMARK_ITERATIONS;
+        fprintf(stdout, "%f;%f;%f", min, avg, max);
+
         stencil_matrix_free(matrix);
     } else {
         for (int i = 0; i < 30; i++) {
