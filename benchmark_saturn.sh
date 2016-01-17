@@ -15,7 +15,8 @@ cmds_sequential=(
 
 cmds=(
 "build/stencil_cilk/cilk_benchmark"
-"build/stencil_openmp/openmp_benchmark"
+"build/stencil_openmp/openmp_benchmark_tmp_matrix"
+"build/stencil_openmp/openmp_benchmark_one_vector"
 "build/stencil_mpi/mpi_benchmark_sendrecv"
 "build/stencil_mpi/mpi_benchmark_nonblocking"
 "build/stencil_mpi/mpi_benchmark_onesided_fence"

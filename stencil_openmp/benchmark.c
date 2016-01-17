@@ -10,6 +10,9 @@
 
 #define BENCHMARK_ITERATIONS 30
 
+//#define STENCIL_ONE_VECTOR
+//#define STENCIL_TMP_MATRIX
+
 int main(int argc, char **argv)
 {
     if (argc < 5) {
@@ -32,7 +35,11 @@ int main(int argc, char **argv)
     double max = DBL_MIN;
     double sum = 0.0;
     for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+#if defined(STENCIL_ONE_VECTOR)
         const double elapsed_time = five_point_stencil_with_one_vector(matrix, iterations);
+#elif defined(STENCIL_TMP_MATRIX)
+        const double elapsed_time = five_point_stencil_with_tmp_matrix(matrix, iterations);
+#endif
         min = fmin(min, elapsed_time);
         max = fmax(max, elapsed_time);
         sum += elapsed_time;

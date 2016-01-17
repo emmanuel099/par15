@@ -22,13 +22,24 @@ target_link_libraries(stencil_openmp
 
 # ---------- benchmark ---------- #
 
-add_executable(openmp_benchmark
+add_executable(openmp_benchmark_tmp_matrix
     benchmark.c
     stencil_openmp.c
 )
-target_link_libraries(openmp_benchmark
+target_link_libraries(openmp_benchmark_tmp_matrix
     stencil
 )
+
+add_executable(openmp_benchmark_one_vector
+    benchmark.c
+    stencil_openmp.c
+)
+target_link_libraries(openmp_benchmark_one_vector
+    stencil
+)
+
+set_target_properties(openmp_benchmark_tmp_matrix PROPERTIES COMPILE_FLAGS "-DSTENCIL_TMP_MATRIX")
+set_target_properties(openmp_benchmark_one_vector PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR")
 
 # ---------- unit tests ---------- #
 
