@@ -11,6 +11,7 @@ else()
     find_package(MPI REQUIRED)
 
     if(MPI_C_FOUND)
+        include_directories(${MPI_INCLUDE_PATH}) # for saturn
         set(CMAKE_C_COMPILE_FLAGS "${CMAKE_C_COMPILE_FLAGS} ${MPI_C_COMPILE_FLAGS}")
         set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
     endif()
