@@ -1,8 +1,8 @@
 #!/bin/bash
-# usage: ./benchmark_saturn.sh "1000,2000;50,50" 10 "1;2;4;8"
+# usage: ./benchmark_saturn.sh "1000,2000;50,50" "10;100;1000" "1;2;4;8"
 
 test_sizes=$1
-its=$2
+it_list=$2
 threads=$3
 
 ts=$(date +%s)
@@ -30,28 +30,35 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
     cols=${tmp[1]}
     IFS=$'\n'
     
-    echo "rows;${rows}" >> ${out}
-    echo "cols;${cols}" >> ${out}
-    echo "its;${its}" >> ${out}
-    echo "algorithm;P;min;avg;max" >> ${out}
+    for its in $(echo $it_list | tr ";" "\n"); do
+        echo "rows;${rows}" >> ${out}
+        echo "cols;${cols}" >> ${out}
+        echo "its;${its}" >> ${out}
+        echo "algorithm;P;min;avg;max" >> ${out}
 
-    # sequential
-    for cmd in ${cmds_sequential[@]}; do
-        output=$(${cmd} ${rows} ${cols} ${its})
-        echo "${cmd};1;${output}" >> ${out}
-        echo "${cmd};1;${output}"
-    done
+        echo "rows;${rows}"
+        echo "cols;${cols}"
+        echo "its;${its}"
+        echo "algorithm;P;min;avg;max"
 
-    # cilk / openmp / mpi
-    for cmd in ${cmds[@]}; do
-        for par in $(echo $threads | tr ";" "\n"); do
-            output=$(${cmd} ${rows} ${cols} ${its} ${par})
-            echo "${cmd};${par};${output}" >> ${out}
-            echo "${cmd};${par};${output}"
+        # sequential
+        for cmd in ${cmds_sequential[@]}; do
+            output=$(${cmd} ${rows} ${cols} ${its})
+            echo "${cmd};1;${output}" >> ${out}
+            echo "${cmd};1;${output}"
         done
-    done
 
-    echo "" >> ${out}
+        # cilk / openmp / mpi
+        for cmd in ${cmds[@]}; do
+            for par in $(echo $threads | tr ";" "\n"); do
+                output=$(${cmd} ${rows} ${cols} ${its} ${par})
+                echo "${cmd};${par};${output}" >> ${out}
+                echo "${cmd};${par};${output}"
+            done
+        done
+
+        echo "" >> ${out}
+    done
 done
 
 exit 0
