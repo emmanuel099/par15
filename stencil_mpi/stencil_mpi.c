@@ -193,7 +193,7 @@ static MPI_Group create_mpi_group(MPI_Group world_group, int size, ...)
     return group;
 }
 
-static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
+static double sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t iterations, MPI_Comm comm_card)
 {
     assert(matrix->boundary >= 1);
 
@@ -237,6 +237,8 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 
     stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
 
+    const double t1 = MPI_Wtime();
+
     for (size_t iteration = 1; iteration <= iterations; iteration++) {
         // exchange boundary data (not needed on the first iteration because we
         // have already received the correct boundary data from master)
@@ -278,6 +280,8 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
         stencil_matrix_set_row(matrix, rows - 1, tmp);
     }
 
+    const double t2 = MPI_Wtime();
+
     stencil_vector_free(tmp);
 
 #if (defined(ONESIDED_FENCE_BOUNDARY_EXCHANGE) || defined(ONESIDED_PSCW_BOUNDARY_EXCHANGE))
@@ -291,6 +295,8 @@ static void sequential_five_point_stencil(stencil_matrix_t *matrix, const size_t
 
     MPI_Type_free(&matrix_col_t);
     MPI_Type_free(&matrix_row_t);
+
+    return (t2 - t1) * 1000;
 }
 
 static void optimize_dims_for_matrix(int dims[], stencil_matrix_t *matrix)
@@ -431,9 +437,7 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
     MPI_Type_free(&matrix_with_boundary_t);
 
     // start calculation
-    const double t1 = MPI_Wtime();
-    sequential_five_point_stencil(node_matrix, iterations, comm_card);
-    const double t2 = MPI_Wtime();
+    double wall_time = sequential_five_point_stencil(node_matrix, iterations, comm_card);
 
     // send back data (without boundary)
     MPI_Datatype matrix_without_boundary_t = create_submatrix_type(matrix,
@@ -455,7 +459,6 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
     stencil_matrix_free(node_matrix);
 
     // collect the maximum wall time
-    double wall_time = (t2 - t1) * 1000;
     double max_wall_time;
     MPI_Reduce(&wall_time, &max_wall_time, 1, MPI_DOUBLE, MPI_MAX, MASTER, comm_card);
 
