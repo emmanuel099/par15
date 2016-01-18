@@ -74,8 +74,10 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
         const size_t end_row = is_last_thread ? (matrix->rows - matrix->boundary - 1)
                                               : (start_row + rows_per_thread - 1);
 
-        stencil_vector_t *vec = stencil_vector_new(matrix->cols);
-        stencil_vector_t *last_vec = stencil_vector_new(matrix->cols);
+        double values[matrix->cols];
+        stencil_vector_t *vec = stencil_vector_new_noalloc((double*)&values, matrix->cols);
+        double last_values[matrix->cols];
+        stencil_vector_t *last_vec = stencil_vector_new_noalloc((double*)&last_values, matrix->cols);
 
         for (size_t iteration = 1; iteration <= iterations; iteration++) {
             // calculate the first and last row
