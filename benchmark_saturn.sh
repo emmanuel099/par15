@@ -39,6 +39,7 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
     for cmd in ${cmds_sequential[@]}; do
         output=$(${cmd} ${rows} ${cols} ${its})
         echo "${cmd};1;${output}" >> ${out}
+        echo "${cmd};1;${output}"
     done
 
     # cilk / openmp / mpi
@@ -49,6 +50,7 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
             echo "${cmd};${par};${output}"
         done
     done
+
     echo "" >> ${out}
 done
 

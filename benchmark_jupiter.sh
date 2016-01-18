@@ -1,11 +1,12 @@
 #!/bin/bash
+# usage: ./benchmark_jupiter.sh "1000,2000;50,50" 10 "1;2;4;8"
 
-rows=$1
-cols=$2
-its=$3
-threads=$4
+test_sizes=$1
+its=$2
+threads=$3
 
 hostfile="hosts"
+
 ts=$(date +%s)
 out="benchmark.${ts}.csv"
 
@@ -21,22 +22,34 @@ cmds=(
 "build/stencil_mpi/mpi_benchmark_onesided_pscw"
 )
 
-echo "rows;${rows}" > ${out}
-echo "cols;${cols}" >> ${out}
-echo "its;${its}" >> ${out}
-echo "P;${threads}" >> ${out}
+for test_size in $(echo $test_sizes | tr ";" "\n"); do
+    IFS=",";
+    tmp=($test_size);
+    rows=${tmp[0]}
+    cols=${tmp[1]}
+    IFS=$'\n'
 
-# sequential
-for cmd in ${cmds_sequential[@]}; do
-    output=$(${sequential} ${rows} ${cols} ${its})
-    echo "${cmd};1;${output}" >> ${out}
-done
+    echo "rows;${rows}" >> ${out}
+    echo "cols;${cols}" >> ${out}
+    echo "its;${its}" >> ${out}
+    echo "algorithm;P;min;avg;max" >> ${out}
 
-# mpi
-for cmd in ${cmds[@]}; do
-    for par in $(echo $threads | tr ";" "\n"); do
-        output=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
-        echo "${cmd};${par};${output}" >> ${out}
+    # sequential
+    for cmd in ${cmds_sequential[@]}; do
+        output=$(${cmd} ${rows} ${cols} ${its})
+        echo "${cmd};1;${output}" >> ${out}
+        echo "${cmd};1;${output}"
     done
+
+    # mpi
+    for cmd in ${cmds[@]}; do
+        for par in $(echo $threads | tr ";" "\n"); do
+            output=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
+            echo "${cmd};${par};${output}" >> ${out}
+            echo "${cmd};${par};${output}"
+        done
+    done
+    echo "" >> ${out}
 done
+
 exit 0
