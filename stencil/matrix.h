@@ -21,7 +21,7 @@ typedef struct stencil_matrix stencil_matrix_t;
  * @param cols Number of columns with boundary cols
  * @param boundary The size of the boundary (rows and cols)
  *
- * @return A pointer to a matrix initialized with 0 values, NULL on failure.
+ * @return A pointer to a matrix, NULL on failure.
  */
 stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols, size_t boundary);
 

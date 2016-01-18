@@ -17,7 +17,7 @@ typedef struct stencil_vector stencil_vector_t;
  *
  * @param size Size of the vector
  *
- * @return A pointer to a vector initialized with 0 values, NULL on failure.
+ * @return A pointer to a vector, NULL on failure.
  */
 stencil_vector_t *stencil_vector_new(size_t size);
 
