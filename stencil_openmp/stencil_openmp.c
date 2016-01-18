@@ -61,9 +61,9 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
 
     const size_t cols = matrix->cols - matrix->boundary;
 
-    const double t1 = omp_get_wtime();
+    double wall_time = 0.0;
 
-    #pragma omp parallel shared(matrix)
+    #pragma omp parallel shared(matrix) reduction(max : wall_time)
     {
         const int thread = omp_get_thread_num();
         const int threads = omp_get_num_threads();
@@ -76,6 +76,8 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
 
         stencil_vector_t *vec = stencil_vector_new(matrix->cols);
         stencil_vector_t *last_vec = stencil_vector_new(matrix->cols);
+
+        const double t1 = omp_get_wtime();
 
         for (size_t iteration = 1; iteration <= iterations; iteration++) {
             // calculate the first and last row
@@ -105,11 +107,13 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
             #pragma omp barrier
         }
 
+        const double t2 = omp_get_wtime();
+
         stencil_vector_free(vec);
         stencil_vector_free(last_vec);
+
+        wall_time = (t2 - t1) * 1000.0;
     }
 
-    const double t2 = omp_get_wtime();
-
-    return (t2 - t1) * 1000.0;
+    return wall_time;
 }
