@@ -11,7 +11,6 @@ stencil_vector_t *stencil_vector_new(size_t size)
     if (!values) {
         goto exit_values;
     }
-    memset(values, 0, size * sizeof(double));
 
     stencil_vector_t *vector = (stencil_vector_t *)malloc(sizeof(stencil_vector_t));
     if (!vector) {

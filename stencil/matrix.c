@@ -27,7 +27,6 @@ stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols, size_t boundary)
     if (!values) {
         goto exit_values;
     }
-    memset(values, 0, len * sizeof(double));
 
     stencil_matrix_t *matrix = (stencil_matrix_t *)malloc(sizeof(stencil_matrix_t));
     if (!matrix) {
