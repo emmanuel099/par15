@@ -50,7 +50,7 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
         # mpi
         for cmd in ${cmds[@]}; do
             for par in $(echo $threads | tr ";" "\n"); do
-                output=$(/opt/openmpi/bin/mpirun -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
+                output=$(/opt/mpich/bin/mpiexec -np ${par} --hostfile ${hostfile} ${cmd} ${rows} ${cols} ${its})
                 echo "${cmd};${par};${output}" >> ${out}
                 echo "${cmd};${par};${output}"
             done

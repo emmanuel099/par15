@@ -13,10 +13,13 @@ cmds_sequential=(
 "build/stencil_sequential/sequential_benchmark_one_vector"
 )
 
-cmds=(
+cmds_cilk_openmp=(
 "build/stencil_cilk/cilk_benchmark"
 "build/stencil_openmp/openmp_benchmark_tmp_matrix"
 "build/stencil_openmp/openmp_benchmark_one_vector"
+)
+
+cmds_mpi=(
 "build/stencil_mpi/mpi_benchmark_sendrecv"
 "build/stencil_mpi/mpi_benchmark_nonblocking"
 "build/stencil_mpi/mpi_benchmark_onesided_fence"
@@ -48,8 +51,8 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
             echo "${cmd};1;${output}"
         done
 
-        # cilk / openmp / mpi
-        for cmd in ${cmds[@]}; do
+        # cilk / openmp
+        for cmd in ${cmds_cilk_openmp[@]}; do
             for par in $(echo $threads | tr ";" "\n"); do
                 output=$(${cmd} ${rows} ${cols} ${its} ${par})
                 echo "${cmd};${par};${output}" >> ${out}
@@ -57,6 +60,14 @@ for test_size in $(echo $test_sizes | tr ";" "\n"); do
             done
         done
 
+        # mpi
+        for cmd in ${cmds_mpi[@]}; do
+            for par in $(echo $threads | tr ";" "\n"); do
+                output=$(mpiexec -np ${par} ${cmd} ${rows} ${cols} ${its})
+                echo "${cmd};${par};${output}" >> ${out}
+                echo "${cmd};${par};${output}"
+            done
+        done
         echo "" >> ${out}
     done
 done
