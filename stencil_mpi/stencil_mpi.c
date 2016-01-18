@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <alloca.h>
 #include <assert.h>
 #include <stdarg.h>
 
@@ -179,7 +178,7 @@ static MPI_Group create_mpi_group(MPI_Group world_group, int size, ...)
     va_start(args, size);
 
     int count = 0;
-    int *members = (int *)alloca(size * sizeof(int));
+    int members[size * sizeof(int)];
     for (int i = 0; i < size; i++) {
         members[count] = va_arg(args, int);
         if (members[count] != NO_NEIGHBOUR) {
@@ -397,8 +396,8 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
     const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
 
     // calculate sub-matrix displacements and block counts (grid looks like [[0,2],[1,3]])
-    int *block_counts = (int *)alloca(nodes * sizeof(int));
-    int *block_displacements = (int *)alloca(nodes * sizeof(int));
+    int block_counts[nodes * sizeof(int)];
+    int *block_displacements[nodes * sizeof(int)];
     for (int i = 0; i < nodes_horizontal; i++) {
         for (int j = 0; j < nodes_vertical; j++) {
             const int node = i * nodes_vertical + j;
