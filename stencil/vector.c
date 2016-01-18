@@ -18,7 +18,6 @@ stencil_vector_t *stencil_vector_new(size_t size)
     }
     vector->size = size;
     vector->values = values;
-    vector->is_memory_owner = true;
 
     return vector;
 
@@ -28,28 +27,13 @@ exit_values:
     return NULL;
 }
 
-stencil_vector_t *stencil_vector_new_noalloc(double *values, size_t size)
-{
-    stencil_vector_t *vector = (stencil_vector_t *)malloc(sizeof(stencil_vector_t));
-    if (!vector) {
-        return NULL;
-    }
-    vector->size = size;
-    vector->values = values;
-    vector->is_memory_owner = false;
-
-    return vector;
-}
-
 void stencil_vector_free(stencil_vector_t *vector)
 {
     if (!vector) {
         return;
     }
 
-    if (vector->is_memory_owner) {
-        free(vector->values);
-    }
+    free(vector->values);
     free(vector);
 }
 
