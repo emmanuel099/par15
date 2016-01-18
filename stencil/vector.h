@@ -1,10 +1,12 @@
 #ifndef __STENCIL_VECTOR_H
 #define __STENCIL_VECTOR_H
 
+#include <stdbool.h>
 #include <assert.h>
 #include <stdbool.h>
 
 struct stencil_vector {
+    bool is_memory_owner;
     size_t size;
     double *values;
 };
@@ -18,6 +20,17 @@ typedef struct stencil_vector stencil_vector_t;
  * @return A pointer to a vector initialized with 0 values, NULL on failure.
  */
 stencil_vector_t *stencil_vector_new(size_t size);
+
+/**
+ * Creates a new vector of size \a size but without allocating memory to store
+ * the values, the vector will use the given pointer to memory instead.
+ *
+ * @param values Valid pointer to memory (at least \a size big)
+ * @param size Size of the vector
+ *
+ * @return A pointer to a vector, NULL on failure.
+ */
+stencil_vector_t *stencil_vector_new_noalloc(double *values, size_t size);
 
 /**
  * Frees the memory of a vector \a vector.
