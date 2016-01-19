@@ -17,6 +17,7 @@ cmds_cilk_openmp=(
 "build/stencil_cilk/cilk_benchmark"
 "build/stencil_openmp/openmp_benchmark_tmp_matrix"
 "build/stencil_openmp/openmp_benchmark_one_vector"
+"build/stencil_openmp/openmp_benchmark_one_vector_tld"
 )
 
 cmds_mpi=(

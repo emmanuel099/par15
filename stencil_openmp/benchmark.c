@@ -11,6 +11,7 @@
 #define BENCHMARK_ITERATIONS 30
 
 //#define STENCIL_ONE_VECTOR
+//#define STENCIL_ONE_VECTOR_TLD
 //#define STENCIL_TMP_MATRIX
 
 int main(int argc, char **argv)
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
     for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
 #if defined(STENCIL_ONE_VECTOR)
         const double elapsed_time = five_point_stencil_with_one_vector(matrix, iterations);
+#elif defined(STENCIL_ONE_VECTOR_TLD)
+        const double elapsed_time = five_point_stencil_with_one_vector_tld(matrix, iterations);
 #elif defined(STENCIL_TMP_MATRIX)
         const double elapsed_time = five_point_stencil_with_tmp_matrix(matrix, iterations);
 #endif

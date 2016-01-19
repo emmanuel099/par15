@@ -28,6 +28,12 @@ int main(int argc, char **argv)
         printf("elapsed time %fms\n", time);
     }
 
+    printf("\nfive_point_stencil_with_one_vector_tld: \n");
+    for (int i = 0; i < 3; i++) {
+        double time = five_point_stencil_with_one_vector_tld(matrix, 6);
+        printf("elapsed time %fms\n", time);
+    }
+
     stencil_matrix_free(matrix);
 
     return EXIT_SUCCESS;
