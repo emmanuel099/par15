@@ -84,6 +84,45 @@ stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t 
     return vector;
 }
 
+void stencil_matrix_set_column(const stencil_matrix_t *matrix, size_t col, const stencil_vector_t *const vector)
+{
+    assert(matrix);
+    assert(vector);
+    assert(matrix->boundary <= col && col < (matrix->cols - matrix->boundary));
+    assert(matrix->rows == stencil_vector_size(vector));
+
+    double *src_it = stencil_vector_get_ptr(vector, matrix->boundary);
+    double *src_end = stencil_vector_get_ptr(vector, stencil_vector_size(vector) - matrix->boundary - 1);
+    double *dest_it = stencil_matrix_get_ptr(matrix, matrix->boundary, col);
+    while (src_it != src_end) {
+        *dest_it = *src_it;
+        dest_it += matrix->cols;
+        ++src_it;
+    }
+}
+
+stencil_vector_t *stencil_matrix_get_column(const stencil_matrix_t *matrix, size_t col)
+{
+    assert(matrix);
+    assert(0 <= col && col < matrix->cols);
+
+    stencil_vector_t *vector = stencil_vector_new(matrix->rows);
+    if (!vector) {
+        return NULL;
+    }
+
+    double *src_it = stencil_matrix_get_ptr(matrix, 0, col);
+    double *src_end = stencil_matrix_get_ptr(matrix, matrix->rows - 1, col);
+    double *dest_it = stencil_vector_get_ptr(vector, 0);
+    while (src_it != src_end) {
+        *dest_it = *src_it;
+        src_it += matrix->cols;
+        ++dest_it;
+    }
+
+    return vector;
+}
+
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary)
 {
     assert(matrix);

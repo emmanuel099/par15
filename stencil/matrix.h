@@ -91,6 +91,21 @@ void stencil_matrix_set_row(const stencil_matrix_t *matrix, size_t row, const st
 
 stencil_vector_t *stencil_matrix_get_row(const stencil_matrix_t *matrix, size_t row);
 
+/**
+ * Set the values of column \a col of matrix \a matrix.
+ *
+ * @note The matrix boundary is immutable, thus boundary values from the vector
+ *       are not copied!
+ *
+ * @param matrix A pointer to the matrix (must be valid)
+ * @param col Column index (must be in range [matrix.boundary, matrix.cols - matrix.boundary])
+ * @param vector A pointer to a vector which contains the values (must be valid and the size
+ *               must be equal to matrix.rows)
+ */
+void stencil_matrix_set_column(const stencil_matrix_t *matrix, size_t col, const stencil_vector_t *const vector);
+
+stencil_vector_t *stencil_matrix_get_column(const stencil_matrix_t *matrix, size_t col);
+
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary);
 
 /**
