@@ -106,6 +106,19 @@ void stencil_matrix_set_column(const stencil_matrix_t *matrix, size_t col, const
 
 stencil_vector_t *stencil_matrix_get_column(const stencil_matrix_t *matrix, size_t col);
 
+/**
+ * Set the values of the sub-matrix \a submatrix of matrix \a matrix.
+ *
+ * @note The matrix boundary is immutable, thus boundary values from the sub-matrix
+ *       are not copied!
+ *
+ * @param matrix A pointer to the matrix (must be valid)
+ * @param row Row index (must be in range [matrix.boundary, matrix.rows - matrix.boundary])
+ * @param col Column index (must be in range [matrix.boundary, matrix.cols - matrix.boundary])
+ * @param submatrix A pointer to a sub-matrix which contains the values
+ */
+void stencil_matrix_set_submatrix(const stencil_matrix_t *matrix, size_t row, size_t col, const stencil_matrix_t *const submatrix);
+
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary);
 
 /**

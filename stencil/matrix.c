@@ -123,6 +123,25 @@ stencil_vector_t *stencil_matrix_get_column(const stencil_matrix_t *matrix, size
     return vector;
 }
 
+void stencil_matrix_set_submatrix(const stencil_matrix_t *matrix, size_t row, size_t col, const stencil_matrix_t *const submatrix)
+{
+    assert(matrix);
+    assert(submatrix);
+    assert(matrix->boundary <= row && row < (matrix->rows - matrix->boundary));
+    assert(matrix->boundary <= col && col < (matrix->cols - matrix->boundary));
+    assert((submatrix->rows - 2 * submatrix->boundary) <= (matrix->rows - 2 * matrix->boundary - row));
+    assert((submatrix->cols - 2 * submatrix->boundary) <= (matrix->cols - 2 * matrix->boundary - col));
+
+    const size_t rows = submatrix->rows - 2 * submatrix->boundary;
+    const size_t cols = submatrix->cols - 2 * submatrix->boundary;
+
+    for (size_t i = row, j = submatrix->boundary; j < rows; i++, j++) {
+        double *src = stencil_matrix_get_ptr(submatrix, j, submatrix->boundary);
+        double *dest = stencil_matrix_get_ptr(matrix, i, col);
+        memcpy(dest, src, cols * sizeof(double));
+    }
+}
+
 stencil_matrix_t *stencil_matrix_get_submatrix(const stencil_matrix_t *const matrix, size_t row, size_t col, size_t rows, size_t cols, size_t boundary)
 {
     assert(matrix);
