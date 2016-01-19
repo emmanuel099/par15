@@ -129,10 +129,10 @@ void stencil_matrix_set_submatrix(const stencil_matrix_t *matrix, size_t row, si
     assert(submatrix);
     assert(matrix->boundary <= row && row < (matrix->rows - matrix->boundary));
     assert(matrix->boundary <= col && col < (matrix->cols - matrix->boundary));
-    assert((submatrix->rows - 2 * submatrix->boundary) <= (matrix->rows - 2 * matrix->boundary - row));
-    assert((submatrix->cols - 2 * submatrix->boundary) <= (matrix->cols - 2 * matrix->boundary - col));
+    assert((submatrix->rows - 2 * submatrix->boundary) <= (matrix->rows - matrix->boundary - row));
+    assert((submatrix->cols - 2 * submatrix->boundary) <= (matrix->cols - matrix->boundary - col));
 
-    const size_t rows = submatrix->rows - 2 * submatrix->boundary;
+    const size_t rows = submatrix->rows - submatrix->boundary; // not *2 because we start with an offset = boundary
     const size_t cols = submatrix->cols - 2 * submatrix->boundary;
 
     for (size_t i = row, j = submatrix->boundary; j < rows; i++, j++) {
