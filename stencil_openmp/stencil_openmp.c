@@ -401,12 +401,12 @@ static void optimize_dims_for_matrix(int dims[], stencil_matrix_t *matrix)
 {
     if (((matrix->cols > matrix->rows) && (dims[DIM_HORIZONTAL] < dims[DIM_VERTICAL])) ||
         ((matrix->cols < matrix->rows) && (dims[DIM_HORIZONTAL] > dims[DIM_VERTICAL]))) { // transpose
-            const int h = dims[DIM_HORIZONTAL];
-            dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
-            dims[DIM_VERTICAL] = h;
-        }
+        const int h = dims[DIM_HORIZONTAL];
+        dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
+        dims[DIM_VERTICAL] = h;
+    }
 
-        const double matrix_ratio = (double)matrix->cols / (double)matrix->rows;
+    const double matrix_ratio = (double)matrix->cols / (double)matrix->rows;
     const float initial_ratio = (float)dims[DIM_HORIZONTAL] / (float)dims[DIM_VERTICAL];
 
     if (initial_ratio > matrix_ratio) {
