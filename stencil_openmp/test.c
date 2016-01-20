@@ -31,6 +31,8 @@ int main(int argc, char **argv)
     five_point_stencil_with_one_vector_columnwise(matrix, TEST_ITERATIONS);
 #elif defined(STENCIL_ONE_VECTOR_COLWISE_TLD)
     five_point_stencil_with_one_vector_columnwise_tld(matrix, TEST_ITERATIONS);
+#elif defined(STENCIL_ONE_VECTOR_BLOCKWISE_TLD)
+    five_point_stencil_with_one_vector_blockwise_tld(matrix, TEST_ITERATIONS);
 #endif
     matrix_to_file(matrix, stdout);
 

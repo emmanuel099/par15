@@ -287,9 +287,9 @@ inline void stencil_matrix_copy_column(stencil_matrix_t *src, stencil_matrix_t *
     assert(dest_col >= 0 && dest_col <= dest->cols - 1);
     assert(src->rows == dest->rows);
 
-    double *src_it = stencil_matrix_get_ptr(src, 0, src_col);
-    double *src_end = stencil_matrix_get_ptr(src, src->rows, src_col);
-    double *dest_it = stencil_matrix_get_ptr(dest, 0, dest_col);
+    double *src_it = stencil_matrix_get_ptr(src, src->boundary, src_col);
+    double *src_end = stencil_matrix_get_ptr(src, src->rows - src->boundary, src_col);
+    double *dest_it = stencil_matrix_get_ptr(dest, dest->boundary, dest_col);
 
     while(src_it != src_end) {
         *dest_it = *src_it;
@@ -381,6 +381,170 @@ double five_point_stencil_with_one_vector_columnwise_tld(stencil_matrix_t *matri
         const double t2 = omp_get_wtime();
 
         stencil_matrix_set_submatrix(matrix, matrix->boundary, start_col, submatrix);
+        stencil_matrix_free(submatrix);
+
+        stencil_vector_free(tmp);
+
+        wall_time = (t2 - t1) * 1000.0;
+    }
+
+    free(submatrices);
+
+    return wall_time;
+}
+
+#define DIMENSIONS 2
+#define DIM_HORIZONTAL 0
+#define DIM_VERTICAL 1
+
+static void optimize_dims_for_matrix(int dims[], stencil_matrix_t *matrix)
+{
+    if (((matrix->cols > matrix->rows) && (dims[DIM_HORIZONTAL] < dims[DIM_VERTICAL])) ||
+        ((matrix->cols < matrix->rows) && (dims[DIM_HORIZONTAL] > dims[DIM_VERTICAL]))) { // transpose
+            const int h = dims[DIM_HORIZONTAL];
+            dims[DIM_HORIZONTAL] = dims[DIM_VERTICAL];
+            dims[DIM_VERTICAL] = h;
+        }
+
+        const double matrix_ratio = (double)matrix->cols / (double)matrix->rows;
+    const float initial_ratio = (float)dims[DIM_HORIZONTAL] / (float)dims[DIM_VERTICAL];
+
+    if (initial_ratio > matrix_ratio) {
+        while ((dims[DIM_HORIZONTAL] % 2) == 0) {
+            const int h = dims[DIM_HORIZONTAL] / 2;
+            const int v = dims[DIM_VERTICAL] * 2;
+            if (((double)h / (double)v) >= matrix_ratio) {
+                dims[DIM_HORIZONTAL] = h;
+                dims[DIM_VERTICAL] = v;
+            } else {
+                break;
+            }
+        }
+    } else {
+        while ((dims[DIM_VERTICAL] % 2) == 0) {
+            const int h = dims[DIM_HORIZONTAL] * 2;
+            const int v = dims[DIM_VERTICAL] / 2;
+            if (((double)h / (double)v) <= matrix_ratio) {
+                dims[DIM_HORIZONTAL] = h;
+                dims[DIM_VERTICAL] = v;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+double five_point_stencil_with_one_vector_blockwise_tld(stencil_matrix_t *matrix, const size_t iterations)
+{
+    assert(matrix->boundary >= 1);
+
+    double wall_time = 0.0;
+
+    stencil_matrix_t **submatrices;
+
+    #pragma omp parallel shared(matrix, submatrices) reduction(max : wall_time)
+    {
+        const int thread = omp_get_thread_num();
+        const int threads = omp_get_num_threads();
+
+        // determine a good grid size
+        int dims[DIMENSIONS] = {threads, 1};
+        optimize_dims_for_matrix(dims, matrix);
+
+        const size_t threads_horizontal = dims[DIM_HORIZONTAL];
+        const size_t threads_vertical = dims[DIM_VERTICAL];
+
+        assert(((matrix->rows - 2 * matrix->boundary) % threads_vertical) == 0);
+        assert(((matrix->cols - 2 * matrix->boundary) % threads_horizontal) == 0);
+
+        const size_t rows_per_thread = (matrix->rows - 2 * matrix->boundary) / threads_vertical;
+        const size_t cols_per_thread = (matrix->cols - 2 * matrix->boundary) / threads_horizontal;
+
+        const size_t x = thread % threads_horizontal;
+        const size_t y = thread / threads_horizontal;
+
+        stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix,
+                                                                   y * rows_per_thread,
+                                                                   x * cols_per_thread,
+                                                                   rows_per_thread + 2,
+                                                                   cols_per_thread + 2, 1);
+        stencil_vector_t *tmp = stencil_vector_new(submatrix->cols);
+
+        // exchange matrix pointers with neighbouring threads
+        #pragma omp single
+        {
+            submatrices = (stencil_matrix_t **)malloc(threads * sizeof(stencil_matrix_t *));
+        }
+        submatrices[y * threads_horizontal + x] = submatrix;
+        #pragma omp barrier
+        const bool has_above = (y > 0);
+        const bool has_below = (y < (threads_vertical - 1));
+        const bool has_left = (x > 0);
+        const bool has_right = (x < (threads_horizontal - 1));
+        stencil_matrix_t *submatrix_above = has_above ? submatrices[(y - 1) * threads_horizontal + x] : NULL;
+        stencil_matrix_t *submatrix_below = has_below ? submatrices[(y + 1) * threads_horizontal + x] : NULL;
+        stencil_matrix_t *submatrix_left = has_left ? submatrices[y * threads_horizontal + (x - 1)] : NULL;
+        stencil_matrix_t *submatrix_right = has_right ? submatrices[y * threads_horizontal + (x + 1)] : NULL;
+
+        const size_t rows = submatrix->rows - submatrix->boundary;
+        const size_t cols = submatrix->cols - submatrix->boundary;
+
+        const double t1 = omp_get_wtime();
+
+        for (size_t iteration = 1; iteration <= iterations; iteration++) {
+            // exchange boundary data (not needed on the first iteration because we
+            // have already have the correct boundary data from the initial matrix)
+            if (iteration > 1) {
+                #pragma omp barrier
+
+                if (submatrix_above != NULL) {
+                    // exchange top
+                    double *src = stencil_matrix_get_ptr(submatrix, 1, 0);
+                    double *dest = stencil_matrix_get_ptr(submatrix_above, submatrix_above->rows - 1, 0);
+                    memcpy(dest, src, submatrix->cols * sizeof(double));
+                }
+                if (submatrix_below != NULL) {
+                    // exchange bottom
+                    double *src = stencil_matrix_get_ptr(submatrix, submatrix->rows - 2, 0);
+                    double *dest = stencil_matrix_get_ptr(submatrix_below, 0, 0);
+                    memcpy(dest, src, submatrix->cols * sizeof(double));
+                }
+                if (submatrix_left != NULL) {
+                    // exchange left column
+                    stencil_matrix_copy_column(submatrix, submatrix_left, 1, submatrix_left->cols - 1);
+                }
+                if (submatrix_right != NULL) {
+                    // exchange right column
+                    stencil_matrix_copy_column(submatrix, submatrix_right, submatrix->cols - 2, 0);
+                }
+
+                // wait until all threads have exchanged their boundaries
+                #pragma omp barrier
+            }
+
+            // calculate the first row
+            const size_t first_row = submatrix->boundary;
+            for (size_t col = submatrix->boundary; col < cols; col++) {
+                stencil_vector_set(tmp, col, stencil_five_point_kernel(submatrix, first_row, col));
+            }
+
+            // calculate the remaining rows
+            for (size_t row = first_row + 1; row < rows; row++) {
+                for (size_t col = submatrix->boundary; col < cols; col++) {
+                    const double value = stencil_five_point_kernel(submatrix, row, col);
+                    // copy back the previosly calculated value before we overwrite it
+                    stencil_matrix_set(submatrix, row - 1, col, stencil_vector_get(tmp, col));
+                    stencil_vector_set(tmp, col, value);
+                }
+            }
+
+            // copy back calculated values of the last non-boundary row
+            stencil_matrix_set_row(submatrix, rows - 1, tmp);
+        }
+
+        const double t2 = omp_get_wtime();
+
+        stencil_matrix_set_submatrix(matrix, y * rows_per_thread + 1, x * cols_per_thread + 1, submatrix);
         stencil_matrix_free(submatrix);
 
         stencil_vector_free(tmp);

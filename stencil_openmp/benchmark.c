@@ -46,6 +46,8 @@ int main(int argc, char **argv)
         const double elapsed_time = five_point_stencil_with_one_vector_columnwise(matrix, iterations);
 #elif defined(STENCIL_ONE_VECTOR_COLWISE_TLD)
         const double elapsed_time = five_point_stencil_with_one_vector_columnwise_tld(matrix, iterations);
+#elif defined(STENCIL_ONE_VECTOR_BLOCKWISE_TLD)
+        const double elapsed_time = five_point_stencil_with_one_vector_blockwise_tld(matrix, iterations);
 #endif
         min = fmin(min, elapsed_time);
         max = fmax(max, elapsed_time);
