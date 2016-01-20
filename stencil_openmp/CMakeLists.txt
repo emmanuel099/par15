@@ -54,10 +54,19 @@ target_link_libraries(openmp_benchmark_one_vector_colwise
     stencil
 )
 
+add_executable(openmp_benchmark_one_vector_colwise_tld
+    benchmark.c
+    stencil_openmp.c
+)
+target_link_libraries(openmp_benchmark_one_vector_colwise_tld
+    stencil
+)
+
 set_target_properties(openmp_benchmark_tmp_matrix PROPERTIES COMPILE_FLAGS "-DSTENCIL_TMP_MATRIX")
 set_target_properties(openmp_benchmark_one_vector PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR")
 set_target_properties(openmp_benchmark_one_vector_tld PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_TLD")
 set_target_properties(openmp_benchmark_one_vector_colwise PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_COLWISE")
+set_target_properties(openmp_benchmark_one_vector_colwise_tld PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_COLWISE_TLD")
 
 # ---------- unit tests ---------- #
 
@@ -93,12 +102,22 @@ target_link_libraries(unit_test_openmp_one_vec_colwise
     stencil
 )
 
+add_executable(unit_test_openmp_one_vec_colwise_tld
+    stencil_openmp.c
+    test.c
+)
+target_link_libraries(unit_test_openmp_one_vec_colwise_tld
+    stencil
+)
+
 set_target_properties(unit_test_openmp_tmp_matrix PROPERTIES COMPILE_FLAGS "-DSTENCIL_TMP_MATRIX")
 set_target_properties(unit_test_openmp_one_vec PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR")
 set_target_properties(unit_test_openmp_one_vec_tld PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_TLD")
 set_target_properties(unit_test_openmp_one_vec_colwise PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_COLWISE")
+set_target_properties(unit_test_openmp_one_vec_colwise_tld PROPERTIES COMPILE_FLAGS "-DSTENCIL_ONE_VECTOR_COLWISE_TLD")
 
 test("openmp_one_vec" ${CMAKE_BINARY_DIR}/stencil_openmp/unit_test_openmp_one_vec)
 test("openmp_one_vec_tld" ${CMAKE_BINARY_DIR}/stencil_openmp/unit_test_openmp_one_vec_tld)
 test("openmp_tmp_matrix" ${CMAKE_BINARY_DIR}/stencil_openmp/unit_test_openmp_tmp_matrix)
 test("openmp_one_vec_colwise" ${CMAKE_BINARY_DIR}/stencil_openmp/unit_test_openmp_one_vec_colwise)
+test("openmp_one_vec_colwise_tld" ${CMAKE_BINARY_DIR}/stencil_openmp/unit_test_openmp_one_vec_colwise_tld)

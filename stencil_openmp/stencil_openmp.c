@@ -237,14 +237,13 @@ double five_point_stencil_with_one_vector_columnwise(stencil_matrix_t *matrix, c
         const size_t end_col = is_last_thread ? (matrix->cols - matrix->boundary - 1)
                                               : (start_col + cols_per_thread - 1);
 
-        fprintf(stderr, "%i: %i -> %i\n", thread, start_col, end_col);
         stencil_vector_t *vec = stencil_vector_new(matrix->rows);
         stencil_vector_t *last_vec = stencil_vector_new(matrix->rows);
 
         const double t1 = omp_get_wtime();
 
         for (size_t iteration = 1; iteration <= iterations; iteration++) {
-            // calculate the first and last row
+            // calculate the first and last col
             for (size_t row = matrix->boundary; row < rows; row++) {
                 stencil_vector_set(vec, row, stencil_five_point_kernel(matrix, row, start_col));
                 stencil_vector_set(last_vec, row, stencil_five_point_kernel(matrix, row, end_col));
@@ -278,6 +277,103 @@ double five_point_stencil_with_one_vector_columnwise(stencil_matrix_t *matrix, c
 
         wall_time = (t2 - t1) * 1000.0;
     }
+
+    return wall_time;
+}
+
+double five_point_stencil_with_one_vector_columnwise_tld(stencil_matrix_t *matrix, const size_t iterations)
+{
+    assert(matrix->boundary >= 1);
+
+    double wall_time = 0.0;
+
+    stencil_matrix_t **submatrices;
+
+    #pragma omp parallel shared(matrix, submatrices) reduction(max : wall_time)
+    {
+        const int thread = omp_get_thread_num();
+        const int threads = omp_get_num_threads();
+        const bool is_first_thread = (thread == 0);
+        const bool is_last_thread = (thread == (threads - 1));
+        const size_t cols_per_thread = (matrix->cols - 2 * matrix->boundary) / threads;
+
+        const size_t start_col= thread * cols_per_thread + matrix->boundary;
+        const size_t end_col = is_last_thread ? (matrix->cols - matrix->boundary)
+                                              : (start_col + cols_per_thread);
+
+        stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix, matrix->boundary - 1,
+                                                                   start_col - 1,
+                                                                   matrix->rows - matrix->boundary + 1,
+                                                                   end_col - start_col + 2, 1);
+        stencil_vector_t *tmp = stencil_vector_new(submatrix->rows);
+
+        // exchange matrix pointers with neighbouring threads
+        #pragma omp single
+        {
+            submatrices = (stencil_matrix_t **)malloc(threads * sizeof(stencil_matrix_t *));
+        }
+        submatrices[thread] = submatrix;
+        #pragma omp barrier
+        stencil_matrix_t *submatrix_left = is_first_thread ? NULL : submatrices[thread - 1];
+        stencil_matrix_t *submatrix_right = is_last_thread ? NULL : submatrices[thread + 1];
+
+        const size_t rows = submatrix->rows - submatrix->boundary;
+        const size_t cols = submatrix->cols - submatrix->boundary;
+
+        const double t1 = omp_get_wtime();
+
+        for (size_t iteration = 1; iteration <= iterations; iteration++) {
+            // exchange boundary data (not needed on the first iteration because we
+            // have already have the correct boundary data from the initial matrix)
+            if (iteration > 1) {
+                #pragma omp barrier
+
+                if (submatrix_left != NULL) {
+                    // exchange left column
+                    stencil_vector_t *left_col = stencil_matrix_get_column(submatrix, 1);
+                    stencil_matrix_set_column(submatrix_left, submatrix_left->cols - 1, left_col);
+                }
+                if (submatrix_right != NULL) {
+                    // exchange right column
+                    stencil_vector_t *right_col = stencil_matrix_get_column(submatrix, submatrix->cols - 2);
+                    stencil_matrix_set_column(submatrix_right, 0, right_col);
+                }
+
+                // wait until all threads have exchanged their boundaries
+                #pragma omp barrier
+            }
+
+            // calculate the first col
+            const size_t first_col = submatrix->boundary;
+            for (size_t row = submatrix->boundary; row < rows; row++) {
+                stencil_vector_set(tmp, row, stencil_five_point_kernel(submatrix, row, first_col));
+            }
+
+            // calculate the remaining cols
+            for (size_t col = first_col + 1; col < cols; col++) {
+                for (size_t row = submatrix->boundary; row < rows; row++) {
+                    const double value = stencil_five_point_kernel(submatrix, row, col);
+                    // copy back the previosly calculated value before we overwrite it
+                    stencil_matrix_set(submatrix, row, col - 1, stencil_vector_get(tmp, row));
+                    stencil_vector_set(tmp, row, value);
+                }
+            }
+
+            // copy back calculated values of the last non-boundary col
+            stencil_matrix_set_column(submatrix, cols - 1, tmp);
+        }
+
+        const double t2 = omp_get_wtime();
+
+        stencil_matrix_set_submatrix(matrix, matrix->boundary, start_col, submatrix);
+        stencil_matrix_free(submatrix);
+
+        stencil_vector_free(tmp);
+
+        wall_time = (t2 - t1) * 1000.0;
+    }
+
+    free(submatrices);
 
     return wall_time;
 }
