@@ -281,6 +281,23 @@ double five_point_stencil_with_one_vector_columnwise(stencil_matrix_t *matrix, c
     return wall_time;
 }
 
+inline double stencil_matrix_copy_column(stencil_matrix_t *src, stencil_matrix_t *dest, size_t src_col, size_t dest_col)
+{
+    assert(src_col >= 0 && src_col <= src->cols - 1);
+    assert(dest_col >= 0 && dest_col <= dest->cols - 1);
+    assert(src->rows == dest->rows);
+
+    double *src_it = stencil_matrix_get_ptr(src, 0, src_col);
+    double *src_end = stencil_matrix_get_ptr(src, src->rows, src_col);
+    double *dest_it = stencil_matrix_get_ptr(dest, 0, dest_col);
+
+    while(src_it != src_end) {
+        *dest_it = *src_it;
+        src_it += src->cols;
+        dest_it += dest->cols;
+    }
+}
+
 double five_point_stencil_with_one_vector_columnwise_tld(stencil_matrix_t *matrix, const size_t iterations)
 {
     assert(matrix->boundary >= 1);
@@ -330,13 +347,11 @@ double five_point_stencil_with_one_vector_columnwise_tld(stencil_matrix_t *matri
 
                 if (submatrix_left != NULL) {
                     // exchange left column
-                    stencil_vector_t *left_col = stencil_matrix_get_column(submatrix, 1);
-                    stencil_matrix_set_column(submatrix_left, submatrix_left->cols - 1, left_col);
+                    stencil_matrix_copy_column(submatrix, submatrix_left, 1, submatrix_left->cols - 1);
                 }
                 if (submatrix_right != NULL) {
                     // exchange right column
-                    stencil_vector_t *right_col = stencil_matrix_get_column(submatrix, submatrix->cols - 2);
-                    stencil_matrix_set_column(submatrix_right, 0, right_col);
+                    stencil_matrix_copy_column(submatrix, submatrix_right, submatrix->cols - 2, 0);
                 }
 
                 // wait until all threads have exchanged their boundaries
