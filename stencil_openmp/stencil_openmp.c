@@ -142,7 +142,7 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
         stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix, start_row - 1,
                                                                    matrix->boundary - 1,
                                                                    end_row - start_row + 2,
-                                                                   matrix->cols - matrix->boundary + 1, 1);
+                                                                   matrix->cols - 2 * matrix->boundary + 2, 1);
         stencil_vector_t *tmp = stencil_vector_new(submatrix->cols);
 
         // exchange matrix pointers with neighbouring threads
@@ -320,7 +320,7 @@ double five_point_stencil_with_one_vector_columnwise_tld(stencil_matrix_t *matri
 
         stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix, matrix->boundary - 1,
                                                                    start_col - 1,
-                                                                   matrix->rows - matrix->boundary + 1,
+                                                                   matrix->rows - 2 * matrix->boundary + 2,
                                                                    end_col - start_col + 2, 1);
         stencil_vector_t *tmp = stencil_vector_new(submatrix->rows);
 
