@@ -112,7 +112,7 @@ stencil_vector_t *stencil_matrix_get_column(const stencil_matrix_t *matrix, size
     }
 
     double *src_it = stencil_matrix_get_ptr(matrix, 0, col);
-    double *src_end = stencil_matrix_get_ptr(matrix, matrix->rows - 1, col);
+    double *src_end = stencil_matrix_get_ptr(matrix, matrix->rows, col);
     double *dest_it = stencil_vector_get_ptr(vector, 0);
     while (src_it != src_end) {
         *dest_it = *src_it;
