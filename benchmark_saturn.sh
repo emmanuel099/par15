@@ -20,6 +20,9 @@ cmds_cilk_openmp=(
 "build/stencil_openmp/openmp_benchmark_tmp_matrix"
 "build/stencil_openmp/openmp_benchmark_one_vector"
 "build/stencil_openmp/openmp_benchmark_one_vector_tld"
+"build/stencil_openmp/openmp_benchmark_one_vector_colwise"
+"build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld"
+"build/stencil_openmp/openmp_benchmark_one_vector_blockwise_tld"
 )
 
 cmds_mpi=(
