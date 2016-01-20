@@ -73,7 +73,7 @@ double five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const size_
         }
 
         // calculate the remaining rows
-        for (size_t row = matrix->boundary + 1; row < rows; row++) {
+        for (size_t row = first_row + 1; row < rows; row++) {
             for (size_t col = matrix->boundary; col < cols; col++) {
                 const double value = stencil_five_point_kernel(matrix, row, col);
                 stencil_vector_set(current, col, value);
@@ -116,7 +116,7 @@ double five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const size_t
         }
 
         // calculate the remaining rows
-        for (size_t row = matrix->boundary + 1; row < rows; row++) {
+        for (size_t row = first_row + 1; row < rows; row++) {
             for (size_t col = matrix->boundary; col < cols; col++) {
                 const double value = stencil_five_point_kernel(matrix, row, col);
                 // copy back the previosly calculated value before we overwrite it
