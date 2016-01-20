@@ -5,6 +5,8 @@ test_sizes=$1
 it_list=$2
 threads=$3
 
+export OMP_PROC_BIND=true # openmp thread pinning
+
 ts=$(date +%s)
 out="benchmark.${ts}.csv"
 
