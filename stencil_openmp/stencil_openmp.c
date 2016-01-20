@@ -125,7 +125,7 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
 
     double wall_time = 0.0;
 
-    stencil_matrix_t *submatrices[omp_get_num_threads()];
+    stencil_matrix_t **submatrices;
 
     #pragma omp parallel shared(matrix, submatrices) reduction(max : wall_time)
     {
@@ -146,6 +146,10 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
         stencil_vector_t *tmp = stencil_vector_new(submatrix->cols);
 
         // exchange matrix pointers with neighbouring threads
+        #pragma omp single
+        {
+            submatrices = (stencil_matrix_t **)malloc(threads * sizeof(stencil_matrix_t *));
+        }
         submatrices[thread] = submatrix;
         #pragma omp barrier
         stencil_matrix_t *submatrix_above = is_first_thread ? NULL : submatrices[thread - 1];
@@ -208,6 +212,8 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
 
         wall_time = (t2 - t1) * 1000.0;
     }
+
+    free(submatrices);
 
     return wall_time;
 }
