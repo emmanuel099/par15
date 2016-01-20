@@ -202,6 +202,8 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
         const double t2 = omp_get_wtime();
 
         stencil_matrix_set_submatrix(matrix, start_row, matrix->boundary, submatrix);
+        stencil_matrix_free(submatrix);
+
         stencil_vector_free(tmp);
 
         wall_time = (t2 - t1) * 1000.0;
