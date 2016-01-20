@@ -137,7 +137,7 @@ static double run_parallel(stencil_matrix_t *matrix, const size_t iterations, vo
         }
         // last worker calculates more than rows_per_worker if row % workers != 0
         const size_t start_row = (workers - 1) * rows_per_worker + matrix->boundary + 1;
-        cilk_spawn stencil_sequential(matrix, start_row, rows_per_worker + (matrix->rows - boundary) % workers);
+        stencil_sequential(matrix, start_row, rows_per_worker + (matrix->rows - boundary) % workers);
         cilk_sync;
 
         // copy first row vectors values back to matrix

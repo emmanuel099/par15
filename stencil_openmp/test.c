@@ -27,6 +27,8 @@ int main(int argc, char **argv)
     five_point_stencil_with_one_vector_tld(matrix, TEST_ITERATIONS);
 #elif defined(STENCIL_TMP_MATRIX)
     five_point_stencil_with_tmp_matrix(matrix, TEST_ITERATIONS);
+#elif defined(STENCIL_ONE_VECTOR_COLWISE)
+    five_point_stencil_with_one_vector_columnwise(matrix, TEST_ITERATIONS);
 #endif
     matrix_to_file(matrix, stdout);
 

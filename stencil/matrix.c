@@ -92,7 +92,7 @@ void stencil_matrix_set_column(const stencil_matrix_t *matrix, size_t col, const
     assert(matrix->rows == stencil_vector_size(vector));
 
     double *src_it = stencil_vector_get_ptr(vector, matrix->boundary);
-    double *src_end = stencil_vector_get_ptr(vector, stencil_vector_size(vector) - matrix->boundary - 1);
+    double *src_end = stencil_vector_get_ptr(vector, stencil_vector_size(vector) - matrix->boundary - 1) + 1;
     double *dest_it = stencil_matrix_get_ptr(matrix, matrix->boundary, col);
     while (src_it != src_end) {
         *dest_it = *src_it;

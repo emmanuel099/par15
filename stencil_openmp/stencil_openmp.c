@@ -217,3 +217,67 @@ double five_point_stencil_with_one_vector_tld(stencil_matrix_t *matrix, const si
 
     return wall_time;
 }
+
+double five_point_stencil_with_one_vector_columnwise(stencil_matrix_t *matrix, const size_t iterations)
+{
+    assert(matrix->boundary >= 1);
+
+    const size_t rows = matrix->rows - matrix->boundary;
+
+    double wall_time = 0.0;
+
+    #pragma omp parallel shared(matrix) reduction(max : wall_time)
+    {
+        const int thread = omp_get_thread_num();
+        const int threads = omp_get_num_threads();
+        const bool is_last_thread = (thread == (threads - 1));
+        const size_t cols_per_thread = (matrix->cols - 2 * matrix->boundary) / threads;
+
+        const size_t start_col = thread * cols_per_thread + matrix->boundary;
+        const size_t end_col = is_last_thread ? (matrix->cols - matrix->boundary - 1)
+                                              : (start_col + cols_per_thread - 1);
+
+        fprintf(stderr, "%i: %i -> %i\n", thread, start_col, end_col);
+        stencil_vector_t *vec = stencil_vector_new(matrix->rows);
+        stencil_vector_t *last_vec = stencil_vector_new(matrix->rows);
+
+        const double t1 = omp_get_wtime();
+
+        for (size_t iteration = 1; iteration <= iterations; iteration++) {
+            // calculate the first and last row
+            for (size_t row = matrix->boundary; row < rows; row++) {
+                stencil_vector_set(vec, row, stencil_five_point_kernel(matrix, row, start_col));
+                stencil_vector_set(last_vec, row, stencil_five_point_kernel(matrix, row, end_col));
+            }
+
+            // wait until all threads have filled the first and last column
+            #pragma omp barrier
+
+            // calculate the remaining cols
+            for (size_t col = start_col + 1; col < end_col; col++) {
+                for (size_t row = matrix->boundary; row < rows; row++) {
+                    const double value = stencil_five_point_kernel(matrix, row, col);
+                    // copy back the previosly calculated value before we overwrite it
+                    stencil_matrix_set(matrix, row, col - 1, stencil_vector_get(vec, row));
+                    stencil_vector_set(vec, row, value);
+                }
+            }
+            stencil_matrix_set_column(matrix, end_col - 1, vec);
+
+            // copy back the last column
+            stencil_matrix_set_column(matrix, end_col, last_vec);
+
+            // wait for all threads before we start with the next iteration
+            #pragma omp barrier
+        }
+
+        const double t2 = omp_get_wtime();
+
+        stencil_vector_free(vec);
+        stencil_vector_free(last_vec);
+
+        wall_time = (t2 - t1) * 1000.0;
+    }
+
+    return wall_time;
+}
