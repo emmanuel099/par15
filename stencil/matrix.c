@@ -4,6 +4,12 @@
 #include <math.h>
 #include <float.h>
 
+//#define STENCIL_USE_HUGE_PAGES
+
+#ifdef STENCIL_USE_HUGE_PAGES
+#include <sys/mman.h>
+#endif
+
 #include "matrix.h"
 
 double *stencil_matrix_get_ptr(const stencil_matrix_t *const matrix, size_t row, size_t col)
@@ -23,10 +29,18 @@ stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols, size_t boundary)
 
     const size_t len = rows * cols;
 
+#ifdef STENCIL_USE_HUGE_PAGES
+    double *values = (double *)mmap(0, len * sizeof(double), PROT_READ | PROT_WRITE,
+                                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_HUGETLB, -1, 0);
+    if (values == MAP_FAILED) {
+        goto exit_values;
+    }
+#else
     double *values = (double *)malloc(len * sizeof(double));
     if (!values) {
         goto exit_values;
     }
+#endif
 
     stencil_matrix_t *matrix = (stencil_matrix_t *)malloc(sizeof(stencil_matrix_t));
     if (!matrix) {
@@ -40,7 +54,11 @@ stencil_matrix_t *stencil_matrix_new(size_t rows, size_t cols, size_t boundary)
     return matrix;
 
 exit_matrix:
+#ifdef STENCIL_USE_HUGE_PAGES
+    munmap(values, len * sizeof(double));
+#else
     free(values);
+#endif
 exit_values:
     return NULL;
 }
@@ -51,7 +69,11 @@ void stencil_matrix_free(stencil_matrix_t *matrix)
         return;
     }
 
+#ifdef STENCIL_USE_HUGE_PAGES
+    munmap(matrix->values, matrix->rows * matrix->cols * sizeof(double));
+#else
     free(matrix->values);
+#endif
     free(matrix);
 }
 

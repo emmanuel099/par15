@@ -11,7 +11,7 @@ add_definitions(
     -pedantic
     -Wextra
     -O3
-    -std=c99
+    -std=gnu99
     -msse2
     -DNDEBUG
 )
