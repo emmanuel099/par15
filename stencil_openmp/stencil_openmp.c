@@ -281,7 +281,8 @@ double five_point_stencil_with_one_vector_columnwise(stencil_matrix_t *matrix, c
     return wall_time;
 }
 
-inline void stencil_matrix_copy_column(stencil_matrix_t *src, stencil_matrix_t *dest, size_t src_col, size_t dest_col)
+inline void stencil_matrix_copy_column(stencil_matrix_t *restrict src, stencil_matrix_t *restrict dest,
+                                       size_t src_col, size_t dest_col)
 {
     assert(src_col >= 0 && src_col <= src->cols - 1);
     assert(dest_col >= 0 && dest_col <= dest->cols - 1);
