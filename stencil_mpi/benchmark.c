@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
         stencil_matrix_free(matrix);
     } else {
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
             five_point_stencil_client();
         }
     }
