@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[top=2cm, left=2cm, right=2cm, bottom=3cm]{geometry}
+\usepackage[utf8]{inputenc}
+
+\title{2D Stencil - Parallel Approaches}
+\author{
+  Emmanuel Pescosta\\
+  1326934 
+  \and
+  Philipp Paris\\
+  1325664
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem Definition}
+
+% stencil definition
+
+\section{Sequential}
+\subsection{Memory-infficient Implementation}
+% with temporary matrix
+\subsection{Memory-efficient Implementation}
+% with single vector buffer
+
+\section{Cilk}
+
+% task-parallel formulation of the stencil update, compare with openmp solution
+
+\section{OpenMP}
+\subsection{Classical Implementation}
+% temporary matrix, not thread local
+\subsection{Row-wise Implementation}
+% row-wise update: thread local vs non thread local 
+\subsection{Column-wise Implementation}
+% column-wise update: thread local vs non thread local 
+
+\section{MPI}
+% matrix is distributed as n/r x m/c
+% give a theoretical speedup estimate: How should r and c be chosen for best performance
+\subsection{Blocking Boundary Exchange}
+% sendrecv
+\subsection{Point-To-Point Boundary Exchange}
+%non-blocking point-to-point
+\subsection{One-Sided Boundary Exchange}
+%one sided
+
+\section{Testing}
+% ctest
+
+\section{Conclusion}
+% comparison between openmp, cilk and mpi
+
+\end{document}
