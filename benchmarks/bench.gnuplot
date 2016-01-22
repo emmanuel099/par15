@@ -5,6 +5,12 @@ getTitle(algorithm)=(\
     (algorithm eq "build/stencil_mpi/mpi_benchmark_nonblocking") ? "MPI (Nonblocking)" :\
     (algorithm eq "build/stencil_mpi/mpi_benchmark_onesided_fence") ? "MPI (Onesided-Fence)" :\
     (algorithm eq "build/stencil_mpi/mpi_benchmark_onesided_pscw") ? "MPI (Onesided-PSCW)" :\
+    (algorithm eq "build/stencil_cilk/cilk_benchmark") ? "cilk" :\
+    (algorithm eq "build/stencil_openmp/openmp_benchmark_tmp_matrix") ? "OpenMP (tmp matrix)" :\
+    (algorithm eq "build/stencil_openmp/openmp_benchmark_one_vector") ? "OpenMP (row-wise)" :\
+    (algorithm eq "build/stencil_openmp/openmp_benchmark_one_vector_tld") ? "OpenMP (row-wise, tld)" :\
+    (algorithm eq "build/stencil_openmp/openmp_benchmark_one_vector_colwise") ? "OpenMP (col-wise)" :\
+    (algorithm eq "build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld") ? "OpenMP (col-wise, tld)" :\
     algorithm\
 )
 
