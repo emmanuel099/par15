@@ -4,6 +4,7 @@ its;1;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;4.922119;5.008268;5.794922
 build/stencil_sequential/sequential_benchmark_one_vector;1;3.451904;3.489884;3.559814
+build/stencil_cilk/cilk_benchmark;1;3.409912;3.444092;3.520020
 build/stencil_cilk/cilk_benchmark;2;1.749023;2.040430;7.235840
 build/stencil_cilk/cilk_benchmark;4;0.906982;3.212638;4.982910
 build/stencil_cilk/cilk_benchmark;8;1.828125;2.112996;3.312012
@@ -16,6 +17,7 @@ build/stencil_cilk/cilk_benchmark;32;2.367920;2.642228;4.515869
 build/stencil_cilk/cilk_benchmark;36;2.478027;2.849797;4.551025
 build/stencil_cilk/cilk_benchmark;40;2.791016;3.038005;4.764160
 build/stencil_cilk/cilk_benchmark;48;3.381104;3.991170;6.065918
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;4.152801;4.360800;6.036863
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;2.541244;2.714197;5.660787
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;1.891829;2.038564;3.350763
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;1.657455;1.936985;3.107295
@@ -28,6 +30,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;3.079848;3.229011;3.825645
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;3.304545;3.418717;3.846677
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;3.175149;3.285733;3.945282
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;2.923501;3.530153;16.836377
+build/stencil_openmp/openmp_benchmark_one_vector;1;3.626602;3.667311;3.705097
 build/stencil_openmp/openmp_benchmark_one_vector;2;1.963759;2.159217;5.019790
 build/stencil_openmp/openmp_benchmark_one_vector;4;0.974050;1.163145;3.836001
 build/stencil_openmp/openmp_benchmark_one_vector;8;0.448850;0.694052;3.037481
@@ -40,6 +43,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;0.304006;0.550829;4.720547
 build/stencil_openmp/openmp_benchmark_one_vector;36;0.422519;0.693251;5.737391
 build/stencil_openmp/openmp_benchmark_one_vector;40;0.368180;0.666053;6.157205
 build/stencil_openmp/openmp_benchmark_one_vector;48;0.465959;0.770401;7.432838
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;3.660572;3.671766;3.701499
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;2.031828;2.095082;2.773780
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;1.212789;1.301436;2.268888
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;0.563542;0.630540;1.168592
@@ -52,6 +56,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;0.107376;0.179736;0.4303
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;0.156634;0.224164;0.460966
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;0.185587;0.219641;0.482285
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;0.172816;0.221988;0.502468
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;22.314444;22.356021;22.381650
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;11.223736;11.544690;17.321428
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;5.650728;6.071185;13.813655
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;3.012849;3.262328;6.784870
@@ -64,6 +69,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;1.725224;1.922449;6.
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;2.270757;2.573996;8.363807
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;2.288092;2.980426;18.853052
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;3.271878;3.557089;9.517917
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;22.567992;22.608130;22.663586
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;11.145589;11.293542;13.930086
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;2.674185;2.824668;4.609220
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;1.249285;1.318770;2.880346
@@ -76,6 +82,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;0.339168;0.40398
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;0.470508;0.574558;1.218523
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;0.710996;0.856794;1.810573
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;0.441423;0.528608;1.164968
+build/stencil_mpi/mpi_benchmark_sendrecv;1;3.641844;5.726576;13.936996
 build/stencil_mpi/mpi_benchmark_sendrecv;2;1.626968;1.827947;6.099939
 build/stencil_mpi/mpi_benchmark_sendrecv;4;0.632048;0.726469;2.979994
 build/stencil_mpi/mpi_benchmark_sendrecv;8;0.330925;0.388130;1.697063
@@ -88,6 +95,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;0.094891;0.113932;0.436068
 build/stencil_mpi/mpi_benchmark_sendrecv;36;0.085115;0.175397;0.767946
 build/stencil_mpi/mpi_benchmark_sendrecv;40;0.182867;0.223358;0.447035
 build/stencil_mpi/mpi_benchmark_sendrecv;48;0.126123;0.274793;0.423908
+build/stencil_mpi/mpi_benchmark_nonblocking;1;3.619909;5.708480;13.979912
 build/stencil_mpi/mpi_benchmark_nonblocking;2;1.899958;2.079558;6.318092
 build/stencil_mpi/mpi_benchmark_nonblocking;4;0.910044;1.049050;3.208876
 build/stencil_mpi/mpi_benchmark_nonblocking;8;0.352859;0.416239;1.683950
@@ -100,6 +108,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;0.094891;0.110547;0.432014
 build/stencil_mpi/mpi_benchmark_nonblocking;36;0.155926;0.181444;0.632048
 build/stencil_mpi/mpi_benchmark_nonblocking;40;0.081062;0.175166;0.696898
 build/stencil_mpi/mpi_benchmark_nonblocking;48;0.067949;0.160623;0.297070
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;3.525019;5.630994;14.082909
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;1.943111;2.125653;6.321907
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;1.056910;1.175348;3.314972
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;0.343084;0.413926;1.708031
@@ -112,6 +121,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;0.097036;0.149377;0.887156
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;0.123024;0.194844;0.766039
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;0.167847;0.207281;0.704050
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;0.072956;0.496475;0.879049
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;3.447056;5.488420;13.967037
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;1.603127;2.162782;6.238937
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;0.977039;1.091655;3.233910
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;0.350952;0.425744;1.765013
@@ -131,6 +141,7 @@ its;10;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;49.778809;51.729736;60.938965
 build/stencil_sequential/sequential_benchmark_one_vector;1;36.185059;36.216960;36.560059
+build/stencil_cilk/cilk_benchmark;1;34.055908;34.165283;34.552979
 build/stencil_cilk/cilk_benchmark;2;16.856934;17.100635;22.343018
 build/stencil_cilk/cilk_benchmark;4;24.513916;30.886328;36.513916
 build/stencil_cilk/cilk_benchmark;8;19.506104;20.319165;23.384033
@@ -143,6 +154,7 @@ build/stencil_cilk/cilk_benchmark;32;26.141113;26.791447;28.430176
 build/stencil_cilk/cilk_benchmark;36;26.101074;27.171834;32.079102
 build/stencil_cilk/cilk_benchmark;40;35.598145;51.184310;62.052979
 build/stencil_cilk/cilk_benchmark;48;30.460938;32.413070;33.720947
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;41.041507;43.259060;62.659996
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;24.585935;26.514315;41.191244
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;18.393221;18.820397;26.852574
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;13.148154;13.662308;18.290027
@@ -155,6 +167,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;14.390404;14.731645;15.85057
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;15.190133;15.523993;16.526620
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;14.779191;15.202249;16.766202
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;14.502861;14.762063;16.296430
+build/stencil_openmp/openmp_benchmark_one_vector;1;36.094420;36.132521;36.222130
 build/stencil_openmp/openmp_benchmark_one_vector;2;18.016183;18.324374;25.499272
 build/stencil_openmp/openmp_benchmark_one_vector;4;9.304883;9.685477;16.884415
 build/stencil_openmp/openmp_benchmark_one_vector;8;4.337793;4.629976;11.833195
@@ -167,6 +180,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;2.771150;3.072616;8.658258
 build/stencil_openmp/openmp_benchmark_one_vector;36;3.474797;3.832757;11.004500
 build/stencil_openmp/openmp_benchmark_one_vector;40;3.665815;4.010689;9.930048
 build/stencil_openmp/openmp_benchmark_one_vector;48;4.403298;4.743193;11.775546
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;36.425532;36.573418;37.127279
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;18.638687;19.573237;19.998957
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;10.230818;10.376816;12.816959
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;4.319304;4.527105;9.834885
@@ -179,6 +193,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;1.345938;1.544554;3.1349
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;1.839986;1.995226;2.894339
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;2.141252;2.268213;3.222608
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;2.078233;2.321403;4.848859
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;223.421692;223.537064;223.668971
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;112.407745;112.755652;119.509188
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;56.710832;57.069201;65.078423
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;30.345376;30.665498;38.129068
@@ -191,6 +206,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;17.271458;17.544050;
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;21.915189;22.170517;27.307488
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;22.783508;23.185069;31.978581
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;31.724381;32.719860;49.351145
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;226.515886;226.601490;226.764954
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;112.345152;112.596210;115.637955
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;25.592934;25.910727;31.047064
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;14.444851;14.679559;19.922568
@@ -203,6 +219,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;6.194271;6.49422
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;8.154338;8.735466;14.357097
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;9.924456;10.531887;13.964504
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;8.451132;8.772864;14.641111
+build/stencil_mpi/mpi_benchmark_sendrecv;1;36.077976;38.342571;47.080040
 build/stencil_mpi/mpi_benchmark_sendrecv;2;13.996124;16.558647;22.593021
 build/stencil_mpi/mpi_benchmark_sendrecv;4;7.040024;11.916963;25.233030
 build/stencil_mpi/mpi_benchmark_sendrecv;8;3.879070;9.719141;26.714087
@@ -215,6 +232,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;1.253843;6.275765;21.291971
 build/stencil_mpi/mpi_benchmark_sendrecv;36;1.110077;5.806009;23.084879
 build/stencil_mpi/mpi_benchmark_sendrecv;40;1.060963;7.958674;24.229050
 build/stencil_mpi/mpi_benchmark_sendrecv;48;1.863003;13.685377;108.026981
+build/stencil_mpi/mpi_benchmark_nonblocking;1;36.000013;38.242006;46.799898
 build/stencil_mpi/mpi_benchmark_nonblocking;2;15.038013;17.523408;23.824930
 build/stencil_mpi/mpi_benchmark_nonblocking;4;7.528067;12.178993;26.077032
 build/stencil_mpi/mpi_benchmark_nonblocking;8;3.705978;8.219957;25.133133
@@ -227,6 +245,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;1.235962;5.800668;22.988081
 build/stencil_mpi/mpi_benchmark_nonblocking;36;1.092911;7.414333;22.475958
 build/stencil_mpi/mpi_benchmark_nonblocking;40;2.034903;10.976648;36.231041
 build/stencil_mpi/mpi_benchmark_nonblocking;48;5.590916;28.159014;108.267069
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;36.013842;38.414264;47.204018
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;13.478041;15.209262;22.204161
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;7.519007;12.244821;26.469946
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;3.845930;10.631609;32.531977
@@ -239,6 +258,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;2.077103;13.586855;50.796986
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;1.497984;8.628074;26.918173
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;1.460791;8.509612;32.800198
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;10.841131;96.177085;360.373020
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;34.469128;36.888313;46.133995
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;15.478849;18.451715;25.372982
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;6.808996;10.798772;25.834084
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;3.745079;10.506789;27.967930
@@ -258,6 +278,7 @@ its;100;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;506.891113;522.829777;630.437988
 build/stencil_sequential/sequential_benchmark_one_vector;1;360.171875;360.633919;362.939941
+build/stencil_cilk/cilk_benchmark;1;342.723145;343.103857;343.512939
 build/stencil_cilk/cilk_benchmark;2;169.837891;170.687069;179.671875
 build/stencil_cilk/cilk_benchmark;4;274.693115;300.728084;320.100830
 build/stencil_cilk/cilk_benchmark;8;198.695068;200.869987;208.948975
@@ -270,6 +291,7 @@ build/stencil_cilk/cilk_benchmark;32;248.337891;249.962769;252.610840
 build/stencil_cilk/cilk_benchmark;36;267.072998;270.097819;275.398193
 build/stencil_cilk/cilk_benchmark;40;289.908936;293.554924;299.607910
 build/stencil_cilk/cilk_benchmark;48;328.261963;332.812459;348.346924
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;401.211696;426.141313;622.523565
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;227.846364;251.258459;388.224639
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;184.836173;189.529127;227.629642
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;129.234840;131.540391;145.251543
@@ -282,6 +304,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;119.767874;121.574835;128.59
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;122.051378;124.498834;141.258745
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;121.636970;124.550463;141.255051
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;124.855666;127.832191;144.172022
+build/stencil_openmp/openmp_benchmark_one_vector;1;357.561637;357.885273;358.205929
 build/stencil_openmp/openmp_benchmark_one_vector;2;199.807215;200.084000;203.258319
 build/stencil_openmp/openmp_benchmark_one_vector;4;93.435584;96.609558;103.260757
 build/stencil_openmp/openmp_benchmark_one_vector;8;45.140173;45.453618;52.198005
@@ -294,6 +317,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;31.185629;31.615991;37.80014
 build/stencil_openmp/openmp_benchmark_one_vector;36;35.716091;36.769754;52.209629
 build/stencil_openmp/openmp_benchmark_one_vector;40;38.865226;39.956288;56.726447
 build/stencil_openmp/openmp_benchmark_one_vector;48;46.229824;47.860733;65.048164
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;361.927353;362.264060;363.491580
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;177.373069;186.255902;197.643523
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;97.237257;99.396447;104.469041
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;41.802865;42.023890;46.437664
@@ -306,6 +330,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;13.951599;14.282628;19.9
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;19.281290;20.427120;38.602173
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;22.308348;23.636940;44.147512
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;21.993789;22.957907;42.067366
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;2234.792410;2234.972466;2235.269426
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;1121.436137;1122.157520;1131.279763
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;567.198083;567.947331;578.575812
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;303.413831;303.931973;310.437846
@@ -318,6 +343,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;173.956395;174.61862
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;223.464529;225.805357;241.058601
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;229.408525;231.645164;246.081049
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;316.904556;323.277624;342.690147
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;2262.004591;2262.992100;2269.295128
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;1120.523511;1121.336396;1126.997831
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;252.166313;252.817738;255.826323
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;144.472415;144.822961;150.817025
@@ -330,6 +356,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;65.343966;65.754
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;84.553780;85.818945;102.652840
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;103.801729;105.248673;121.828957
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;88.675284;91.439665;110.079482
+build/stencil_mpi/mpi_benchmark_sendrecv;1;351.847172;360.450196;373.372078
 build/stencil_mpi/mpi_benchmark_sendrecv;2;151.810169;296.948934;919.373035
 build/stencil_mpi/mpi_benchmark_sendrecv;4;68.662167;413.147426;1684.222937
 build/stencil_mpi/mpi_benchmark_sendrecv;8;45.456171;509.415309;1724.841118
@@ -342,6 +369,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;12.869835;210.918570;672.428131
 build/stencil_mpi/mpi_benchmark_sendrecv;36;11.304140;209.629289;601.998091
 build/stencil_mpi/mpi_benchmark_sendrecv;40;31.060934;395.012824;543.041945
 build/stencil_mpi/mpi_benchmark_sendrecv;48;32.503128;347.190436;470.073223
+build/stencil_mpi/mpi_benchmark_nonblocking;1;347.398043;352.466273;365.035057
 build/stencil_mpi/mpi_benchmark_nonblocking;2;139.704943;275.151428;879.900932
 build/stencil_mpi/mpi_benchmark_nonblocking;4;65.886021;426.108599;1721.198797
 build/stencil_mpi/mpi_benchmark_nonblocking;8;37.050962;519.608490;1742.080927
@@ -354,6 +382,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;12.673140;235.237344;676.954031
 build/stencil_mpi/mpi_benchmark_nonblocking;36;11.771917;236.562268;602.141857
 build/stencil_mpi/mpi_benchmark_nonblocking;40;10.452032;94.544554;494.899035
 build/stencil_mpi/mpi_benchmark_nonblocking;48;9.008884;282.644041;468.873024
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;360.537052;363.850331;368.514061
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;147.060871;296.982320;924.957991
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;67.905188;440.600189;1758.021116
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;39.735079;566.063730;1796.859026
@@ -366,6 +395,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;16.880035;295.881518;682.18803
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;16.047955;408.232490;619.872808
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;15.075207;261.762238;553.399086
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;452.883959;920.311515;2845.123053
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;357.024193;361.993814;371.788025
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;135.255814;284.047842;917.644978
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;80.287933;451.974583;1765.079021
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;37.283897;563.934914;1799.126863
@@ -385,6 +415,7 @@ its;1;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;14.692871;15.902824;16.364014
 build/stencil_sequential/sequential_benchmark_one_vector;1;14.922119;15.088696;15.542969
+build/stencil_cilk/cilk_benchmark;1;15.051025;15.098926;15.173096
 build/stencil_cilk/cilk_benchmark;2;11.179932;11.417391;13.761963
 build/stencil_cilk/cilk_benchmark;4;7.853027;9.525846;10.318115
 build/stencil_cilk/cilk_benchmark;8;6.853027;7.342497;7.929932
@@ -397,6 +428,7 @@ build/stencil_cilk/cilk_benchmark;32;7.736816;8.022192;8.882080
 build/stencil_cilk/cilk_benchmark;36;8.031006;8.406348;9.737061
 build/stencil_cilk/cilk_benchmark;40;8.164795;8.589469;8.941895
 build/stencil_cilk/cilk_benchmark;48;8.458008;9.698031;14.242920
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;16.445121;16.509508;16.579782
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;9.332448;11.521746;14.501877
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;7.727160;9.492726;12.037091
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;7.807238;9.029015;11.016728
@@ -409,6 +441,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;12.842391;13.071461;14.00712
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;13.655267;14.004305;19.334205
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;12.839483;13.209919;14.053129
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;12.260478;12.582216;13.998278
+build/stencil_openmp/openmp_benchmark_one_vector;1;14.913361;14.947958;14.992029
 build/stencil_openmp/openmp_benchmark_one_vector;2;7.992562;8.323917;14.729775
 build/stencil_openmp/openmp_benchmark_one_vector;4;5.688233;5.907628;9.066032
 build/stencil_openmp/openmp_benchmark_one_vector;8;4.774099;4.914444;7.592005
@@ -421,6 +454,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;6.194451;6.388032;9.409675
 build/stencil_openmp/openmp_benchmark_one_vector;36;6.526431;7.283306;21.270061
 build/stencil_openmp/openmp_benchmark_one_vector;40;6.349551;6.572944;10.172598
 build/stencil_openmp/openmp_benchmark_one_vector;48;6.850819;7.180825;12.467075
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;15.260682;15.315599;15.356626
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;8.645848;9.104084;10.340354
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;5.658050;6.004549;6.892079
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;3.786409;3.950805;5.662448
@@ -433,6 +467,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;1.034699;1.227778;3.4139
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;0.960842;1.244787;3.136566
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;0.908815;0.981010;1.459410
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;0.877072;1.787854;3.828437
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;109.453217;109.487273;109.558793
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;55.053888;55.374419;60.712646
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;27.713320;27.836227;30.447524
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;14.637736;14.904434;19.330091
@@ -445,6 +480,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;11.331239;11.773746;
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;12.740426;13.182088;19.243282
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;12.834179;13.666461;24.405349
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;14.857324;15.398290;21.315294
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;110.332917;110.752142;110.871375
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;53.405637;53.777287;58.287665
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;26.197748;26.491229;29.223843
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;9.595899;10.188775;12.259245
@@ -457,6 +493,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;3.333586;4.02758
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;2.709817;2.935986;4.227740
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;2.334335;2.647629;4.120548
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;2.206712;2.510708;3.528854
+build/stencil_mpi/mpi_benchmark_sendrecv;1;14.752150;22.949123;55.553198
 build/stencil_mpi/mpi_benchmark_sendrecv;2;6.476164;8.149838;30.548096
 build/stencil_mpi/mpi_benchmark_sendrecv;4;3.173113;4.035441;15.341997
 build/stencil_mpi/mpi_benchmark_sendrecv;8;1.928091;2.104028;6.051064
@@ -469,6 +506,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;0.345945;0.409134;1.766205
 build/stencil_mpi/mpi_benchmark_sendrecv;36;0.314236;0.434621;1.565933
 build/stencil_mpi/mpi_benchmark_sendrecv;40;0.271082;0.505352;1.543045
 build/stencil_mpi/mpi_benchmark_sendrecv;48;0.316143;0.578014;2.435923
+build/stencil_mpi/mpi_benchmark_nonblocking;1;15.101910;22.899437;55.518866
 build/stencil_mpi/mpi_benchmark_nonblocking;2;6.598949;8.253789;30.755997
 build/stencil_mpi/mpi_benchmark_nonblocking;4;3.189802;4.051622;15.413046
 build/stencil_mpi/mpi_benchmark_nonblocking;8;1.312017;1.498882;6.001949
@@ -481,6 +519,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;0.443935;0.514150;1.770973
 build/stencil_mpi/mpi_benchmark_nonblocking;36;0.294209;0.408355;1.576900
 build/stencil_mpi/mpi_benchmark_nonblocking;40;0.271797;0.356491;1.425028
 build/stencil_mpi/mpi_benchmark_nonblocking;48;0.230074;0.323812;1.199007
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;14.708996;22.705126;56.360960
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;6.552935;8.238061;30.474901
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;3.229141;4.096413;15.425205
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;1.463890;2.034998;6.169081
@@ -493,6 +532,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;0.344992;0.421405;1.792908
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;0.301123;0.373109;1.731873
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;0.323057;0.451461;2.791882
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;0.236034;0.369612;2.448082
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;14.841080;22.828484;55.629015
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;6.521940;8.250197;30.879974
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;3.201008;4.063876;15.320778
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;1.941919;2.127043;6.189108
@@ -512,6 +552,7 @@ its;10;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;164.439941;169.250293;169.940918
 build/stencil_sequential/sequential_benchmark_one_vector;1;152.392090;152.668408;155.029785
+build/stencil_cilk/cilk_benchmark;1;151.106934;154.239404;155.562988
 build/stencil_cilk/cilk_benchmark;2;114.066895;118.128231;123.000000
 build/stencil_cilk/cilk_benchmark;4;88.223877;96.004598;100.398926
 build/stencil_cilk/cilk_benchmark;8;70.218018;71.659635;74.012939
@@ -524,6 +565,7 @@ build/stencil_cilk/cilk_benchmark;32;78.027100;78.761344;80.420898
 build/stencil_cilk/cilk_benchmark;36;94.197998;98.514779;127.084961
 build/stencil_cilk/cilk_benchmark;40;82.344971;83.922453;88.894043
 build/stencil_cilk/cilk_benchmark;48;85.008057;88.216536;142.999023
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;163.599638;165.289219;165.892327
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;91.637388;100.425249;104.534405
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;73.722695;76.082446;78.708874
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;80.149551;81.430694;83.770761
@@ -536,6 +578,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;135.942934;137.664155;157.17
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;142.460597;143.993687;153.683664
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;134.912969;135.394451;136.292151
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;130.097376;132.407300;147.785469
+build/stencil_openmp/openmp_benchmark_one_vector;1;150.460014;150.932488;151.336517
 build/stencil_openmp/openmp_benchmark_one_vector;2;79.537930;87.184885;98.928402
 build/stencil_openmp/openmp_benchmark_one_vector;4;56.809548;60.007382;62.513917
 build/stencil_openmp/openmp_benchmark_one_vector;8;47.425163;48.090126;52.227528
@@ -548,6 +591,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;61.878130;62.269065;66.38050
 build/stencil_openmp/openmp_benchmark_one_vector;36;65.538354;66.523209;82.908256
 build/stencil_openmp/openmp_benchmark_one_vector;40;63.388657;64.423058;78.394758
 build/stencil_openmp/openmp_benchmark_one_vector;48;68.370558;70.211394;88.206102
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;155.613793;157.065672;157.731557
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;87.891923;92.324352;93.825989
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;59.388222;61.402376;62.667267
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;38.840346;39.808708;40.372782
@@ -559,7 +603,8 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;24;7.748416;8.490620;11.396
 build/stencil_openmp/openmp_benchmark_one_vector_tld;32;5.946254;6.720586;10.783213
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;5.695096;6.084172;8.024964
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;6.348209;6.600575;8.559270
-build/stencil_openmp/openmp_benchmark_one_vector_tld;48;5.784524;6.733696;14.073508
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;1094.527871;1094.823789;1095.078443
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;1094.527871;1094.823789;1095.078443
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;553.959746;554.351660;557.710645
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;279.123336;279.622431;288.921608
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;147.311858;148.008308;161.314129
@@ -572,6 +617,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;113.865238;116.29479
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;128.938444;131.855718;163.571208
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;129.119545;130.235432;138.800096
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;150.407537;153.806122;184.169066
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;1103.397074;1107.493772;1108.312034
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;536.593043;538.158107;545.902363
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;263.154127;264.934141;267.481180
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;100.667289;102.181566;103.598880
@@ -584,6 +630,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;28.436196;29.641
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;22.263385;24.315488;43.337596
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;25.082668;25.386197;27.297137
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;23.680506;24.048346;25.047981
+build/stencil_mpi/mpi_benchmark_sendrecv;1;151.179075;160.651040;192.350149
 build/stencil_mpi/mpi_benchmark_sendrecv;2;68.152189;71.552666;94.768047
 build/stencil_mpi/mpi_benchmark_sendrecv;4;33.325911;37.267152;50.173998
 build/stencil_mpi/mpi_benchmark_sendrecv;8;20.347118;24.232157;37.786007
@@ -596,6 +643,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;4.018068;8.939560;24.545908
 build/stencil_mpi/mpi_benchmark_sendrecv;36;3.611803;8.848166;25.969982
 build/stencil_mpi/mpi_benchmark_sendrecv;40;3.288031;6.739521;20.938873
 build/stencil_mpi/mpi_benchmark_sendrecv;48;24.845839;44.478210;156.797886
+build/stencil_mpi/mpi_benchmark_nonblocking;1;150.588036;160.868311;193.551064
 build/stencil_mpi/mpi_benchmark_nonblocking;2;67.311049;70.740032;91.883898
 build/stencil_mpi/mpi_benchmark_nonblocking;4;33.167124;37.219532;49.979925
 build/stencil_mpi/mpi_benchmark_nonblocking;8;15.855074;20.923845;35.521030
@@ -608,6 +656,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;3.896952;7.260187;21.331072
 build/stencil_mpi/mpi_benchmark_nonblocking;36;3.264904;8.913239;29.220819
 build/stencil_mpi/mpi_benchmark_nonblocking;40;3.304005;11.458286;28.771877
 build/stencil_mpi/mpi_benchmark_nonblocking;48;2.568007;9.280562;25.336981
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;150.582075;160.055017;193.109989
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;67.650080;70.986589;93.536854
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;33.451080;39.962196;56.329966
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;20.760059;31.261738;44.492006
@@ -620,6 +669,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;4.595995;11.515625;29.039145
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;4.250050;35.600766;71.017981
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;3.924131;31.237515;59.675932
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;3.438950;29.791133;58.720112
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;150.395155;162.615848;197.937012
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;67.212105;70.017958;92.821836
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;33.131838;38.666622;53.555012
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;26.574850;32.042170;43.498039
@@ -639,6 +689,7 @@ its;100;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;1533.306152;1658.549878;1696.286865
 build/stencil_sequential/sequential_benchmark_one_vector;1;1471.933105;1512.558911;1551.073975
+build/stencil_cilk/cilk_benchmark;1;1469.691162;1508.022510;1517.167969
 build/stencil_cilk/cilk_benchmark;2;1139.994141;1167.042196;1197.420166
 build/stencil_cilk/cilk_benchmark;4;914.282959;926.811947;938.123047
 build/stencil_cilk/cilk_benchmark;8;705.583984;708.654167;716.979980
@@ -651,6 +702,7 @@ build/stencil_cilk/cilk_benchmark;32;823.822021;828.194287;833.495117
 build/stencil_cilk/cilk_benchmark;36;804.410889;807.622013;810.833008
 build/stencil_cilk/cilk_benchmark;40;850.372070;859.847233;884.979004
 build/stencil_cilk/cilk_benchmark;48;2527.846191;2730.237882;2864.937012
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;1565.793560;1619.990976;1647.912061
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;978.037297;1008.483671;1025.865781
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;737.109880;750.688933;759.677377
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;796.913450;800.625517;805.388394
@@ -663,6 +715,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;1366.357103;1370.257037;1389
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;1431.774892;1435.946145;1448.887354
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;1353.378235;1365.899220;1384.576652
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;1305.113906;1320.328394;1334.717996
+build/stencil_openmp/openmp_benchmark_one_vector;1;1483.215780;1506.243991;1521.680154
 build/stencil_openmp/openmp_benchmark_one_vector;2;824.718382;895.814535;921.143621
 build/stencil_openmp/openmp_benchmark_one_vector;4;582.409647;603.220730;616.302608
 build/stencil_openmp/openmp_benchmark_one_vector;8;479.840650;483.325363;487.958447
@@ -675,6 +728,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;623.480523;624.890212;630.62
 build/stencil_openmp/openmp_benchmark_one_vector;36;651.953527;655.788083;667.767223
 build/stencil_openmp/openmp_benchmark_one_vector;40;634.622106;640.190295;661.704945
 build/stencil_openmp/openmp_benchmark_one_vector;48;688.917096;699.833540;727.863983
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;1530.999887;1550.483225;1568.058934
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;811.564569;889.596975;927.722935
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;579.363899;608.270330;622.560705
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;385.626959;394.744544;399.906576
@@ -687,6 +741,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;55.954800;57.718573;79.2
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;55.440579;56.678681;77.751841
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;63.096056;64.151262;82.491985
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;54.425308;56.428641;76.677961
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;10970.467467;10971.884283;10973.633028
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;5502.797672;5531.596181;5543.062950
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;2794.245950;2794.963596;2802.927904
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;1468.067192;1472.467490;1476.687643
@@ -699,6 +754,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;1139.672303;1143.121
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;1274.167201;1276.981314;1279.734494
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;1286.755850;1294.934607;1306.246627
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;1521.354057;1532.887133;1548.783949
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;11026.575864;11066.915139;11076.177806
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;5384.697799;5386.148603;5392.310075
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;2630.530947;2645.894143;2668.444043
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;1005.498904;1009.092018;1015.682935
@@ -711,6 +767,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;274.023516;281.9
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;224.264372;229.749617;245.539370
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;249.180326;255.604604;271.550795
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;231.342785;236.466425;254.014235
+build/stencil_mpi/mpi_benchmark_sendrecv;1;1516.972065;1526.987028;1541.520834
 build/stencil_mpi/mpi_benchmark_sendrecv;2;670.202971;814.744123;1419.950008
 build/stencil_mpi/mpi_benchmark_sendrecv;4;328.277111;702.781343;2011.662006
 build/stencil_mpi/mpi_benchmark_sendrecv;8;200.644016;708.693838;2215.780973
@@ -723,6 +780,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;41.522980;453.256027;1654.670954
 build/stencil_mpi/mpi_benchmark_sendrecv;36;36.565065;691.622146;1850.718021
 build/stencil_mpi/mpi_benchmark_sendrecv;40;32.906055;100.370876;278.968811
 build/stencil_mpi/mpi_benchmark_sendrecv;48;46.952009;697.536739;1726.493835
+build/stencil_mpi/mpi_benchmark_nonblocking;1;1484.848022;1537.462735;1592.111111
 build/stencil_mpi/mpi_benchmark_nonblocking;2;664.827108;805.701884;1404.165983
 build/stencil_mpi/mpi_benchmark_nonblocking;4;330.820084;663.822889;1909.222126
 build/stencil_mpi/mpi_benchmark_nonblocking;8;169.272900;745.192266;2309.124947
@@ -735,6 +793,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;40.997982;509.739097;1710.121870
 build/stencil_mpi/mpi_benchmark_nonblocking;36;33.632994;522.145303;1974.215984
 build/stencil_mpi/mpi_benchmark_nonblocking;40;37.669897;702.634637;1629.923820
 build/stencil_mpi/mpi_benchmark_nonblocking;48;88.194132;737.180265;1750.275850
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;1517.091036;1540.101790;1566.786051
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;678.886890;816.890248;1416.020870
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;333.625793;785.351864;2181.452990
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;202.940941;769.622223;2339.758158
@@ -747,6 +806,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;42.038202;590.309350;1822.5228
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;43.888092;862.334275;2205.820084
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;45.344114;1104.650187;2116.415977
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;43.560982;1027.092600;1883.402109
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;1510.587931;1541.764998;1583.914042
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;669.255018;821.153347;1453.275204
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;331.747055;738.945134;2084.843874
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;198.230028;762.911431;2327.813148
@@ -766,6 +826,7 @@ its;1;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;152.661133;161.156396;162.739014
 build/stencil_sequential/sequential_benchmark_one_vector;1;178.148193;178.455835;179.054932
+build/stencil_cilk/cilk_benchmark;1;183.592041;183.630908;183.695068
 build/stencil_cilk/cilk_benchmark;2;115.498047;116.832153;118.212158
 build/stencil_cilk/cilk_benchmark;4;82.623779;83.194312;86.787842
 build/stencil_cilk/cilk_benchmark;8;69.266113;69.741235;70.130127
@@ -778,6 +839,7 @@ build/stencil_cilk/cilk_benchmark;32;72.089111;73.502783;75.016846
 build/stencil_cilk/cilk_benchmark;36;85.916016;89.812158;92.593018
 build/stencil_cilk/cilk_benchmark;40;106.654053;109.698804;121.255127
 build/stencil_cilk/cilk_benchmark;48;77.149902;79.816797;92.979004
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;161.484799;161.563313;161.657614
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;94.079468;96.202729;100.757429
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;68.166556;69.149708;72.848501
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;74.416370;75.309920;76.293369
@@ -790,6 +852,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;130.529189;131.123054;131.85
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;133.424587;135.118303;136.476999
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;123.214181;127.581910;129.604046
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;123.084421;124.478443;133.210640
+build/stencil_openmp/openmp_benchmark_one_vector;1;177.989709;178.115444;178.309925
 build/stencil_openmp/openmp_benchmark_one_vector;2;97.437722;99.523735;106.446541
 build/stencil_openmp/openmp_benchmark_one_vector;4;60.123577;60.920490;66.497181
 build/stencil_openmp/openmp_benchmark_one_vector;8;50.155066;50.558226;52.193334
@@ -802,6 +865,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;77.689957;78.196115;80.76212
 build/stencil_openmp/openmp_benchmark_one_vector;36;77.117227;77.745623;80.299369
 build/stencil_openmp/openmp_benchmark_one_vector;40;74.375465;75.965468;79.533358
 build/stencil_openmp/openmp_benchmark_one_vector;48;77.273720;78.556579;81.711346
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;181.211184;182.953859;184.378223
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;94.030095;99.191352;102.107120
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;56.171074;59.698622;63.098716
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;39.782790;41.462838;44.408194
@@ -814,6 +878,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;9.917335;14.324915;19.58
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;14.378168;17.403736;19.796485
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;7.753846;11.641490;16.975471
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;10.964238;28.443561;59.015793
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;1459.197285;1459.425885;1459.847293
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;746.489223;747.300217;749.290163
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;379.006955;379.768481;383.078567
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;198.754342;199.712622;207.174446
@@ -826,6 +891,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;219.445417;220.89389
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;231.609549;233.083152;236.894932
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;230.567884;232.177474;235.867744
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;252.335324;253.672479;258.173002
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;1480.374414;1505.746842;1526.643155
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;743.040039;747.456305;751.433635
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;310.146943;313.677189;315.211519
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;142.667537;146.395922;152.202231
@@ -838,6 +904,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;28.808049;32.925
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;26.819660;30.875910;42.800309
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;23.632420;30.760114;42.514657
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;43.073461;50.846364;57.134277
+build/stencil_mpi/mpi_benchmark_sendrecv;1;499.171019;505.447316;510.196209
 build/stencil_mpi/mpi_benchmark_sendrecv;2;274.459124;274.978828;275.485039
 build/stencil_mpi/mpi_benchmark_sendrecv;4;135.735035;136.022520;136.451006
 build/stencil_mpi/mpi_benchmark_sendrecv;8;59.849024;60.126710;60.404062
@@ -850,6 +917,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;8.514881;10.218620;16.908169
 build/stencil_mpi/mpi_benchmark_sendrecv;36;6.839037;10.210681;25.050163
 build/stencil_mpi/mpi_benchmark_sendrecv;40;7.565022;8.897448;13.852835
 build/stencil_mpi/mpi_benchmark_sendrecv;48;6.397009;7.820773;13.760090
+build/stencil_mpi/mpi_benchmark_nonblocking;1;496.784925;499.792743;502.864122
 build/stencil_mpi/mpi_benchmark_nonblocking;2;265.182018;271.447611;273.160934
 build/stencil_mpi/mpi_benchmark_nonblocking;4;136.283875;137.115574;138.036013
 build/stencil_mpi/mpi_benchmark_nonblocking;8;59.571028;59.708714;59.856176
@@ -862,6 +930,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;7.759809;9.638572;16.685009
 build/stencil_mpi/mpi_benchmark_nonblocking;36;6.757975;9.851813;22.773981
 build/stencil_mpi/mpi_benchmark_nonblocking;40;7.536888;8.911133;14.126062
 build/stencil_mpi/mpi_benchmark_nonblocking;48;6.405830;7.606602;11.821985
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;497.053146;500.596213;504.275084
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;258.565903;270.092177;274.324894
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;120.156050;130.262685;137.525797
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;60.262918;60.478830;61.244965
@@ -874,6 +943,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;8.589029;10.349917;17.014980
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;6.832838;10.137129;24.528027
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;7.014036;8.614826;13.810158
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;6.370068;7.635617;12.055159
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;501.943827;504.466105;507.353067
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;263.170004;273.641205;276.299953
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;132.982016;136.369610;137.987137
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;60.272932;60.777807;61.795950
@@ -893,6 +963,7 @@ its;10;;;
 algorithm;P;min;avg;max
 build/stencil_sequential/sequential_benchmark_tmp_matrix;1;1453.677979;1517.032373;1607.097900
 build/stencil_sequential/sequential_benchmark_one_vector;1;1800.568848;1803.963965;1814.514160
+build/stencil_cilk/cilk_benchmark;1;1803.104980;1827.081494;1831.360107
 build/stencil_cilk/cilk_benchmark;2;1099.721191;1149.231396;1171.552002
 build/stencil_cilk/cilk_benchmark;4;831.288086;836.440820;838.802979
 build/stencil_cilk/cilk_benchmark;8;697.726074;698.869019;701.862061
@@ -905,6 +976,7 @@ build/stencil_cilk/cilk_benchmark;32;722.491943;725.554810;734.364990
 build/stencil_cilk/cilk_benchmark;36;733.545898;746.632910;750.321045
 build/stencil_cilk/cilk_benchmark;40;758.820068;761.977466;773.656006
 build/stencil_cilk/cilk_benchmark;48;771.453125;791.194116;810.916016
+build/stencil_openmp/openmp_benchmark_tmp_matrix;1;1611.260482;1614.015108;1618.083539
 build/stencil_openmp/openmp_benchmark_tmp_matrix;2;860.902759;934.454699;978.525945
 build/stencil_openmp/openmp_benchmark_tmp_matrix;4;669.055127;680.628263;690.338957
 build/stencil_openmp/openmp_benchmark_tmp_matrix;8;746.718271;748.647271;750.991537
@@ -917,6 +989,7 @@ build/stencil_openmp/openmp_benchmark_tmp_matrix;32;1314.463926;1317.391746;1322
 build/stencil_openmp/openmp_benchmark_tmp_matrix;36;1353.422056;1357.146116;1361.346937
 build/stencil_openmp/openmp_benchmark_tmp_matrix;40;1286.834979;1291.016340;1300.344394
 build/stencil_openmp/openmp_benchmark_tmp_matrix;48;1250.859756;1252.754084;1256.140605
+build/stencil_openmp/openmp_benchmark_one_vector;1;1780.601882;1783.514576;1787.021283
 build/stencil_openmp/openmp_benchmark_one_vector;2;916.565687;963.236487;990.516341
 build/stencil_openmp/openmp_benchmark_one_vector;4;567.332810;589.466168;612.115728
 build/stencil_openmp/openmp_benchmark_one_vector;8;502.724841;505.316887;508.578810
@@ -929,6 +1002,7 @@ build/stencil_openmp/openmp_benchmark_one_vector;32;768.924554;770.661377;772.79
 build/stencil_openmp/openmp_benchmark_one_vector;36;772.447431;773.834705;777.878812
 build/stencil_openmp/openmp_benchmark_one_vector;40;748.291008;752.448750;765.962630
 build/stencil_openmp/openmp_benchmark_one_vector;48;778.722071;782.503593;792.700083
+build/stencil_openmp/openmp_benchmark_one_vector_tld;1;1781.630065;1804.324531;1845.208122
 build/stencil_openmp/openmp_benchmark_one_vector_tld;2;931.034200;982.940925;1018.492525
 build/stencil_openmp/openmp_benchmark_one_vector_tld;4;563.259487;596.265224;618.869143
 build/stencil_openmp/openmp_benchmark_one_vector_tld;8;363.824427;370.200639;375.288395
@@ -941,6 +1015,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_tld;32;96.599117;101.760165;118
 build/stencil_openmp/openmp_benchmark_one_vector_tld;36;98.663553;101.468552;103.249026
 build/stencil_openmp/openmp_benchmark_one_vector_tld;40;79.121677;86.321839;108.932082
 build/stencil_openmp/openmp_benchmark_one_vector_tld;48;85.530518;100.864776;118.172358
+build/stencil_openmp/openmp_benchmark_one_vector_colwise;1;14883.229785;14883.872049;14885.025722
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;2;7506.374813;7513.638943;7518.497229
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;4;3902.059968;3905.672341;3909.086916
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;8;2015.438308;2016.577508;2023.732356
@@ -953,6 +1028,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise;32;2195.603962;2200.710
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;36;2359.607301;2364.133814;2370.396360
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;40;2309.427182;2312.512564;2317.046811
 build/stencil_openmp/openmp_benchmark_one_vector_colwise;48;2527.983187;2534.536622;2542.455745
+build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;1;14598.133644;14675.162674;14743.526724
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;2;7457.801306;7476.422431;7520.835227
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;4;3115.126092;3139.257817;3167.067604
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;8;1410.135697;1423.985012;1436.170953
@@ -965,6 +1041,7 @@ build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;32;249.812987;253.5
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;36;249.681394;252.537886;254.522519
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;40;229.799992;232.182539;238.937603
 build/stencil_openmp/openmp_benchmark_one_vector_colwise_tld;48;240.640788;252.601407;264.790230
+build/stencil_mpi/mpi_benchmark_sendrecv;1;2114.001036;2127.836394;2140.367985
 build/stencil_mpi/mpi_benchmark_sendrecv;2;944.805861;960.701275;968.607903
 build/stencil_mpi/mpi_benchmark_sendrecv;4;481.452227;484.179115;485.998869
 build/stencil_mpi/mpi_benchmark_sendrecv;8;207.098007;218.369460;238.606930
@@ -977,6 +1054,7 @@ build/stencil_mpi/mpi_benchmark_sendrecv;32;99.055052;109.031034;126.627922
 build/stencil_mpi/mpi_benchmark_sendrecv;36;70.154905;73.404288;87.533951
 build/stencil_mpi/mpi_benchmark_sendrecv;40;72.129965;74.470615;84.744930
 build/stencil_mpi/mpi_benchmark_sendrecv;48;66.900015;69.999003;84.040880
+build/stencil_mpi/mpi_benchmark_nonblocking;1;2104.526997;2120.571280;2134.829044
 build/stencil_mpi/mpi_benchmark_nonblocking;2;957.461834;960.791922;963.615179
 build/stencil_mpi/mpi_benchmark_nonblocking;4;475.617886;478.610587;484.067917
 build/stencil_mpi/mpi_benchmark_nonblocking;8;205.912113;229.296422;270.687103
@@ -989,6 +1067,7 @@ build/stencil_mpi/mpi_benchmark_nonblocking;32;83.152056;89.597821;99.843979
 build/stencil_mpi/mpi_benchmark_nonblocking;36;70.585012;74.445844;87.173939
 build/stencil_mpi/mpi_benchmark_nonblocking;40;87.347031;91.355801;100.805998
 build/stencil_mpi/mpi_benchmark_nonblocking;48;66.730976;69.682503;81.712008
+build/stencil_mpi/mpi_benchmark_onesided_fence;1;2108.795166;2121.623826;2136.398077
 build/stencil_mpi/mpi_benchmark_onesided_fence;2;956.002951;960.185432;966.099977
 build/stencil_mpi/mpi_benchmark_onesided_fence;4;475.270033;478.320122;486.220121
 build/stencil_mpi/mpi_benchmark_onesided_fence;8;209.033012;225.982976;241.640806
@@ -1001,6 +1080,7 @@ build/stencil_mpi/mpi_benchmark_onesided_fence;32;81.543207;85.059619;101.382971
 build/stencil_mpi/mpi_benchmark_onesided_fence;36;71.557999;75.685668;89.400768
 build/stencil_mpi/mpi_benchmark_onesided_fence;40;91.153145;93.517494;110.994101
 build/stencil_mpi/mpi_benchmark_onesided_fence;48;77.856064;112.595201;139.662027
+build/stencil_mpi/mpi_benchmark_onesided_pscw;1;2086.722136;2117.496061;2139.335155
 build/stencil_mpi/mpi_benchmark_onesided_pscw;2;943.218946;958.554816;968.672037
 build/stencil_mpi/mpi_benchmark_onesided_pscw;4;475.864887;477.668095;480.535984
 build/stencil_mpi/mpi_benchmark_onesided_pscw;8;216.308117;231.409907;240.397930
