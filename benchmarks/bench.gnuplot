@@ -29,7 +29,9 @@ set output '| ps2pdf - '.outfile
 set grid
 set title sprintf("Benchmark %sx%s Matrix with %s Iterations", getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
 set xlabel 'Threads/Nodes'
+set xtics 4 out
 set ylabel 'Speedup'
+set ytics out
 set key left top
 
 seqtime=getValue("build/stencil_sequential/sequential_benchmark_one_vector", 3)
