@@ -34,6 +34,9 @@ set ylabel 'Speedup'
 set ytics out
 set key left top
 
+# horizontal line at speedup=1
+set arrow from graph 0,first 1 to graph 1,first 1 nohead dashtype 4 front
+
 seqtime=getValue("build/stencil_sequential/sequential_benchmark_one_vector", 3)
 
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) if (i!=\"build/stencil_sequential/sequential_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_one_vector\") print i;}' ".infile)
