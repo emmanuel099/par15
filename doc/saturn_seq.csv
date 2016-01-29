@@ -1,8 +1,6 @@
 rows;1000
 cols;1000
 algorithm;its;min;avg;max
-build/stencil_sequential/sequential_benchmark_tmp_matrix;1;4.922119;5.008268;5.794922
-build/stencil_sequential/sequential_benchmark_one_vector;1;3.451904;3.489884;3.559814
 build/stencil_sequential/sequential_benchmark_tmp_matrix;10;49.778809;51.729736;60.938965
 build/stencil_sequential/sequential_benchmark_one_vector;10;36.185059;36.216960;36.560059
 build/stencil_sequential/sequential_benchmark_tmp_matrix;100;506.891113;522.829777;630.437988
@@ -11,8 +9,6 @@ build/stencil_sequential/sequential_benchmark_one_vector;100;360.171875;360.6339
 rows;2000
 cols;2000
 algorithm;its;min;avg;max
-build/stencil_sequential/sequential_benchmark_tmp_matrix;1;14.692871;15.902824;16.364014
-build/stencil_sequential/sequential_benchmark_one_vector;1;14.922119;15.088696;15.542969
 build/stencil_sequential/sequential_benchmark_tmp_matrix;10;164.439941;169.250293;169.940918
 build/stencil_sequential/sequential_benchmark_one_vector;10;152.392090;152.668408;155.029785
 build/stencil_sequential/sequential_benchmark_tmp_matrix;100;1533.306152;1658.549878;1696.286865
@@ -21,7 +17,5 @@ build/stencil_sequential/sequential_benchmark_one_vector;100;1471.933105;1512.55
 rows;6000
 cols;6000
 algorithm;its;min;avg;max
-build/stencil_sequential/sequential_benchmark_tmp_matrix;1;152.661133;161.156396;162.739014
-build/stencil_sequential/sequential_benchmark_one_vector;1;178.148193;178.455835;179.054932
 build/stencil_sequential/sequential_benchmark_tmp_matrix;10;1453.677979;1517.032373;1607.097900
 build/stencil_sequential/sequential_benchmark_one_vector;10;1800.568848;1803.963965;1814.514160
