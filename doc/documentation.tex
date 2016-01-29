@@ -1,6 +1,9 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[top=2cm, left=2cm, right=2cm, bottom=3cm]{geometry}
 \usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
 
 \title{2D Stencil - Parallel Approaches}
 \author{
@@ -67,7 +70,7 @@ Another intention is to analyze cache-aware and cache-unaware implementations of
 \subsection{Saturn}
 Saturn is a shared memory parallel computer with 48 AMD CPU cores.
 
-\begin{table}[!ht]
+\begin{table}[H]
   \label{tab:saturn} 
   \caption{Hard- and software configuration of Saturn}
   \begin{center}
@@ -85,16 +88,63 @@ Saturn is a shared memory parallel computer with 48 AMD CPU cores.
 
 The hard- and software configuration of the test machine can be seen in table \ref{tab:saturn}. As compiler options we used \verb|-Ofast|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| and thread pinning for OpenMP, by exporting \verb|OMP_PROC_BIND=true|, while we did the benchmarks.\\
 \\
-On Saturn we compared the following stencil implementations:
-\subsubsection{Sequential}
-\subsubsection{OpenMP}
-\subsubsection{Cilk}
-\subsubsection{MPI}
+On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations:
+
+\begin{figure}[H] 
+\caption{Sequential benchmark on Saturn}
+\begin{tabular}{cc}
+\subcaptionbox{1000x1000 Matrix\label{saturn:seq:1000}}{\includegraphics[width=0.5\textwidth]{saturn_seq_1000x1000.pdf}} &
+\subcaptionbox{2000x2000 Matrix\label{saturn:seq:2000}}{\includegraphics[width=0.5\textwidth]{saturn_seq_2000x2000.pdf}}\\
+\subcaptionbox{6000x6000 Matrix\label{saturn:seq:6000}}{\includegraphics[width=0.5\textwidth]{saturn_seq_6000x6000.pdf}} 
+\end{tabular}
+\end{figure}
+
+\begin{figure}[H] 
+\caption{OpenMP benchmark on Saturn}
+\begin{tabular}{cc}
+\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:openmp:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_1.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:openmp:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_10.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:openmp:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_100.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:openmp:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_1.pdf}}\\
+\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:openmp:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_10.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:openmp:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_100.pdf}}\\
+\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:openmp:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_6000x6000_1.pdf}} &
+\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:openmp:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_6000x6000_10.pdf}}
+\end{tabular}
+\end{figure}
+
+\begin{figure}[H] 
+\caption{Cilk benchmark on Saturn}
+\begin{tabular}{cc}
+\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:cilk:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_1.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:cilk:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_1.pdf}}\\
+\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:cilk:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_10.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:cilk:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_100.pdf}}\\
+\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:cilk:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_1.pdf}} &
+\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:cilk:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_10.pdf}}
+\end{tabular}
+\end{figure}
+
+\begin{figure}[H] 
+\caption{MPI benchmark on Saturn}
+\begin{tabular}{cc}
+\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:mpi:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_1.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:mpi:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_10.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:mpi:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_100.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:mpi:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_1.pdf}}\\
+\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:mpi:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_10.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:mpi:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_100.pdf}}\\
+\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:mpi:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_1.pdf}} &
+\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:mpi:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_10.pdf}}
+\end{tabular}
+\end{figure}
 
 \subsection{Jupiter}
 Jupiter is a distributed memory parallel computer cluster with 36 computing nodes interconnected by a InfiniBand network. Each computing node has 16 AMD CPU cores.
 
-\begin{table}[!ht]
+\begin{table}[H]
   \label{tab:jupiter} 
   \caption{Hard- and software configuration of Jupiter}
   \begin{center}
@@ -113,9 +163,31 @@ Jupiter is a distributed memory parallel computer cluster with 36 computing node
 
 The hard- and software configuration of the test machine can be seen in table \ref{tab:jupiter}. As compiler options we used \verb|-O3|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| while we did the benchmarks. The host file was generated by \verb|echo -e jupiter{0..35}\\n > hosts| and passed on to \verb|mpiexec| via the \verb|hostfile| flag.\\
 \\
-On Jupiter we compared the following stencil implementations:
-\subsubsection{Sequential}
-\subsubsection{MPI}
+On Jupiter we compared the sequentl and MPI stencil implementations.
+
+\begin{figure}[H] 
+\caption{Sequential benchmark on Jupiter}
+\begin{tabular}{cc}
+\subcaptionbox{2000x2000 Matrix\label{jupiter:seq:2000}}{\includegraphics[width=0.5\textwidth]{jupiter_seq_2000x2000.pdf}} &
+\subcaptionbox{4000x4000 Matrix\label{jupiter:seq:4000}}{\includegraphics[width=0.5\textwidth]{jupiter_seq_4000x4000.pdf}}\\
+\subcaptionbox{10000x10000 Matrix\label{jupiter:seq:10000}}{\includegraphics[width=0.5\textwidth]{jupiter_seq_10000x10000.pdf}} &
+\subcaptionbox{20000x20000 Matrix\label{jupiter:seq:20000}}{\includegraphics[width=0.5\textwidth]{jupiter_seq_20000x20000.pdf}}
+\end{tabular}
+\end{figure}
+
+\begin{figure}[H] 
+\caption{MPI benchmark on Jupiter}
+\begin{tabular}{cc}
+\subcaptionbox{2000x2000 Matrix with 5 Iterations\label{jupiter:mpi:2000:5}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_2000x2000_5.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{jupiter:mpi:2000:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_2000x2000_10.pdf}}\\
+\subcaptionbox{4000x4000 Matrix with 5 Iterations\label{jupiter:mpi:4000:5}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_4000x4000_5.pdf}} &
+\subcaptionbox{4000x4000 Matrix with 10 Iterations\label{jupiter:mpi:4000:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_4000x4000_10.pdf}}\\
+\subcaptionbox{10000x10000 Matrix with 5 Iterations\label{jupiter:mpi:10000:5}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_10000x10000_5.pdf}} &
+\subcaptionbox{10000x10000 Matrix with 10 Iterations\label{jupiter:mpi:10000:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_10000x10000_10.pdf}}\\
+\subcaptionbox{20000x20000 Matrix with 5 Iterations\label{jupiter:mpi:20000:5}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_20000x20000_5.pdf}} &
+\subcaptionbox{20000x20000 Matrix with 10 Iterations\label{jupiter:mpi:20000:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_20000x20000_10.pdf}}
+\end{tabular}
+\end{figure}
 
 \section{Conclusion}
 % comparison between openmp, cilk and mpi
