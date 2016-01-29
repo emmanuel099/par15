@@ -1,6 +1,8 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[top=2cm, left=2cm, right=2cm, bottom=3cm]{geometry}
 \usepackage[utf8]{inputenc}
+\usepackage{algorithm2e}
+\usepackage{algpseudocode}
 
 \title{2D Stencil - Parallel Approaches}
 \author{
@@ -29,13 +31,61 @@ Special measures have to be taken to update the boundary values of the array, wh
 \subsection{Aim of the project}
 In this project we compare different implementations of a Five-Point-2D-Stencil (equation \ref{eq:stencil}) in their memory consumption and runtime. We will look at sequential and parallel implementations using Cilk, OpenMP and MPI.\\
 The aim is to achieve the best possible speedup of the calculation using parallel algorithms in comparison to the sequential implementation while keeping the memory consumption as low as possible. Furthermore we want to to analyze the impact of the memory usage on the runtime of the calculation.\\
-Another intention is to analyze cache-aware and cache-unaware implementations of the stencil-computation in their runtime. 
+Another intention is to analyze cache-aware and cache-unaware implementations of the stencil-computation in their runtime.
 
 \section{Sequential}
-\subsection{Memory-infficient Implementation}
-% with temporary matrix
+\subsection{Memory-inefficient Implementation}
+This implementation uses a temporary 2-dimensional array to store the result of the stencil calculation. After the execution of one iteration, the temporary and original matrix are switched, the temporary matrix storing the latest values and the original matrix the future result of the iteration.\\
+The matrix is iterated in a row-wise manner to keep the amount of cache-misses low.\\
+In this implementation we can see, that the memory consumption is in order of $O(2 \cdot m \cdot n)$, where $m$ denotes the number of rows and $n$ the number of columns of the input matrix.\\
+Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in Pseudo-Code.
+
+\begin{algorithm}[H] \label{algo:seq_tmp_matrix}
+ \KwData{A: input 2D array, B: temporary 2D array, i: iterations}
+ initialization\;
+ \ForEach{iteration i}{
+  \ForEach{row r}{
+    \ForEach{column c}{
+      B[r,c] = stencil\_five\_point\_kernel(A[r, c])
+    }
+  }
+  switch A and B
+ }
+ 
+ \If{$i \bmod 2 \neq 0$} {
+  switch A and B
+ }
+ \caption{Sequential 2D stencil with temporary matrix}
+\end{algorithm}
+
 \subsection{Memory-efficient Implementation}
-% with single vector buffer
+In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
+
+\begin{algorithm}[H] \label{algo:seq_tmp_matrix}
+ \KwData{A: input 2D array, B: temporary row array, i: iterations}
+ initialization\;
+ \ForEach{iteration i}{
+ 
+    \ForEach{column c}{
+      B[c] = stencil\_five\_point\_kernel(A[first row, c])
+    }
+ 
+    \ForEach{row r = first row + 1}{
+      \ForEach{column c}{
+	value = stencil\_five\_point\_kernel(A[r, c])\\
+	A[r - 1, c] = B[c]\\
+	B[c] = value
+      }
+    }
+    
+    \ForEach{column c}{
+      A[last row, c] = B[c]
+    }
+ }
+ 
+ \caption{Sequential 2D stencil}
+\end{algorithm}
+
 
 \section{Cilk}
 
