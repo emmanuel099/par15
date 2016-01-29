@@ -45,18 +45,17 @@ Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in
 
 \begin{algorithm}[H] \label{algo:seq_tmp_matrix}
  \KwData{A: input 2D array, B: temporary 2D array, i: iterations}
- initialization\;
  \ForEach{iteration i}{
   \ForEach{row r}{
     \ForEach{column c}{
-      B[r,c] = stencil\_five\_point\_kernel(A[r, c])
+      B[r,c] = stencil\_five\_point\_kernel(A, r, c)
     }
   }
-  switch A and B
+  exchange A and B
  }
  
  \If{$i \bmod 2 \neq 0$} {
-  switch A and B
+  exchange A and B
  }
  \caption{Sequential 2D stencil with temporary matrix}
 \end{algorithm}
@@ -66,16 +65,15 @@ In contrast to the implementation above we want to keep the memory consumption i
 
 \begin{algorithm}[H] \label{algo:seq_tmp_matrix}
  \KwData{A: input 2D array, B: temporary row array, i: iterations}
- initialization\;
  \ForEach{iteration i}{
  
     \ForEach{column c}{
-      B[c] = stencil\_five\_point\_kernel(A[first row, c])
+      B[c] = stencil\_five\_point\_kernel(A, first row, c)
     }
  
     \ForEach{row r = first row + 1}{
       \ForEach{column c}{
-	value = stencil\_five\_point\_kernel(A[r, c])\\
+	value = stencil\_five\_point\_kernel(A, r, c)\\
 	A[r - 1, c] = B[c]\\
 	B[c] = value
       }
