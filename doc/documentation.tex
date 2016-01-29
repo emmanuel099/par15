@@ -136,7 +136,7 @@ Saturn is a shared memory parallel computer with 48 AMD CPU cores.
 
 The hard- and software configuration of the test machine can be seen in table \ref{tab:saturn}. As compiler options we used \verb|-Ofast|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| and thread pinning for OpenMP, by exporting \verb|OMP_PROC_BIND=true|, while we did the benchmarks.\\
 \\
-On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations:
+On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 1000x1000, 2000x2000 and 6000x6000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 10 and 100 iterations. The benchmark of 6000x6000 with 100 iterations was aborted, because it took far too long to finish.
 
 \begin{figure}[H] 
 \caption{Sequential benchmark on Saturn}
@@ -150,13 +150,10 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 \begin{figure}[H] 
 \caption{OpenMP benchmark on Saturn}
 \begin{tabular}{cc}
-\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:openmp:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_1.pdf}} &
-\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:openmp:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_10.pdf}}\\
-\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:openmp:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_100.pdf}} &
-\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:openmp:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_1.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:openmp:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_10.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:openmp:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:openmp:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_10.pdf}} &
 \subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:openmp:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_100.pdf}}\\
-\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:openmp:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_6000x6000_1.pdf}} &
 \subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:openmp:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
@@ -164,13 +161,10 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 \begin{figure}[H] 
 \caption{Cilk benchmark on Saturn}
 \begin{tabular}{cc}
-\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:cilk:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_1.pdf}} &
-\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}}\\
-\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}} &
-\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:cilk:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_1.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:cilk:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_10.pdf}} &
 \subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:cilk:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_100.pdf}}\\
-\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:cilk:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_1.pdf}} &
 \subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:cilk:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
@@ -178,13 +172,10 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 \begin{figure}[H] 
 \caption{MPI benchmark on Saturn}
 \begin{tabular}{cc}
-\subcaptionbox{1000x1000 Matrix with 1 Iterations\label{saturn:mpi:1000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_1.pdf}} &
-\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:mpi:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_10.pdf}}\\
-\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:mpi:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_100.pdf}} &
-\subcaptionbox{2000x2000 Matrix with 1 Iterations\label{saturn:mpi:2000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_1.pdf}}\\
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:mpi:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_10.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:mpi:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:mpi:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_10.pdf}} &
 \subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:mpi:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_100.pdf}}\\
-\subcaptionbox{6000x6000 Matrix with 1 Iterations\label{saturn:mpi:6000:1}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_1.pdf}} &
 \subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:mpi:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
@@ -211,7 +202,7 @@ Jupiter is a distributed memory parallel computer cluster with 36 computing node
 
 The hard- and software configuration of the test machine can be seen in table \ref{tab:jupiter}. As compiler options we used \verb|-O3|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| while we did the benchmarks. The host file was generated by \verb|echo -e jupiter{0..35}\\n > hosts| and passed on to \verb|mpiexec| via the \verb|hostfile| flag.\\
 \\
-On Jupiter we compared the sequentl and MPI stencil implementations.
+On Jupiter we compared the sequential and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 2000x2000, 4000x4000, 10000x10000 and 20000x20000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 5 and 10 iterations.
 
 \begin{figure}[H] 
 \caption{Sequential benchmark on Jupiter}

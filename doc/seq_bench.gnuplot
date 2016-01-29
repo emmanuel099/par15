@@ -25,6 +25,6 @@ set key left top
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) print i;}' ".infile)
 plot for [algorithm in algorithms]\
     getDataOfCategory(algorithm)\
-    using 1:2\
+    using 1:3\
     with linespoints\
     title getTitle(algorithm)
