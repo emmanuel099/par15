@@ -113,7 +113,7 @@ In contrast to the implementation above we want to keep the memory consumption i
 %one sided
 
 \section{Testing}
-% ctest
+We use data-driven testing to check the correctness of all different stencil implementations. The tests are executed via CTest and some custom CMake commands. Each stencil operator is applied to multiple different matrices, which vary in number of rows and columns, and after 5 iterations the outcome of the algorithm is compared to the expected result. The MPI implementation makes use of the collective operations \verb|MPI_Scatterv| and \verb|MPI_Gatherv|, for distributing and collecting the matrix values, to test the correctness of the distributed stencil implementation.
 
 \section{Results}
 
