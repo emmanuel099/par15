@@ -17,6 +17,7 @@ set terminal postscript color
 set output '| ps2pdf - '.outfile
 
 set grid
+set title sprintf("Benchmark %sx%s Matrix", getValue("rows", 2), getValue("cols", 2))
 set xlabel 'Iterations'
 set xtics 4 out
 set ylabel 'Time in milliseconds'

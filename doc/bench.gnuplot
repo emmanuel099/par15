@@ -27,6 +27,7 @@ set terminal postscript color
 set output '| ps2pdf - '.outfile
 
 set grid
+set title sprintf("Benchmark %sx%s Matrix with %s Iterations", getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
 set xlabel 'Threads/Nodes'
 set xtics 4 out
 set ylabel 'Speedup'
