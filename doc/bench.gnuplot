@@ -35,13 +35,13 @@ set key left top
 # horizontal line at speedup=1
 set arrow from graph 0,first 1 to graph 1,first 1 nohead dashtype 4 front
 
-vector_seqtime=getValue("build/stencil_sequential/sequential_benchmark_one_vector", 3)
-matrix_seqtime=getValue("build/stencil_sequential/sequential_benchmark_tmp_matrix", 3)
+vector_seqtime=getValue("build/stencil_sequential/sequential_benchmark_one_vector", 4)
+matrix_seqtime=getValue("build/stencil_sequential/sequential_benchmark_tmp_matrix", 4)
 seqtime=((matrix_seqtime > vector_seqtime) ? vector_seqtime : matrix_seqtime)
 
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) if (i!=\"build/stencil_sequential/sequential_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_one_vector\") print i;}' ".infile)
 plot for [algorithm in algorithms]\
     getDataOfCategory(algorithm)\
-    using 1:(seqtime/$2)\
+    using 1:(seqtime/$3)\
     with linespoints\
     title getTitle(algorithm)
