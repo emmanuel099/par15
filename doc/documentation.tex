@@ -16,9 +16,20 @@
 
 \maketitle
 
-\section{Problem Definition}
+\section{Preliminaries}
 
-% stencil definition
+\subsection{Stencil Computation}
+Stencil computations update each value of an n-dimensional array as a function of the corresponding neighbourhood values. Equation \ref{eq:stencil} shows an example neighbourhood function for a 2-dimensional array.
+\begin{equation}\label{eq:stencil}
+ A[i,j] = \frac{A[i-1,j] + A[i+1,j] + A[i,j-1] + A[i,j+1]}{4}
+\end{equation}
+In a single stencil computation this process of updating all values of the array is usually repeated a certain number of times, called iterations. \\
+Special measures have to be taken to update the boundary values of the array, which lack one or more neighbour values: there exist many different ways and in this project we will simply skip the updating of the boundary values.
+
+\subsection{Aim of the project}
+In this project we compare different implementations of a Five-Point-2D-Stencil (equation \ref{eq:stencil}) in their memory consumption and runtime. We will look at sequential and parallel implementations using Cilk, OpenMP and MPI.\\
+The aim is to achieve the best possible speedup of the calculation using parallel algorithms in comparison to the sequential implementation while keeping the memory consumption as low as possible. Furthermore we want to to analyze the impact of the memory usage on the runtime of the calculation.\\
+Another intention is to analyze cache-aware and cache-unaware implementations of the stencil-computation in their runtime. 
 
 \section{Sequential}
 \subsection{Memory-infficient Implementation}
