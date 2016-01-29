@@ -22,12 +22,10 @@ getDataOfCategory(cat)=(\
     sprintf("< awk -F';' '$1==\"%s\" { print $2,$3,$4,$5 }' %s", cat, infile)\
 )
 
-outfile=sprintf("%s_%sx%s_%s.pdf", outname, getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
-set terminal postscript color
-set output '| ps2pdf - '.outfile
+set terminal pdf color enhanced font "Roboto,12"
+set output sprintf("%s_%sx%s_%s.pdf", outname, getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
 
 set grid
-set title sprintf("Benchmark %sx%s Matrix with %s Iterations", getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
 set xlabel 'Threads/Nodes'
 set xtics 4 out
 set ylabel 'Speedup'
