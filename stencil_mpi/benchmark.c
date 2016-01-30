@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     if (rank == MASTER) {
         stencil_matrix_t *matrix = new_randomized_matrix(rows, cols, 1, 0, 100);
         if (matrix == NULL) {
+            MPI_Finalize();
             return EXIT_FAILURE;
         }
 
@@ -40,6 +41,12 @@ int main(int argc, char **argv)
         double sum = 0.0;
         for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
             const double elapsed_time = five_point_stencil_host(matrix, iterations);
+            if (elapsed_time < 0.0) {
+                stencil_matrix_free(matrix);
+                MPI_Finalize();
+                return EXIT_FAILURE;
+            }
+
             min = fmin(min, elapsed_time);
             max = fmax(max, elapsed_time);
             sum += elapsed_time;

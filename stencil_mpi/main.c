@@ -29,6 +29,12 @@ int main(int argc, char **argv)
     for (int i = 0; i < 3; i++) {
         if (rank == MASTER) {
             double time = five_point_stencil_host(matrix, 6);
+            if (time < 0.0) {
+                stencil_matrix_free(matrix);
+                MPI_Finalize();
+                return EXIT_FAILURE;
+            }
+
             printf("elapsed time %fms\n", time);
         } else {
             five_point_stencil_client();

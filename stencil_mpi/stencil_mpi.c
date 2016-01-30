@@ -384,6 +384,9 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
 
     MPI_Comm comm_card = create_cartesian_topology(MPI_COMM_WORLD, matrix);
 
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     int nodes;
     MPI_Comm_size(comm_card, &nodes);
 
@@ -395,8 +398,13 @@ static double five_point_stencil_node(stencil_matrix_t *matrix, size_t iteration
     const int nodes_horizontal = dims[DIM_HORIZONTAL];
     const int nodes_vertical = dims[DIM_VERTICAL];
 
-    assert(((matrix->rows - 2 * matrix->boundary) % nodes_vertical) == 0);
-    assert(((matrix->cols - 2 * matrix->boundary) % nodes_horizontal) == 0);
+    if ((((matrix->rows - 2 * matrix->boundary) % nodes_vertical) != 0) ||
+        (((matrix->cols - 2 * matrix->boundary) % nodes_horizontal) != 0)) {
+        if (rank == MASTER) {
+            fprintf(stderr, "The given matrix cannot be evenly distributed to all nodes, abort ...\n");
+        }
+        return -1.0;
+    }
 
     const size_t rows_per_node = (matrix->rows - 2 * matrix->boundary) / nodes_vertical;
     const size_t cols_per_node = (matrix->cols - 2 * matrix->boundary) / nodes_horizontal;
