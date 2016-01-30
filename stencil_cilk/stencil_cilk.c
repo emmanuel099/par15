@@ -32,10 +32,10 @@ static void five_point_stencil_with_tmp_matrix(stencil_matrix_t *matrix, const s
         return;
     }
 
-    const size_t end_row = start_row + rows - 1;
+    const size_t end_row = start_row + rows;
     const size_t cols = matrix->cols - matrix->boundary;
 
-    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, start_row - 1, 0, rows + 1, matrix->cols, 0);
+    stencil_matrix_t *tmp_matrix = stencil_matrix_get_submatrix(matrix, start_row - 1, 0, rows + 2, matrix->cols, 0);
 
     for (size_t row = start_row; row < end_row; row++) {
         for (size_t col = matrix->boundary; col < cols; col++) {
@@ -52,7 +52,7 @@ static void five_point_stencil_with_two_vectors(stencil_matrix_t *matrix, const 
         return;
     }
 
-    const size_t end_row = start_row + rows - 1;
+    const size_t end_row = start_row + rows;
     const size_t cols = matrix->cols - matrix->boundary;
 
     stencil_vector_t *above = stencil_vector_new(matrix->cols);
@@ -88,7 +88,7 @@ static void five_point_stencil_with_one_vector(stencil_matrix_t *matrix, const s
     }
 
     const size_t cols = matrix->cols - matrix->boundary;
-    const size_t end_row = start_row + rows - 1;
+    const size_t end_row = start_row + rows;
 
     // calculate first row
     stencil_vector_t *tmp = stencil_vector_new(matrix->cols);
@@ -133,11 +133,11 @@ static double run_parallel(stencil_matrix_t *matrix, const size_t iterations, vo
         // calculate other values
         for (size_t i = 0; i < (workers - 1); i++) {
             const size_t start_row = i * rows_per_worker + matrix->boundary + 1;
-            cilk_spawn stencil_sequential(matrix, start_row, rows_per_worker);
+            cilk_spawn stencil_sequential(matrix, start_row, rows_per_worker - 1);
         }
         // last worker calculates more than rows_per_worker if row % workers != 0
         const size_t start_row = (workers - 1) * rows_per_worker + matrix->boundary + 1;
-        stencil_sequential(matrix, start_row, rows_per_worker + (matrix->rows - boundary) % workers);
+        stencil_sequential(matrix, start_row, rows_per_worker + (matrix->rows - boundary) % workers - 1);
         cilk_sync;
 
         // copy first row vectors values back to matrix
