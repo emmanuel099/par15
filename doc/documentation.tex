@@ -93,10 +93,10 @@ In contrast to the implementation above we want to keep the memory consumption i
 
 
 \section{Cilk}
-In this implementation the matrix is distributed among $p$ workers so that the calculation one iteration of the stencil update can be done in parallel. This is achieved by splitting the matrix horizontally into $p$ parts, so that each worker is responsible for $\frac{n}{p}$ number of rows (one worker takes more rows if $n \bmod p \neq 0$).\\
+In this implementation the $n\times m$ matrix is distributed among $p$ workers so that the calculation one iteration of the stencil update can be done in parallel. This is achieved by splitting the matrix horizontally into $p$ parts, so that each worker is responsible for $\frac{n}{p}$ number of rows (one worker takes more rows if $n \bmod p \neq 0$).\\
 To ensure that each worker has the correct non-updated boundary values, each worker calculates at first the first row of the assigned part of the matrix and buffers the calculated values in $B_{worker}$. If all workers have completed this step, the caclulation of the following rows can be started. At the end of the calculation the buffer values $B$ are copied back to the original stencil array.\\
 This process is repeated for every iteration.\\
-If we ignore the overhead of the cilk instructions the runtime of this algorithm should be in the order of $O(\frac{n \cdot m}{p})$, where $m$ denotes the number of columns, $n$ the number of rows and $p$ the number of wokers.
+If we ignore the overhead of the cilk instructions the runtime of this algorithm should be in the order of $O(\frac{n \cdot m}{p})$ per iteration, where $m$ denotes the number of columns, $n$ the number of rows and $p$ the number of wokers.
 
 \begin{algorithm}[H] \label{algo:cilk}
  \KwData{A: input 2D array, it: iterations, w: number of workers}
@@ -129,9 +129,9 @@ Furthermore, to analyze the impact of the cache on the performance, we implement
 The following sections describe the row-wise implementation.
 
 \subsection{Memory-efficient Implementation}
-The matrix is distributed among the available threads p, by splitting the matrix horizontally, assigning each worker $\frac{n}{p}$ rows. Each worker buffers the result of the last row (to ensure that the other threads use the correct boundary) and uses an another row buffer for the calculation of the following rows (similar to algorithm \ref{algo:seq_one_vec}).\\
+The $n\times m$ matrix is distributed among the available threads p, by splitting the matrix horizontally, assigning each worker $\frac{n}{p}$ rows. Each worker buffers the result of the last row (to ensure that the other threads use the correct boundary) and uses an another row buffer for the calculation of the following rows (similar to algorithm \ref{algo:seq_one_vec}).\\
 At the end of each iteration the last row buffer is copied back to the original array.\\
-The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ and the runtime is $O(\frac{m \cdot n}{p})$
+The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ and the runtime for one iteration is $O(\frac{m \cdot n}{p})$
 
 \begin{algorithm}[H] \label{algo:cilk}
  \KwData{A: input 2D array, it: iterations, thread: current thread number}
@@ -163,9 +163,10 @@ The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ a
 \end{algorithm}
 
 \subsection{Memory-inefficient Implementation}
-Again we distribute the matrix to each thread by splitting the matrix horizontally and assigning each worker $\frac{n}{p}$ rows. In contrast to the efficient variation, each thread creates in this algorithm a copy of the assigned submatrix, which it then works on. This ensures that the submatrix is stored in the local memory of the corresponding thread, reducing communication overhead.\\
+Again we distribute the $n\times m$ matrix to each thread by splitting the matrix horizontally and assigning each worker $\frac{n}{p}$ rows. In contrast to the efficient variation, each thread creates in this algorithm a copy of the assigned submatrix, which it then works on. This ensures that the submatrix is stored in the local memory of the corresponding thread, reducing communication overhead.\\
 The calculation of the values is then done in the same manner, by using a vector to buffer the last recent row.\\
-This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a runtime of $O(\frac{m \cdot n}{p})$
+After the execution of each iteration the boundaries of the submatrix are distributed to the other threads.\\
+This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a runtime per iteration of $O(\frac{m \cdot n}{p} + 2 \cdot (p-1) \cdot m)$, where $2 \cdot (p-1) \cdot m$ denotes the overhead for the boundary exchange.
 
 \begin{algorithm}[H] \label{algo:cilk}
  \KwData{A: input 2D array, it: iterations, thread: current thread number}
