@@ -1,5 +1,5 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[top=2cm, left=2cm, right=2cm, bottom=3cm]{geometry}
+\usepackage[top=2cm, left=2cm, right=2cm, bottom=2cm]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{float}
@@ -16,6 +16,8 @@
   1325664
 }
 \date{\today}
+
+\SetKwRepeat{Parallel}{\#pragma omp parallel} {end}
 
 \begin{document}
 
@@ -60,10 +62,10 @@ Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in
  \caption{Sequential 2D stencil with temporary matrix}
 \end{algorithm}
 
-\subsection{Memory-efficient Implementation}
+\subsection{Memory-efficient Implementation} \label{subsec:seq2}
 In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
 
-\begin{algorithm}[H] \label{algo:seq_tmp_matrix}
+\begin{algorithm}[H] \label{algo:seq_one_vec}
  \KwData{A: input 2D array, B: temporary row array, i: iterations}
  \ForEach{iteration i}{
  
@@ -120,12 +122,78 @@ If we ignore the overhead of the cilk instructions the runtime of this algorithm
 % task-parallel formulation of the stencil update, compare with openmp solution
 
 \section{OpenMP}
-\subsection{Classical Implementation}
-% temporary matrix, not thread local
-\subsection{Row-wise Implementation}
-% row-wise update: thread local vs non thread local 
-\subsection{Column-wise Implementation}
-% column-wise update: thread local vs non thread local 
+We implemented a memory-efficient and memory-inefficent variation of the stencil algorithm using OpenMP.
+Furthermore, to analyze the impact of the cache on the performance, we implemented two versions of these two algorithms: one with a row-wise and the other with a column-wise approach in updating the cells. The performance of the column-wise approach should be worse due to the higher number of cache misses when accessing the array cells (the array is organized in a row-wise manner).\\
+The following sections describe the row-wise implementation.
+
+\subsection{Memory-efficient Implementation}
+The matrix is distributed among the available threads p, by splitting the matrix horizontally, assigning each worker $\frac{n}{p}$ rows. Each worker buffers the result of the last row (to ensure that the other threads use the correct boundary) and uses an another row buffer for the calculation of the following rows (similar to algorithm \ref{algo:seq_one_vec}).\\
+At the end of each iteration the last row buffer is copied back to the original array.\\
+The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ and the runtime is $O(\frac{m \cdot n}{p})$
+
+\begin{algorithm}[H] \label{algo:cilk}
+ \KwData{A: input 2D array, it: iterations, thread: current thread number}
+ \Parallel{}{
+    start\_row = thread $\cdot$ rows\_per\_thread\\
+    end\_row = start\_row + rows\_per\_thread - 1\\
+    
+    \ForEach{iteration}{
+	row\_buffer = five\_point\_stencil\_for\_row(A, start\_row)\\
+	last\_row\_buffer = five\_point\_stencil\_for\_row(A, end\_row)\\
+	\#pragma omp barrier
+
+	\For{r = start\_row + 1 to end\_row}{
+	  \ForEach{column c}{
+	    value = stencil\_five\_point\_kernel(A, r, c)\\
+	    A[r - 1, c] = row\_buffer[c]\\
+	    row\_buffer[c] = value
+	  }
+	}
+	
+	\ForEach{column c}{
+	  A[end\_row - 1, c] = row\_buffer[c]\\
+	  A[end\_row, c] = last\_row\_buffer[c]
+	}
+	\#pragma omp barrier
+    }
+ }
+ \caption{OpenMP row-wise memory-efficient stencil}
+\end{algorithm}
+
+\subsection{Memory-inefficient Implementation}
+Again we distribute the matrix to each thread by splitting the matrix horizontally and assigning each worker $\frac{n}{p}$ rows. In contrast to the efficient variation, each thread creates in this algorithm a copy of the assigned submatrix, which it then works on. This ensures that the submatrix is stored in the local memory of the corresponding thread, reducing communication overhead.\\
+The calculation of the values is then done in the same manner, by using a vector to buffer the last recent row.\\
+This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a runtime of $O(\frac{m \cdot n}{p})$
+
+\begin{algorithm}[H] \label{algo:cilk}
+ \KwData{A: input 2D array, it: iterations, thread: current thread number}
+ \Parallel{}{
+    start\_row = thread $\cdot$ rows\_per\_thread\\
+    end\_row = start\_row + rows\_per\_thread - 1\\
+    B = submatrix(A, start\_row -1, end\_row + 1)\\
+    \#pragma omp barrier
+    
+    \ForEach{iteration}{
+	\If{iteration $>$ 1}{
+	  exchange boundary rows with upper and lower neighbours\\
+	  \#pragma omp barrier
+	}
+	row\_buffer = five\_point\_stencil\_for\_row(B, start\_row)\\         
+	
+	\For{r = start\_row + 1 to end\_row}{
+	  \ForEach{column c}{
+	    value = stencil\_five\_point\_kernel(B, r, c)\\
+	    B[r - 1, c] = row\_buffer[c]\\
+	    row\_buffer[c] = value
+	  }
+	}
+	\ForEach{column c}{
+	  B[end\_row - 1, c] = row\_buffer[c]\\
+	}
+    } 
+ }
+ \caption{OpenMP row-wise memory-inefficient stencil}
+\end{algorithm}
 
 \section{MPI}
 % matrix is distributed as n/r x m/c
