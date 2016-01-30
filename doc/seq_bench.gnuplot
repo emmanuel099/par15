@@ -13,14 +13,15 @@ getDataOfCategory(cat)=(\
 )
 
 set terminal pdf color enhanced font "Roboto,12"
-set output sprintf("%s_%sx%s.pdf", outname, getValue("rows", 2), getValue("cols", 2))
+set output sprintf("%s_%s.pdf", outname, getValue("its", 2))
 
 set grid
-set xlabel 'Iterations'
-set xtics 4 out
+set xlabel 'Matrix Size (height and width)'
+set xtics out
 set ylabel 'Time in milliseconds'
 set ytics out
 set key left top
+set logscale y
 
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) print i;}' ".infile)
 plot for [algorithm in algorithms]\
