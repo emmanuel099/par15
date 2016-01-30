@@ -4,6 +4,8 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{url}
 \usepackage{algorithm2e}
 \usepackage{algpseudocode}
 
@@ -101,14 +103,56 @@ In contrast to the implementation above we want to keep the memory consumption i
 % column-wise update: thread local vs non thread local 
 
 \section{MPI}
-% matrix is distributed as n/r x m/c
-% give a theoretical speedup estimate: How should r and c be chosen for best performance
+A matrix of size $m * n$, where $m$ denotes the number of rows and $n$ the number of columns, is evenly distributed to all nodes taking part in the MPI communication. All nodes are aligned in a cartesian-grid-like communication topology with the size $c * r$, where $c$ denotes the number of nodes on the x-axis and $r$ the number of nodes on the y-axis. Every node gets a submatrix of size $\tfrac{m}{c} * \tfrac{n}{r}$. The pre-conditions $m \equiv_c 0$ and $n \equiv_r 0$ must hold, otherwise the stencil calculation will be aborted.\\
+\\
+The stencil computation complexity of each node is $O(\tfrac{m}{c} * \tfrac{n}{r} + 2 * \tfrac{m}{c} + 2 * \tfrac{n}{r})$ for one iteration, where $\tfrac{m}{c} * \tfrac{n}{r}$ comes from the complexity of the sequential stencil operator and $2 * \tfrac{m}{c} + 2 * \tfrac{n}{r}$ is the complexity of the boundary exchange. To achieve the optimal performance, we have to make sure that the boundary between neighbouring nodes is minimized. This can be done by optimizing the dimensions of the cartesian grid in a way so that $\tfrac{m}{c} + \tfrac{n}{r}$ is minimized, or in other words, the width-height-ratio of the given matrix and the cartesian grid should be more or less the same.
+
 \subsection{Blocking Boundary Exchange}
-% sendrecv
-\subsection{Point-To-Point Boundary Exchange}
-%non-blocking point-to-point
+
+\begin{algorithm}[H] \label{algo:mpi:blocking}
+ \KwData{M: matrix, N: neighbours}
+ \ForEach{neighbour n in N}{
+    send and receive boundary data of neighbour n synchronously\;
+ }
+ \caption{Synchronous Point-to-Point Communication}
+\end{algorithm}
+
+\subsection{Non-Blocking Boundary Exchange}
+
+\begin{algorithm}[H] \label{algo:mpi:nonblocking}
+ \KwData{M: matrix, N: neighbours}
+ \ForEach{neighbour n in N}{
+    send boundary data of M to neighbour n asynchronously\;
+    receive boundary data from neighbour n asynchronously\;
+ }
+ wait until all asynchronous calls are finished\;
+ \caption{Asynchronous Point-to-Point Communication}
+\end{algorithm}
+
 \subsection{One-Sided Boundary Exchange}
-%one sided
+We implemented and benchmarked two different synchronization methods for one-sided communication. Algorithm \ref{algo:mpi:onesided:fence} uses fence synchronization, which uses so-called remote memory access epochs between two \verb|fence| calls, to handle the communication synchronization. Algorithm \ref{algo:mpi:onesided:pscw} uses the post-start-complete-wait synchronization method, which has the advantage over fence synchronization, that the synchronization is done using pre-defined communication groups instead of doing the synchronization over the entire communicator (see \cite{SteveLantz2013} for detailed explanation).\\
+
+\begin{algorithm}[H] \label{algo:mpi:onesided:fence}
+ \KwData{W: memory window, M: matrix, N: neighbours}
+ fence(W)\;
+ \ForEach{neighbour n in N}{
+    put boundary data of M to neighbour n\;
+ }
+ fence(W)\;
+ \caption{One-Sided Fence Synchronization}
+\end{algorithm}
+
+\begin{algorithm}[H] \label{algo:mpi:onesided:pscw}
+ \KwData{W: memory window, G: communication group, M: matrix, N: neighbours}
+ post(G, W)\;
+ start(G, W)\;
+ \ForEach{neighbour n in N}{
+    put boundary data of M to neighbour n\;
+ }
+ complete(W)\;
+ wait(W)\;
+ \caption{One-Sided Post-Start-Complete-Wait Synchronization}
+\end{algorithm}
 
 \section{Testing}
 We use data-driven testing to check the correctness of all different stencil implementations. The tests are executed via CTest and some custom CMake commands. Each stencil operator is applied to multiple different matrices, which vary in number of rows and columns, and after 5 iterations the outcome of the algorithm is compared to the expected result. The MPI implementation makes use of the collective operations \verb|MPI_Scatterv| and \verb|MPI_Gatherv|, for distributing and collecting the matrix values, to test the correctness of the distributed stencil implementation.
@@ -227,5 +271,8 @@ On Jupiter we compared the sequential and MPI stencil implementations. We measur
 
 \section{Conclusion}
 % comparison between openmp, cilk and mpi
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
