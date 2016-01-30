@@ -89,6 +89,33 @@ In contrast to the implementation above we want to keep the memory consumption i
 
 
 \section{Cilk}
+In this implementation the matrix is distributed among $p$ workers so that the calculation one iteration of the stencil update can be done in parallel. This is achieved by splitting the matrix horizontally into $p$ parts, so that each worker is responsible for $\frac{n}{p}$ number of rows (one worker takes more rows if $n \bmod p \neq 0$).\\
+To ensure that each worker has the correct non-updated boundary values, each worker calculates at first the first row of the assigned part of the matrix and buffers the calculated values in $B_{worker}$. If all workers have completed this step, the caclulation of the following rows can be started. At the end of the calculation the buffer values $B$ are copied back to the original stencil array.\\
+This process is repeated for every iteration.\\
+If we ignore the overhead of the cilk instructions the runtime of this algorithm should be in the order of $O(\frac{n \cdot m}{p})$, where $m$ denotes the number of columns, $n$ the number of rows and $p$ the number of wokers.
+
+\begin{algorithm}[H] \label{algo:cilk}
+ \KwData{A: input 2D array, it: iterations, w: number of workers}
+ \ForEach{iteration}{
+    \For{i = 0 to w}{
+      row = i $\cdot$ rows\_per\_worker\\
+      B[i] = cilk\_spawn five\_point\_stencil\_for\_row(A, row)
+    }
+    cilk\_sync
+ 
+    \For{i = 0 to w}{
+      start\_row = i $\cdot$ rows\_per\_worker + 1\\
+      cilk\_spawn stencil\_sequential(A, start\_row, rows\_per\_worker)
+    }
+    cilk\_sync
+    
+    \For{i = 0 to w}{
+      row = i $\cdot$ rows\_per\_worker\\
+      stencil\_matrix\_set\_row(A, row, B[i])
+    }
+ }
+ \caption{Cilk 2D stencil}
+\end{algorithm}
 
 % task-parallel formulation of the stencil update, compare with openmp solution
 
