@@ -129,33 +129,20 @@ Furthermore, to analyze the impact of the cache on the performance, we implement
 The following sections describe the row-wise implementation.
 
 \subsection{Memory-efficient Implementation}
-The $n\times m$ matrix is distributed among the available threads p, by splitting the matrix horizontally, assigning each worker $\frac{n}{p}$ rows. Each worker buffers the result of the last row (to ensure that the other threads use the correct boundary) and uses an another row buffer for the calculation of the following rows (similar to algorithm \ref{algo:seq_one_vec}).\\
-At the end of each iteration the last row buffer is copied back to the original array.\\
-The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ and the runtime for one iteration is $O(\frac{m \cdot n}{p})$
+The $n\times m$ matrix is distributed among the available threads p, by splitting the matrix horizontally, assigning each worker $\frac{n}{p}$ rows. Each worker buffers the result of the last row (to ensure that the other threads use the correct boundary) and calculates the stencil update by using the algorithm \ref{algo:seq_one_vec}).\\
+At the end of each iteration the last row buffer is copied back to the matrix.\\
+The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ and the runtime for one iteration is $O(\frac{m \cdot n}{p})$.\\
 
 \begin{algorithm}[H] \label{algo:cilk}
- \KwData{A: input 2D array, it: iterations, thread: current thread number}
+ \KwData{A: input 2D array, iterations, start\_row, end\_row}
  \Parallel{}{
-    start\_row = thread $\cdot$ rows\_per\_thread\\
-    end\_row = start\_row + rows\_per\_thread - 1\\
-    
     \ForEach{iteration}{
-	row\_buffer = five\_point\_stencil\_for\_row(A, start\_row)\\
 	last\_row\_buffer = five\_point\_stencil\_for\_row(A, end\_row)\\
 	\#pragma omp barrier
 
-	\For{r = start\_row + 1 to end\_row}{
-	  \ForEach{column c}{
-	    value = stencil\_five\_point\_kernel(A, r, c)\\
-	    A[r - 1, c] = row\_buffer[c]\\
-	    row\_buffer[c] = value
-	  }
-	}
+	stencil\_sequential(A, start\_row, end\_row - 1)\\
 	
-	\ForEach{column c}{
-	  A[end\_row - 1, c] = row\_buffer[c]\\
-	  A[end\_row, c] = last\_row\_buffer[c]
-	}
+	stencil\_matrix\_set\_row(A, end\_row, last\_row\_buffer)\\
 	\#pragma omp barrier
     }
  }
@@ -164,16 +151,14 @@ The memory consumption of this algorithm is $O(n \cdot m + 2 \cdot p \cdot m)$ a
 
 \subsection{Memory-inefficient Implementation}
 Again we distribute the $n\times m$ matrix to each thread by splitting the matrix horizontally and assigning each worker $\frac{n}{p}$ rows. In contrast to the efficient variation, each thread creates in this algorithm a copy of the assigned submatrix, which it then works on. This ensures that the submatrix is stored in the local memory of the corresponding thread, reducing communication overhead.\\
-The calculation of the values is then done in the same manner, by using a vector to buffer the last recent row.\\
+The calculation of the stencil update operation is again done by using algorithm \ref{algo:seq_one_vec}.\\
 After the execution of each iteration the boundaries of the submatrix are distributed to the other threads.\\
-This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a runtime per iteration of $O(\frac{m \cdot n}{p} + 2 \cdot (p-1) \cdot m)$, where $2 \cdot (p-1) \cdot m$ denotes the overhead for the boundary exchange.
+This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a runtime per iteration of $O(\frac{m \cdot n}{p} + 2 \cdot (p-1) \cdot m)$, where $2 \cdot (p-1) \cdot m$ denotes the overhead for the boundary exchange.\\
 
 \begin{algorithm}[H] \label{algo:cilk}
- \KwData{A: input 2D array, it: iterations, thread: current thread number}
+ \KwData{A: input 2D array, iterations, start\_row, end\_row}
  \Parallel{}{
-    start\_row = thread $\cdot$ rows\_per\_thread\\
-    end\_row = start\_row + rows\_per\_thread - 1\\
-    B = submatrix(A, start\_row -1, end\_row + 1)\\
+    B = submatrix(A, start\_row - 1, end\_row + 1)\\
     \#pragma omp barrier
     
     \ForEach{iteration}{
@@ -181,18 +166,7 @@ This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a r
 	  exchange boundary rows with upper and lower neighbours\\
 	  \#pragma omp barrier
 	}
-	row\_buffer = five\_point\_stencil\_for\_row(B, start\_row)\\         
-	
-	\For{r = start\_row + 1 to end\_row}{
-	  \ForEach{column c}{
-	    value = stencil\_five\_point\_kernel(B, r, c)\\
-	    B[r - 1, c] = row\_buffer[c]\\
-	    row\_buffer[c] = value
-	  }
-	}
-	\ForEach{column c}{
-	  B[end\_row - 1, c] = row\_buffer[c]\\
-	}
+	stencil\_sequential(B, start\_row, end\_row)\\
     } 
  }
  \caption{OpenMP row-wise memory-inefficient stencil}
