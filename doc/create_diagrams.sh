@@ -6,6 +6,8 @@ for benchmark in *.csv; do
     for b in .gptmp/tmp*.csv; do
         if echo "${benchmark}" | grep -q "seq"; then
             gnuplot -e "infile='${b}'; outname='${benchmark%.*}'" "seq_bench.gnuplot"
+        elif echo "${benchmark}" | grep -q "scale"; then
+            gnuplot -e "infile='${b}'; outname='${benchmark%.*}'" "scale.gnuplot"
         else
             gnuplot -e "infile='${b}'; outname='${benchmark%.*}'" "bench.gnuplot"
         fi
