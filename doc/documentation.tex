@@ -40,11 +40,11 @@ In this project we compare different implementations of a Five-Point-2D-Stencil 
 The aim is to achieve the best possible speedup of the calculation using parallel algorithms in comparison to the sequential implementation while keeping the memory consumption as low as possible. Furthermore we want to to analyze the impact of the memory usage on the runtime of the calculation.\\
 Another intention is to analyze cache-aware and cache-unaware implementations of the stencil-computation in their runtime.
 
-\section{Sequential}
+\section{Sequential} \label{section:sequential}
 \subsection{Memory-inefficient Implementation}
 This implementation uses a temporary 2-dimensional array to store the result of the stencil calculation. After the execution of one iteration, the temporary and original matrix are switched, the temporary matrix storing the latest values and the original matrix the future result of the iteration.\\
 The matrix is iterated in a row-wise manner to keep the amount of cache-misses low.\\
-In this implementation we can see, that the memory consumption is in order of $O(2 \cdot m \cdot n)$, where $m$ denotes the number of rows and $n$ the number of columns of the input matrix.\\
+In this implementation we can see, that the memory consumption is in order of $O(2 \cdot m \cdot n)$ and the runtime in $O(m \cdot n)$, where $m$ denotes the number of rows and $n$ the number of columns of the input matrix.\\
 Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in Pseudo-Code.
 
 \begin{algorithm}[H] \label{algo:seq_tmp_matrix}
@@ -65,7 +65,8 @@ Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in
 \end{algorithm}
 
 \subsection{Memory-efficient Implementation} \label{subsec:seq2}
-In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
+In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$ and the runtime in $O(m \cdot n)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
+While the computational complexity is in the same order than the previous implementation, it should be noted, that due to the additional copy instructions this algorithm should perform worse.\\
 
 \begin{algorithm}[H] \label{algo:seq_one_vec}
  \KwData{A: input 2D array, B: temporary row array, i: iterations}
@@ -252,6 +253,8 @@ The hard- and software configuration of the test machine can be seen in table \r
 \\
 On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 1000x1000, 2000x2000 and 6000x6000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 10 and 100 iterations. The benchmark of 6000x6000 with 100 iterations was aborted, because it took far too long to finish.
 
+\subsubsection{Sequential}
+
 \begin{figure}[H] 
 \caption{Sequential benchmark on Saturn}
 \begin{tabular}{cc}
@@ -259,6 +262,10 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 \subcaptionbox{100 Iterations\label{saturn:seq:100}}{\includegraphics[width=0.5\textwidth]{saturn_seq_100.pdf}}
 \end{tabular}
 \end{figure}
+
+Figure \ref{saturn:seq:10} and \ref{saturn:seq:100} show the benchmark results of the sequential stencil implementations, discussed in section \ref{section:sequential}. The green line shows the runtime performance of the memory-efficient and the red line of the memory-inefficient implementation.\\
+We can see for small matrix sizes that the memory-efficient version outperforms the inefficient version, altough it performs additional operations to move the data between the row-buffer and the matrix. We assumed this is because the row-buffer can be kept in the cache as long as the matrix is small enough. In contrast, the inefficient version has to load each row of the temporary matrix into the cache.\\
+But the benchmarks on Jupiter (see section \ref{}) show, when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
 
 \begin{figure}[H] 
 \caption{OpenMP benchmark on Saturn}
