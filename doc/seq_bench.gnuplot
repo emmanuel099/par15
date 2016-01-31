@@ -23,9 +23,14 @@ set ytics out
 set key left top
 set logscale y
 
+load "dark2.pal"
+
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) print i;}' ".infile)
+i = 0
 plot for [algorithm in algorithms]\
     getDataOfCategory(algorithm)\
     using 1:3\
     with linespoints\
-    title getTitle(algorithm)
+    title getTitle(algorithm)\
+    ls i = i + 1\
+    lw 2 

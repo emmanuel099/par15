@@ -267,9 +267,9 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 \end{tabular}
 \end{figure}
 
-Figure \ref{saturn:seq:10} and \ref{saturn:seq:100} show the benchmark results of the sequential stencil implementations, discussed in section \ref{section:sequential}. The green line shows the runtime performance of the memory-efficient and the red line of the memory-inefficient implementation.\\
+Figure \ref{saturn:seq:10} and \ref{saturn:seq:100} show the benchmark results of the sequential stencil implementations, as discussed in section \ref{section:sequential}. \\
 We can see for small matrix sizes that the memory-efficient version outperforms the inefficient version, altough it performs additional operations to move the data between the row-buffer and the matrix. We assumed this is because the row-buffer can be kept in the cache as long as the matrix is small enough. In contrast, the inefficient version has to load each row of the temporary matrix into the cache.\\
-But the benchmarks on Jupiter (see section \ref{}) show, when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
+But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
 
 \begin{figure}[H] 
 \caption{OpenMP benchmark on Saturn}
@@ -304,7 +304,7 @@ But the benchmarks on Jupiter (see section \ref{}) show, when the matrix size is
 \end{tabular}
 \end{figure}
 
-\subsection{Jupiter}
+\subsection{Jupiter} \label{subsec:jupiter}
 Jupiter is a distributed memory parallel computer cluster with 36 computing nodes interconnected by a InfiniBand network. Each computing node has 16 AMD CPU cores.
 
 \begin{table}[H]

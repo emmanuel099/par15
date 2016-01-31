@@ -22,6 +22,9 @@ getDataOfCategory(cat)=(\
     sprintf("< awk -F';' '$1==\"%s\" { print $2,$3,$4,$5 }' %s", cat, infile)\
 )
 
+palettefile(n) = sprintf("<sed 's/set style line/set linetype/' %s.pal", n)
+load "dark2.pal"
+
 set terminal pdf color enhanced font "Roboto,12"
 set output sprintf("%s_%sx%s_%s.pdf", outname, getValue("rows", 2), getValue("cols", 2), getValue("its", 2))
 
@@ -40,8 +43,11 @@ matrix_seqtime=getValue("build/stencil_sequential/sequential_benchmark_tmp_matri
 seqtime=((matrix_seqtime > vector_seqtime) ? vector_seqtime : matrix_seqtime)
 
 algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) if (i!=\"build/stencil_sequential/sequential_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_one_vector\") print i;}' ".infile)
+i = 0
 plot for [algorithm in algorithms]\
     getDataOfCategory(algorithm)\
     using 1:(seqtime/$3)\
     with linespoints\
-    title getTitle(algorithm)
+    title getTitle(algorithm)\
+    ls i = i + 1\
+    lw 2
