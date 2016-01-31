@@ -269,7 +269,24 @@ On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementatio
 
 Figure \ref{saturn:seq:10} and \ref{saturn:seq:100} show the benchmark results of the sequential stencil implementations, as discussed in section \ref{section:sequential}. \\
 We can see for small matrix sizes that the memory-efficient version outperforms the inefficient version, altough it performs additional operations to move the data between the row-buffer and the matrix. We assumed this is because the row-buffer can be kept in the cache as long as the matrix is small enough. In contrast, the inefficient version has to load each row of the temporary matrix into the cache.\\
+We further assumed that with bigger matrices the row-buffer cannot be kept in the memory anymore, meaning that the cache would have the same impact on both implementations and therefore the inefficient one would perform better (less copy operations). 
 But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
+
+\subsubsection{Cilk}
+
+\begin{figure}[H] 
+\caption{Cilk benchmark on Saturn}
+\begin{tabular}{cc}
+\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}} &
+\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}}\\
+\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:cilk:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_10.pdf}} &
+\subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:cilk:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_100.pdf}}\\
+\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:cilk:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_10.pdf}}
+\end{tabular}
+\end{figure}
+
+
+\subsubsection{OpenMP}
 
 \begin{figure}[H] 
 \caption{OpenMP benchmark on Saturn}
@@ -282,16 +299,7 @@ But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the 
 \end{tabular}
 \end{figure}
 
-\begin{figure}[H] 
-\caption{Cilk benchmark on Saturn}
-\begin{tabular}{cc}
-\subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}} &
-\subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}}\\
-\subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:cilk:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_10.pdf}} &
-\subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:cilk:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_100.pdf}}\\
-\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:cilk:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_6000x6000_10.pdf}}
-\end{tabular}
-\end{figure}
+\subsubsection{MPI}
 
 \begin{figure}[H] 
 \caption{MPI benchmark on Saturn}
