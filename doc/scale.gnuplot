@@ -7,7 +7,7 @@ set output sprintf("%s.pdf", outname)
 
 set grid
 set xlabel 'Threads/Nodes'
-set xtics out
+set xtics 4 out
 set ylabel 'Scalability'
 set ytics out
 set key below
