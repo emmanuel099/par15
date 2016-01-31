@@ -179,16 +179,20 @@ A matrix of size $m * n$, where $m$ denotes the number of rows and $n$ the numbe
 The stencil computation complexity of each node is $O(\tfrac{m}{c} * \tfrac{n}{r} + 2 * \tfrac{m}{c} + 2 * \tfrac{n}{r})$ for one iteration, where $\tfrac{m}{c} * \tfrac{n}{r}$ comes from the complexity of the sequential stencil operator and $2 * \tfrac{m}{c} + 2 * \tfrac{n}{r}$ is the complexity of the boundary exchange. To achieve the optimal performance, we have to make sure that the boundary between neighbouring nodes is minimized. This can be done by optimizing the dimensions of the cartesian grid in a way so that $\tfrac{m}{c} + \tfrac{n}{r}$ is minimized, or in other words, the width-height-ratio of the given matrix and the cartesian grid should be more or less the same.
 
 \subsection{Blocking Boundary Exchange}
+The algorithm \ref{algo:mpi:blocking} uses the blocking function \verb|MPI_Sendrecv| to exchange the boundary data between neighbouring nodes. With each send-and-receive call the data flows in exactly one direction. For example when we call \verb|MPI_Sendrecv| with left neighbour as receiver and right neighbour as sender, the data flows from right to left, and given that we have a non-periodic grid, the most right node is never blocked. This is done for each direction on all nodes in exactly the same order, this guarantees that the blocking boundary exchange is deadlock-free.\\
 
 \begin{algorithm}[H] \label{algo:mpi:blocking}
  \KwData{M: matrix, N: neighbours}
- \ForEach{neighbour n in N}{
-    send and receive boundary data of neighbour n synchronously\;
+ \ForEach{direction d in (left, right, upwards, downwards)}{
+    m = neighbour when moving d\;
+    n = neighbour when moving opposite of d\;
+    send boundary data of M to m and receive it from n synchronously\;
  }
  \caption{Synchronous Point-to-Point Communication}
 \end{algorithm}
 
 \subsection{Non-Blocking Boundary Exchange}
+The algorithm \ref{algo:mpi:nonblocking} uses the nonblocking functions \verb|MPI_Isend| and \verb|MPI_Irecv| to exchange the boundary data between neighbouring nodes. For each neighbour asynchronous send and asynchronous receive is invoked, then it waits until all asynchronous operations are finished. This ensures that the boundary exchange is deadlock-free.\\
 
 \begin{algorithm}[H] \label{algo:mpi:nonblocking}
  \KwData{M: matrix, N: neighbours}
