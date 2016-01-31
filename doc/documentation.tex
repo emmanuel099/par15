@@ -344,7 +344,7 @@ On Jupiter we compared the sequential and MPI stencil implementations. We measur
 \end{tabular}
 \end{figure}
 
-\begin{figure}[H] 
+\begin{figure}[H]
 \caption{MPI benchmark on Jupiter}
 \begin{tabular}{cc}
 \subcaptionbox{2000x2000 Matrix with 5 Iterations\label{jupiter:mpi:2000:5}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_2000x2000_5.pdf}} &
@@ -360,6 +360,13 @@ On Jupiter we compared the sequential and MPI stencil implementations. We measur
 
 \section{Conclusion}
 % comparison between openmp, cilk and mpi
+
+\begin{figure}[H] 
+\caption{Scalability}
+\begin{tabular}{cc}
+\subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_scale.pdf}}
+\end{tabular}
+\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{references}
