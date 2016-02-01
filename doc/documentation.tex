@@ -47,7 +47,7 @@ The source code can be found here: \url{https://github.com/emmanuel099/par15}
 \subsection{Memory-inefficient Implementation}
 This implementation uses a temporary 2-dimensional array to store the result of the stencil calculation. After the execution of one iteration, the temporary and original matrix are switched, the temporary matrix storing the latest values and the original matrix the future result of the iteration.\\
 The matrix is iterated in a row-wise manner to keep the amount of cache-misses low.\\
-In this implementation we can see, that the memory consumption is in order of $O(2 \cdot m \cdot n)$ and the runtime in $O(m \cdot n)$, where $m$ denotes the number of rows and $n$ the number of columns of the input matrix.\\
+In this implementation we can see, that the memory consumption is in order of $O(2 \cdot m \cdot n)$ and the runtime for one iteration in $O(m \cdot n)$, where $m$ denotes the number of rows and $n$ the number of columns of the input matrix.\\
 Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in Pseudo-Code.
 
 \begin{algorithm}[H] \label{algo:seq_tmp_matrix}
@@ -68,7 +68,7 @@ Algorithm \ref{algo:seq_tmp_matrix} shows the workings of this implementation in
 \end{algorithm}
 
 \subsection{Memory-efficient Implementation} \label{subsec:seq2}
-In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$ and the runtime in $O(m \cdot n)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
+In contrast to the implementation above we want to keep the memory consumption in this implementation as low as possible. Therefore we buffer only the last row of the matrix instead of the whole array. This gives us a memory consumption of $O(m \cdot n + m)$ and the runtime for one iteration in $O(m \cdot n)$, where again $m$ denotes the number of rows and $n$ the number of columns.\\
 While the computational complexity is in the same order than the previous implementation, it should be noted, that due to the additional copy instructions this algorithm should perform worse.\\
 
 \begin{algorithm}[H] \label{algo:seq_one_vec}
