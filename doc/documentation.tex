@@ -253,7 +253,7 @@ Saturn is a shared memory parallel computer with 48 AMD CPU cores.
   \end{center}
 \end{table}
 
-The hard- and software configuration of the test machine can be seen in table \ref{tab:saturn}. As compiler options we used \verb|-Ofast|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| and thread pinning for OpenMP, by exporting \verb|OMP_PROC_BIND=true|, while we did the benchmarks.\\
+\noindent The hard- and software configuration of the test machine can be seen in table \ref{tab:saturn}. As compiler options we used \verb|-Ofast|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| and thread pinning for OpenMP, by exporting \verb|OMP_PROC_BIND=true|, while we did the benchmarks.\\
 \\
 On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 1000x1000, 2000x2000 and 6000x6000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 10 and 100 iterations. The benchmark of 6000x6000 with 100 iterations was aborted, because it took far too long to finish.
 
@@ -277,6 +277,7 @@ But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the 
 \begin{figure}[H] 
 \caption{Cilk benchmark on Saturn}
 \begin{tabular}{cc}
+\label{saturn:cilk}
 \subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:cilk:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_10.pdf}} &
 \subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:cilk:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:cilk:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_2000x2000_10.pdf}} &
@@ -285,6 +286,10 @@ But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the 
 \end{tabular}
 \end{figure}
 
+Figure \ref{saturn:cilk} shows the achieved speedups when using cilk (algorithm \ref{algo:cilk}) compared to the sequential algorithm implementation. The speedup is measured in comparison with the better performing sequential solution. So for the benchmarks with matrix size $1000 \times 1000$ and $2000 \times 2000$ we used algorithm \ref{algo:seq_one_vec} (memory-efficient) and for $6000 \times 6000$ we used algorithm \ref{algo:seq_tmp_matrix} (memory-inefficient).\\
+Benchmarks \ref{saturn:cilk:2000:10}, \ref{saturn:cilk:2000:100} and \ref{saturn:cilk:6000:10} show that the maximum speedup is reached when using 10 to 12 threads for the computation. The speedup drops more or less significant when the number of workers is further increased. We assume this is due to the NUMA architecture of the machine which leads to higher memory access overhead for workers which have to access non-core-local memory.\\
+
+\noindent Benchmarks \ref{saturn:cilk:1000:10} and \ref{saturn:cilk:1000:100} show basically the same properties, but additionally we can see a drop of performance when using 4 threads for the computation. Unfortunately we could not come up with an explanation for this occurrence.
 
 \subsubsection{OpenMP}
 
