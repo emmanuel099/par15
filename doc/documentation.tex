@@ -124,7 +124,7 @@ If we ignore the overhead of the cilk instructions the runtime of this algorithm
 
 % task-parallel formulation of the stencil update, compare with openmp solution
 
-\section{OpenMP}
+\section{OpenMP} \label{section:openmp}
 We implemented a memory-efficient and memory-inefficent variation of the stencil algorithm using OpenMP.
 Furthermore, to analyze the impact of the cache on the performance, we implemented two versions of these two algorithms: one with a row-wise and the other with a column-wise approach in updating the cells. The performance of the column-wise approach should be worse due to the higher number of cache misses when accessing the array cells (the array is organized in a row-wise manner).\\
 The following sections describe the row-wise implementation.
@@ -272,7 +272,7 @@ We can see for small matrix sizes that the memory-efficient version outperforms 
 We further assumed that with bigger matrices the row-buffer cannot be kept in the memory anymore, meaning that the cache would have the same impact on both implementations and therefore the inefficient one would perform better (less copy operations). 
 But the benchmarks on Jupiter (see section \ref{subsec:jupiter}) show, when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
 
-\subsubsection{Cilk}
+\subsubsection{Cilk} \label{subsec:results:cilk}
 
 \begin{figure}[H] 
 \caption{Cilk benchmark on Saturn}
@@ -296,6 +296,7 @@ Benchmarks \ref{saturn:cilk:2000:10}, \ref{saturn:cilk:2000:100} and \ref{saturn
 \begin{figure}[H] 
 \caption{OpenMP benchmark on Saturn}
 \begin{tabular}{cc}
+\label{saturn:openmp}
 \subcaptionbox{1000x1000 Matrix with 10 Iterations\label{saturn:openmp:1000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_10.pdf}} &
 \subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:openmp:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:openmp:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_2000x2000_10.pdf}} &
@@ -303,6 +304,11 @@ Benchmarks \ref{saturn:cilk:2000:10}, \ref{saturn:cilk:2000:100} and \ref{saturn
 \subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:openmp:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
+
+Figure \ref{saturn:openmp} shows the benchmarks of the OpenMP algorithms discussed in section \ref{section:openmp}, where ``tld'' (thread-local-data) denotes the memory-inefficient variant of the algorithm.\\
+Again the runtimes of the OpenMP implementations are compared to the best sequential solution, just as in section \ref{subsec:results:cilk}.\\
+We can see, as assumed, the row-wise implementations outperform the column-wise implementations rather significant, due to the lower caching overhead. Furthermore the memory-inefficient versions (tld) perform much better than their counterparts. Creating submatrices on each nodes does have the downsides of using about twice the amount of memory and a higher runtime complexity due to the exchange of the boundary data, but due to the locality of the submatrix data the memory access is much faster, thus overcompensating the downsides and resulting in better performance.
+
 
 \subsubsection{MPI}
 
