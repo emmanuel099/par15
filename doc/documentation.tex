@@ -234,7 +234,7 @@ We implemented and benchmarked two different synchronization methods for one-sid
 \section{Testing}
 We use data-driven testing to check the correctness of all different stencil implementations. The tests are executed via CTest and some custom CMake commands. Each stencil operator is applied to multiple different matrices, which vary in number of rows and columns, and after 5 iterations the outcome of the algorithm is compared to the expected result. The MPI implementation makes use of the collective operations \verb|MPI_Scatterv| and \verb|MPI_Gatherv|, for distributing and collecting the matrix values, to test the correctness of the distributed stencil implementation.
 
-\section{Results}
+\section{Results} \label{section:results}
 
 \subsection{Saturn}
 Saturn is a shared memory parallel computer with 48 AMD CPU cores.
@@ -257,7 +257,10 @@ Saturn is a shared memory parallel computer with 48 AMD CPU cores.
 
 \noindent The hard- and software configuration of the test machine can be seen in table \ref{tab:saturn}. As compiler options we used \verb|-Ofast|, \verb|-std=gnu99| and \verb|-msse2| in addition to the default compiler flags provided by the individual frameworks. We enabled \verb|-DNDEBUG| and thread pinning for OpenMP, by exporting \verb|OMP_PROC_BIND=true|, while we did the benchmarks.\\
 \\
-On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 1000x1000, 2000x2000 and 6000x6000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 10 and 100 iterations. The benchmark of 6000x6000 with 100 iterations was aborted, because it took far too long to finish.
+On Saturn we compared the sequential, OpenMP, Cilk and MPI stencil implementations. We measured the average execution time of each stencil implementation by executing each of them 30 times in a row. The problem sizes are a variation between different matrix sizes and different number of iterations. We took 1000x1000, 2000x2000 and 6000x6000 as matrix sizes for our benchmark, and we applied the stencil operator on each matrix size with 10 and 100 iterations. The benchmark of 6000x6000 with 100 iterations was aborted, because it took far too long to finish.\\
+\\
+We start measuring time after the data is distributed among all cores (OpenMP and MPI) and stop the time after the execution of the stencil update operation. After this the resulting data is still distributed, meaning the time needed to collect the data on one node is not measured.\\
+For measuring the time we use the provided methods of MPI and OpenMP and for the cilk and sequential implementation we use methods provided by C (see \cite{Timing}).
 
 \subsubsection{Sequential}
 
@@ -379,9 +382,14 @@ On Jupiter we compared the sequential and MPI stencil implementations. We measur
 \begin{figure}[H] 
 \caption{Scalability}
 \begin{tabular}{cc}
+\label{scalability}
 \subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_scale.pdf}}
 \end{tabular}
 \end{figure}
+
+The Results from section \ref{section:results} shows that on the shared memory system Saturn the MPI-Onesided-PSCW implementation (algorithm \ref{}) has the best performance. \\
+On Jupiter on the other hand we can see that the MPI implementations Sendrecv and Nonblocking both perform best.\\
+Figure \ref{scalability} shows the scalability of both algorithms, which denotes the ratio of speedup to number of threads. We can see, if the problem size is big enough, every node is working to capacity, meaning that additional nodes can be fully utilized.
 
 \bibliographystyle{plain}
 \bibliography{references}
