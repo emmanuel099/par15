@@ -206,7 +206,7 @@ The algorithm \ref{algo:mpi:nonblocking} uses the nonblocking functions \verb|MP
  \caption{Asynchronous Point-to-Point Communication}
 \end{algorithm}
 
-\subsection{One-Sided Boundary Exchange}
+\subsection{One-Sided Boundary Exchange} \label{subsec:mpi:onsided}
 We implemented and benchmarked two different synchronization methods for one-sided communication. Algorithm \ref{algo:mpi:onesided:fence} uses fence synchronization, which uses so-called remote memory access epochs between two \verb|fence| calls, to handle the communication synchronization. Algorithm \ref{algo:mpi:onesided:pscw} uses the post-start-complete-wait synchronization method, which has the advantage over fence synchronization, that the synchronization is done using pre-defined communication groups instead of doing the synchronization over the entire communicator (see \cite{SteveLantz2013} for detailed explanation).\\
 
 \begin{algorithm}[H] \label{algo:mpi:onesided:fence}
@@ -309,7 +309,7 @@ Benchmarks \ref{saturn:cilk:2000:10}, \ref{saturn:cilk:2000:100} and \ref{saturn
 
 Figure \ref{saturn:openmp} shows the benchmarks of the OpenMP algorithms discussed in section \ref{section:openmp}, where ``tld'' (thread-local-data) denotes the memory-inefficient variant of the algorithm.\\
 Again the runtimes of the OpenMP implementations are compared to the best sequential solution, just as in section \ref{subsec:results:cilk}.\\
-We can see, as assumed, the row-wise implementations outperform the column-wise implementations rather significant, due to the lower caching overhead. Furthermore the memory-inefficient versions (tld) perform much better than their counterparts. Creating submatrices on each nodes does have the downsides of using about twice the amount of memory and a higher runtime complexity due to the exchange of the boundary data, but due to the locality of the submatrix data the memory access is much faster, thus overcompensating the downsides and resulting in better performance.
+We can see, as assumed, the row-wise implementations outperform the column-wise implementations significantly, due to the lower caching overhead. Furthermore the memory-inefficient versions (tld) perform much better than their counterparts. Creating submatrices on each nodes does have the downsides of using about twice the amount of memory and a higher runtime complexity due to the exchange of the boundary data, but due to the locality of the submatrix data the memory access is much faster, thus overcompensating the downsides and resulting in better performance.
 
 
 \subsubsection{MPI}
@@ -324,6 +324,8 @@ We can see, as assumed, the row-wise implementations outperform the column-wise 
 \subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:mpi:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
+
+Using MPI for the parallelization we can get nearly linear speedup, considering the one-sided boundary exchange implementations (see section \ref{subsec:mpi:onsided}). The other implementations seem to unfold their potential only when using many iterations in the stencil calculation. \\
 
 \subsection{Jupiter} \label{subsec:jupiter}
 Jupiter is a distributed memory parallel computer cluster with 36 computing nodes interconnected by a InfiniBand network. Each computing node has 16 AMD CPU cores.
