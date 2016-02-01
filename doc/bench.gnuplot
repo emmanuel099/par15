@@ -42,7 +42,7 @@ vector_seqtime=getValue("build/stencil_sequential/sequential_benchmark_one_vecto
 matrix_seqtime=getValue("build/stencil_sequential/sequential_benchmark_tmp_matrix", 4)
 seqtime=((matrix_seqtime > vector_seqtime) ? vector_seqtime : matrix_seqtime)
 
-algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) if (i!=\"build/stencil_sequential/sequential_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_one_vector\") print i;}' ".infile)
+algorithms=system("awk -F';' 'NR>4 {a[$1];}END{for (i in a) if (i!=\"build/stencil_openmp/openmp_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_tmp_matrix\" && i!=\"build/stencil_sequential/sequential_benchmark_one_vector\") print i;}' ".infile)
 i = 0
 plot for [algorithm in algorithms]\
     getDataOfCategory(algorithm)\
