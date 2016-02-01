@@ -327,7 +327,6 @@ We can see, as assumed, the row-wise implementations outperform the column-wise 
 \subcaptionbox{1000x1000 Matrix with 100 Iterations\label{saturn:mpi:1000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_1000x1000_100.pdf}}\\
 \subcaptionbox{2000x2000 Matrix with 10 Iterations\label{saturn:mpi:2000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_10.pdf}} &
 \subcaptionbox{2000x2000 Matrix with 100 Iterations\label{saturn:mpi:2000:100}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_2000x2000_100.pdf}}\\
-\subcaptionbox{6000x6000 Matrix with 10 Iterations\label{saturn:mpi:6000:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_6000x6000_10.pdf}}
 \end{tabular}
 \end{figure}
 
@@ -405,7 +404,7 @@ According to \cite{optimizinMPIOneSidedThakurGroppToonen}, one-sided communicati
 
 The Results from section \ref{section:results} shows that on the shared memory system Saturn the MPI-Onesided-PSCW implementation (algorithm \ref{algo:mpi:onesided:pscw}) has the best performance. \\
 On Jupiter on the other hand we can see that the MPI implementations Sendrecv and Nonblocking both perform best.\\
-Figure \ref{scalability} shows the scalability of both algorithms, which denotes the ratio of speedup to number of threads. We can see, if the problem size is big enough, every node is working to capacity, meaning that additional nodes can be fully utilized.
+Figure \ref{scalability} shows the scalability, which denotes the ratio of speedup to number of threads. We can see on Jupiter, if the problem size is big enough, every node is working to capacity, meaning that additional nodes can be fully utilized.\\
 
 \bibliographystyle{plain}
 \bibliography{references}
