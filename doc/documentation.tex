@@ -396,7 +396,10 @@ According to \cite{optimizinMPIOneSidedThakurGroppToonen}, one-sided communicati
 \caption{Scalability}
 \begin{tabular}{cc}
 \label{scalability}
-\subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_scale.pdf}}
+\subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_scale.pdf}} &
+\subcaptionbox{Saturn: MPI (Onesided PSCW) with 10 Iterations\label{saturn:mpi:scalability:pscw:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_scale.pdf}}\\
+\subcaptionbox{Saturn: OpenMP (row-wise, tld) with 10 Iterations\label{saturn:openmp:scalability:rowwisetld:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_scale.pdf}} &
+\subcaptionbox{Saturn: Cilk with 10 Iterations\label{saturn:cilk:scalability:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_scale.pdf}}
 \end{tabular}
 \end{figure}
 
