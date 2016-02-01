@@ -179,7 +179,9 @@ This gives us a memory consumption of $O(2 \cdot m \cdot n + m \cdot p)$ and a r
 \section{MPI}
 A matrix of size $m * n$, where $m$ denotes the number of rows and $n$ the number of columns, is evenly distributed to all nodes taking part in the MPI communication. All nodes are aligned in a cartesian-grid-like communication topology with the size $c * r$, where $c$ denotes the number of nodes on the x-axis and $r$ the number of nodes on the y-axis. Every node gets a submatrix of size $\tfrac{m}{c} * \tfrac{n}{r}$. The pre-conditions $m \equiv_c 0$ and $n \equiv_r 0$ must hold, otherwise the stencil calculation will be aborted.\\
 \\
-The stencil computation complexity of each node is $O(\tfrac{m}{c} * \tfrac{n}{r} + 2 * \tfrac{m}{c} + 2 * \tfrac{n}{r})$ for one iteration, where $\tfrac{m}{c} * \tfrac{n}{r}$ comes from the complexity of the sequential stencil operator and $2 * \tfrac{m}{c} + 2 * \tfrac{n}{r}$ is the complexity of the boundary exchange. To achieve the optimal performance, we have to make sure that the boundary between neighbouring nodes is minimized. This can be done by optimizing the dimensions of the cartesian grid in a way so that $\tfrac{m}{c} + \tfrac{n}{r}$ is minimized, or in other words, the width-height-ratio of the given matrix and the cartesian grid should be more or less the same.
+The stencil computation complexity of each node is $O(\tfrac{m}{c} * \tfrac{n}{r} + 2 * \tfrac{m}{c} + 2 * \tfrac{n}{r})$ for one iteration, where $\tfrac{m}{c} * \tfrac{n}{r}$ comes from the complexity of the sequential stencil operator and $2 * \tfrac{m}{c} + 2 * \tfrac{n}{r}$ is the complexity of the boundary exchange. To achieve the optimal performance, we have to make sure that the boundary between neighbouring nodes is minimized. This can be done by optimizing the dimensions of the cartesian grid in a way so that $\tfrac{m}{c} + \tfrac{n}{r}$ is minimized, or in other words, the width-height-ratio of the given matrix and the cartesian grid should be more or less the same.\\
+\\
+During the implementation of the MPI stencil algorithm, we extensively used the MPI overview provided by TU Chemnitz (see \cite{MPIFunctions}).
 
 \subsection{Blocking Boundary Exchange}
 The algorithm \ref{algo:mpi:blocking} uses the blocking function \verb|MPI_Sendrecv| to exchange the boundary data between neighbouring nodes. With each send-and-receive call the data flows in exactly one direction. For example when we call \verb|MPI_Sendrecv| with left neighbour as receiver and right neighbour as sender, the data flows from right to left, and given that we have a non-periodic grid, the most right node is never blocked. This is done for each direction on all nodes in exactly the same order, this guarantees that the blocking boundary exchange is deadlock-free.\\
@@ -329,7 +331,7 @@ We can see, as assumed, the row-wise implementations outperform the column-wise 
 \end{tabular}
 \end{figure}
 
-Using MPI for the parallelization we can get nearly linear speedup, considering the one-sided boundary exchange implementations (see section \ref{subsec:mpi:onsided}). The other implementations seem to unfold their potential only when using many iterations in the stencil calculation. \\
+Using MPI for the parallelization we can get nearly linear speedup, considering the one-sided boundary exchange implementations (see section \ref{subsec:mpi:onsided}). The other implementations seem to unfold their potential only when using many iterations in the stencil calculation. One possible explanation could be, that with bigger matrices the synchronization overhead is less of an issue in relation to the transferred data. With small matrices where the synchronization is relatively high, the onsided communication implementations can unfold their better synchronization-behavior. 
 
 \subsection{Jupiter} \label{subsec:jupiter}
 Jupiter is a distributed memory parallel computer cluster with 36 computing nodes interconnected by a InfiniBand network. Each computing node has 16 AMD CPU cores.
@@ -363,6 +365,7 @@ On Jupiter we compared the sequential and MPI stencil implementations. We measur
 \end{tabular}
 \end{figure}
 
+\noindent
 Figure \ref{jupiter:seq:5} and \ref{jupiter:seq:10} show the benchmark results of the sequential stencil implementations, as discussed in section \ref{section:sequential}. \\
 It has basically the same behavior as on Saturn (see section \ref{subsec:saturn}). For small matrix sizes we can see, that the memory-efficient version outperforms the inefficient version, altough it performs additional operations to move the data between the row-buffer and the matrix. Our assumption for the increased performance is, that the row-buffer can be kept in the cache as long as the matrix is small enough. In contrast, the inefficient version has to load each row of the temporary matrix into the cache.\\
 We further assumed that with bigger matrices the row-buffer cannot be kept in the memory anymore, meaning that the cache would have the same impact on both implementations and therefore the inefficient one would perform better (less copy operations). Interestingly when the matrix size is further increased, the memory efficient version again performs better, which we could not explain.
@@ -382,7 +385,9 @@ We further assumed that with bigger matrices the row-buffer cannot be kept in th
 \end{tabular}
 \end{figure}
 
-As seen in figure \ref{jupiter:mpi} MPI performs pretty good on the distributed memory parallel computer, the bigger the matrix size the better the scalability. One possible explanation could be, that with bigger matrices the synchronization overhead is less of an issue in relation to the transferred data. With a matrix size of 20000x20000 we can almost get linear speedup, as shown in the figures \ref{jupiter:mpi:20000:5} and \ref{jupiter:mpi:20000:10}. One interesting fact is, that the one-sided boundary exchange (see section \ref{subsec:mpi:onsided}) is not well-suited for small matrices, which clashes which our assumption, that the better synchronization handling of the one-sided communication should significantly outperform the other implementations when the synchronization overhead in relation to the transferred data is relatively high. But it peforms almost as good as the blocking and non-blocking implementations when the matrix size is big enough (see figure \ref{jupiter:mpi:20000:5}), this behavior is just the opposite as we can see on Saturn (see section \ref{subsec:saturn}) where the one-sided boundary exchange outperformed the other implementations for small matrices. According to \cite{optimizinMPIOneSidedThakurGroppToonen}, one-sided communication should deliver a much higher performance than the normal two-sided communication on InfiniBand, because it natively supports the one-sided communication, but this doesn't hold in our MPICH3 benchmarks. The ghost-area exchange benchmark in \cite{optimizinMPIOneSidedThakurGroppToonen} shows almost the same behavior with MPICH2, while other MPI implementations perform much better. So we assume that MPICH3 doesn't utilize the benifits of the InfiniBand connection that well.
+\noindent
+As seen in figure \ref{jupiter:mpi} MPI performs pretty good on the distributed memory parallel computer, the bigger the matrix size the better the scalability. One possible explanation could be, that with bigger matrices the synchronization overhead is less of an issue in relation to the transferred data. With a matrix size of 20000x20000 we can almost get linear speedup, as shown in the figures \ref{jupiter:mpi:20000:5} and \ref{jupiter:mpi:20000:10}. One interesting fact is, that the one-sided boundary exchange (see section \ref{subsec:mpi:onsided}) is not well-suited for small matrices, which clashes with our assumption, that the better synchronization handling of the one-sided communication should significantly outperform the other implementations when the synchronization overhead in relation to the transferred data is relatively high. But it peforms almost as good as the blocking and non-blocking implementations when the matrix size is big enough (see figure \ref{jupiter:mpi:20000:5}), this behavior is just the opposite as we can see on Saturn (see section \ref{subsec:saturn}) where the one-sided boundary exchange outperformed the other implementations for small matrices.\\
+According to \cite{optimizinMPIOneSidedThakurGroppToonen}, one-sided communication should deliver a much higher performance than the normal two-sided communication on InfiniBand, because it natively supports the one-sided communication, but this doesn't hold in our MPICH3 benchmarks. The ghost-area exchange benchmark in \cite{optimizinMPIOneSidedThakurGroppToonen} shows almost the same behavior with MPICH2, while other MPI implementations perform much better. So we assume that MPICH3 doesn't utilize the benifits of the InfiniBand connection that well.
 
 \section{Conclusion}
 % comparison between openmp, cilk and mpi
@@ -391,11 +396,14 @@ As seen in figure \ref{jupiter:mpi} MPI performs pretty good on the distributed 
 \caption{Scalability}
 \begin{tabular}{cc}
 \label{scalability}
-\subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_scale.pdf}}
+\subcaptionbox{Jupiter: MPI (Nonblocking) with 10 Iterations\label{jupiter:mpi:scalability:nonblocking:10}}{\includegraphics[width=0.5\textwidth]{jupiter_mpi_scale.pdf}} &
+\subcaptionbox{Saturn: MPI (Onesided PSCW) with 10 Iterations\label{saturn:mpi:scalability:pscw:10}}{\includegraphics[width=0.5\textwidth]{saturn_mpi_scale.pdf}}\\
+\subcaptionbox{Saturn: OpenMP (row-wise, tld) with 10 Iterations\label{saturn:openmp:scalability:rowwisetld:10}}{\includegraphics[width=0.5\textwidth]{saturn_openmp_scale.pdf}} &
+\subcaptionbox{Saturn: Cilk with 10 Iterations\label{saturn:cilk:scalability:10}}{\includegraphics[width=0.5\textwidth]{saturn_cilk_scale.pdf}}
 \end{tabular}
 \end{figure}
 
-The Results from section \ref{section:results} shows that on the shared memory system Saturn the MPI-Onesided-PSCW implementation (algorithm \ref{}) has the best performance. \\
+The Results from section \ref{section:results} shows that on the shared memory system Saturn the MPI-Onesided-PSCW implementation (algorithm \ref{algo:mpi:onesided:pscw}) has the best performance. \\
 On Jupiter on the other hand we can see that the MPI implementations Sendrecv and Nonblocking both perform best.\\
 Figure \ref{scalability} shows the scalability of both algorithms, which denotes the ratio of speedup to number of threads. We can see, if the problem size is big enough, every node is working to capacity, meaning that additional nodes can be fully utilized.
 
