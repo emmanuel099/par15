@@ -164,7 +164,7 @@ pthread_barrier_t barrier;
 stencil_sequential_node(const size_t workers, const size_t worker, stencil_matrix_t *matrix, const size_t iterations, stencil_matrix_t** submatrices, const size_t start_row, const size_t rows)
 {
     // create submatrix
-    stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix, start_row, 0, rows, matrix->cols, matrix->boundary);
+    stencil_matrix_t *submatrix = stencil_matrix_get_submatrix(matrix, start_row, 0, rows, matrix->cols, 1);
     submatrices[worker] = submatrix;
 
     pthread_barrier_wait(&barrier);
@@ -181,11 +181,13 @@ stencil_sequential_node(const size_t workers, const size_t worker, stencil_matri
 
             // exchange boundary
             if (worker != 0) {
-                stencil_matrix_set_row(submatrices[worker - 1], rows - 1, stencil_matrix_get_row(submatrix, 1));
+                stencil_matrix_t *matrix_above = submatrices[worker - 1];
+                stencil_matrix_set_row(matrix_above, matrix_above->rows - 1, stencil_matrix_get_row(submatrix, 1));
             }
 
             if (worker != workers - 1) {
-                stencil_matrix_set_row(submatrices[worker + 1], 0, stencil_matrix_get_row(submatrix, rows - 2));
+                stencil_matrix_t *matrix_below = submatrices[worker + 1];
+                stencil_matrix_set_row(matrix_below, 0, stencil_matrix_get_row(submatrix, rows - 2));
             }
 
             pthread_barrier_wait(&barrier);
@@ -196,7 +198,7 @@ stencil_sequential_node(const size_t workers, const size_t worker, stencil_matri
 
         // calculate the remaining rows
         for (size_t row = 2; row < end_row; row++) {
-            for (size_t col = submatrix->boundary; col < cols; col++) {
+            for (size_t col = matrix->boundary; col < cols; col++) {
                 const double value = stencil_five_point_kernel(submatrix, row, col);
                 // copy back the previosly calculated value before we overwrite it
                 stencil_matrix_set(submatrix, row - 1, col, stencil_vector_get(tmp, col));
@@ -220,11 +222,13 @@ double cilk_stencil_one_vector_tld(stencil_matrix_t *matrix, const size_t iterat
     pthread_barrier_init(&barrier, NULL, workers);
 
     double t1 = get_time();
-    
-    for (size_t i = 0; i < workers; i++) {
-         const size_t start_row = i * rows_per_worker;
+
+    for (size_t i = 0; i < (workers - 1); i++) {
+         const size_t start_row = i * rows_per_worker + matrix->boundary - 1;
          cilk_spawn stencil_sequential_node(workers, i, matrix, iterations, submatrices, start_row, rows_per_worker + 2);
     }
+    const size_t start_row = (workers - 1) * rows_per_worker + matrix->boundary - 1;
+    cilk_spawn stencil_sequential_node(workers, (workers - 1), matrix, iterations, submatrices, start_row, matrix->rows - start_row);
     cilk_sync;
 
     double t2 = get_time();
