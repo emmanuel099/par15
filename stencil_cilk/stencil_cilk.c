@@ -182,12 +182,16 @@ stencil_sequential_node(const size_t workers, const size_t worker, stencil_matri
             // exchange boundary
             if (worker != 0) {
                 stencil_matrix_t *matrix_above = submatrices[worker - 1];
-                stencil_matrix_set_row(matrix_above, matrix_above->rows - 1, stencil_matrix_get_row(submatrix, 1));
+                double *src = stencil_matrix_get_ptr(submatrix, 1, 0);
+                double *dest = stencil_matrix_get_ptr(matrix_above, matrix_above->rows - 1, 0);
+                memcpy(dest, src, submatrix->cols * sizeof(double));
             }
 
             if (worker != workers - 1) {
                 stencil_matrix_t *matrix_below = submatrices[worker + 1];
-                stencil_matrix_set_row(matrix_below, 0, stencil_matrix_get_row(submatrix, rows - 2));
+                double *src = stencil_matrix_get_ptr(submatrix, submatrix->rows - 2, 0);
+                double *dest = stencil_matrix_get_ptr(matrix_below, 0, 0);
+                memcpy(dest, src, submatrix->cols * sizeof(double));
             }
 
             pthread_barrier_wait(&barrier);
