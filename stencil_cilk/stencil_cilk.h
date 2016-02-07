@@ -42,4 +42,7 @@ double cilk_stencil_two_vectors(stencil_matrix_t *matrix, const size_t iteration
 double cilk_stencil_tmp_matrix(stencil_matrix_t *matrix, const size_t iterations);
 
 
+double cilk_stencil_one_vector_tld(stencil_matrix_t *matrix, const size_t iterations);
+
+
 #endif // __STENCIL_CILK_H

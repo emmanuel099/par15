@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     double max = DBL_MIN;
     double sum = 0.0;
     for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
-        const double elapsed_time = cilk_stencil_one_vector(matrix, iterations);
+        const double elapsed_time = cilk_stencil_one_vector_tld(matrix, iterations);
         min = fmin(min, elapsed_time);
         max = fmax(max, elapsed_time);
         sum += elapsed_time;
